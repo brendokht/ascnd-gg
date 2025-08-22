@@ -1,3 +1,3 @@
-# `@ascnd-gg/eslint-config`
+# ESLint Config
 
-Collection of internal eslint configurations.
+Collection of internal ESLint configurations for the various applications.
