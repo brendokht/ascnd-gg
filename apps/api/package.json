@@ -1,0 +1,12 @@
+{
+  "name": "@ascnd-gg/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "go run .",
+    "build": "go build -o ./dist/ascnd-gg",
+    "start": "./dist/ascnd-gg",
+    "test": "echo 'Add test script here'",
+    "lint": "echo 'Add lint script here'"
+  }
+}
