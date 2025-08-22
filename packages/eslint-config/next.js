@@ -44,10 +44,7 @@ export const nextJsConfig = [
       ...pluginReactHooks.configs.recommended.rules,
       // React scope no longer necessary with new JSX transform.
       'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
     },
-  },
-  {
-    // TODO: Remove when issue with ESLint and Next.js is fixed.
-    ignores: ['next-env.d.ts', '.next/*'],
   },
 ]

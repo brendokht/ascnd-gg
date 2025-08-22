@@ -1,5 +1,6 @@
 {
   "name": "ascnd-gg",
+  "type": "module",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -11,11 +12,13 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
+    "@ascnd-gg/eslint-config": "workspace:*",
+    "@ascnd-gg/typescript-config": "workspace:*",
+    "eslint": "^9.33.0",
     "prettier": "^3.6.2",
-    "turbo": "^2.5.6",
-    "typescript": "5.9.2"
+    "prettier-plugin-tailwindcss": "^0.6.5",
+    "turbo": "^2.0.12",
+    "typescript": "^5.5.4"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

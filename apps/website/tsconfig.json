@@ -1,6 +1,11 @@
 {
   "extends": "@ascnd-gg/typescript-config/nextjs.json",
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ascnd-gg/website/*": ["./src/*"],
+      "@ascnd-gg/ui/*": ["../../packages/ui/src/*"]
+    },
     "plugins": [
       {
         "name": "next"
@@ -14,8 +19,6 @@
     "next.config.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"],
-  "paths": {
-    "@ascnd-gg/*": ["./src/*"]
-  }
+  // "exclude": ["node_modules", "eslint.config.js"],
+  "exclude": ["node_modules"]
 }

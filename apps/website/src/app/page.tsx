@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ThemeToggle } from "../components/theme-toggle";
 
 export default function Home() {
   return (
@@ -24,6 +25,9 @@ export default function Home() {
             Save and see your changes instantly.
           </li>
         </ol>
+        <footer>
+          <ThemeToggle />
+        </footer>
       </main>
     </div>
   );
