@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 export default async function Home() {
-  const res = await fetch("http://localhost:8080/albums");
+  const res = await fetch("http://localhost:8080/api/v1/albums");
 
   const json = await res.json();
 
