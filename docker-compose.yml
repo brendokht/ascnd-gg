@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:?POSTGRES_DB variable is required}
+      - POSTGRES_USER=${POSTGRES_USER:?POSTGRES_USER variable is required}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD variable is required}
+    restart: always
+    volumes:
+      - ${POSTGRES_VOLUME_PATH:-./.containers/ascnd-gg-db}:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  # Adminer to view Postgres database
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - ${ADMINER_PORT:-8080}:8080
+
+  cache:
+    image: redis:8
+    # Custom command to require a password for Redis
+    command: /bin/sh -c - redis-server --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is required}"
+    restart: always
+    ports:
+      - ${REDIS_PORT:-6379}:6379
+
+  # Redis Insight to view Redis cache
+  redisinsight:
+    image: redis/redisinsight
+    restart: always
+    ports:
+      - ${REDISINSIGHT_PORT:-5540}:5540
