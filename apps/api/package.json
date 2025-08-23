@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "go run .",
+    "dev": "air",
     "build": "go build -o ./dist/ascnd-gg",
     "start": "./dist/ascnd-gg",
     "test": "echo 'Add test script here'",

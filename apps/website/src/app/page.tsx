@@ -1,9 +1,11 @@
 import Image from "next/image";
 
 export default async function Home() {
-  const res = await fetch("http://localhost:8080/api/v1/albums");
+  const allAlbumsRes = await fetch("http://localhost:8080/api/v1/albums");
+  const allAlbumsJson = await allAlbumsRes.json();
 
-  const json = await res.json();
+  const albumRes = await fetch("http://localhost:8080/api/v1/albums/1");
+  const albumJson = await albumRes.json();
 
   return (
     <div className="container flex-1 flex flex-col justify-center items-center">
@@ -27,7 +29,11 @@ export default async function Home() {
           <li>Save and see your changes instantly.</li>
         </ol>
         <pre className="border-2 p-4 max-w-full text-pretty text-xs sm:text-sm rounded-md bg-black/[.05] dark:bg-white/[.06] ">
-          {JSON.stringify(json, null, 2)}
+          {"GET http://localhost:8080/api/v1/albums\n"}
+          {JSON.stringify(allAlbumsJson, null, 2)}
+          {"\n\n"}
+          {"GET http://localhost:8080/api/v1/albums/1\n"}
+          {JSON.stringify(albumJson, null, 2)}
         </pre>
       </main>
     </div>

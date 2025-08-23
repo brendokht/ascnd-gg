@@ -1,17 +1,38 @@
 package routers
 
 import (
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/brendokht/ascnd-gg/controllers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
+	ginMode := "debug"
+	if value, ok := os.LookupEnv("GIN_MODE"); ok {
+		ginMode = value
+	}
+	gin.SetMode(ginMode)
+	
 	router := gin.Default()
+	
+	router.SetTrustedProxies(nil)
 
-	// TODO: Set up godotenv fo environment variables
-	router.SetTrustedProxies([]string{"192.168.68.120"})
+	router.Use(func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+		log.Printf("Origin: %s, Path: %s", origin, c.Request.URL.Path)
+		c.Next()
+	  })
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{os.Getenv("NEXTJS_URL")},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	  }))
 
 	public := router.Group("/api/v1") 
 	{
@@ -20,7 +41,7 @@ func SetupRouter() *gin.Engine {
 		})
 		public.GET("/albums", controllers.GetAlbums)
 		public.GET("/albums/:id", controllers.GetAlbumByID)
-		public.POST("/albums", controllers.PostAlbums)
+		public.POST("/albums", controllers.PostAlbum)
 	}
 
 	// TODO: Set up authentication middleware

@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev:compose dev",
-    "dev:compose": "docker compose --env-file .env.development.local up",
-    "compose": "docker compose --env-file .env.development.local up",
+    "dev": "turbo run dev",
+    "compose": "docker compose --env-file .env.development.local up -d",
     "down": "docker compose --env-file .env.development.local down",
     "stop": "docker compose --env-file .env.development.local stop",
     "lint": "turbo run lint",
