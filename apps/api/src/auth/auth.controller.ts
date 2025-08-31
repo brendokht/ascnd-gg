@@ -8,20 +8,23 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { AuthGuard } from "./auth.guard";
+import { ApiResponse } from "@ascnd-gg/types";
+import z from "zod";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get("login")
-  login(@Res() res: Response) {
+  login(): z.infer<typeof ApiResponse> {
     const googleUrl = this.authService.login();
 
-    return res
-      .status(200)
-      .json({ ok: true, redirected: true, redirect: googleUrl });
+    return {
+      redirected: true,
+      redirect: googleUrl,
+    };
   }
 
   @Get("callback")
@@ -53,7 +56,10 @@ export class AuthController {
   }
 
   @Get("logout")
-  async logout(@Res() res: Response, @Req() req: Request) {
+  async logout(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+  ): Promise<z.infer<typeof ApiResponse>> {
     if (!req.cookies["wos-session"]) {
       throw new BadRequestException("Bad logout request", {
         description: "Missing session",
@@ -72,14 +78,17 @@ export class AuthController {
 
     res.clearCookie("wos-session");
 
-    return res
-      .status(200)
-      .json({ ok: true, redirected: true, redirect: logoutUrl });
+    return {
+      redirected: true,
+      redirect: logoutUrl,
+    };
   }
 
   @UseGuards(AuthGuard)
   @Get("me")
-  me(@Req() req: Request) {
-    return req["user"];
+  me(@Req() req: Request): z.infer<typeof ApiResponse> {
+    return {
+      data: req["user"],
+    };
   }
 }

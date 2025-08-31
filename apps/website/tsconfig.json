@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@ascnd-gg/website/*": ["./src/*"],
-      "@ascnd-gg/ui/*": ["../../packages/ui/src/*"]
+      "@ascnd-gg/ui/*": ["../../packages/ui/src/*"],
+      "@ascnd-gg/types/*": ["../../packages/types/src/*"]
     },
     "plugins": [
       {

@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import HomeButton from "./home-button";
 import { redirect } from "next/navigation";
+import z from "zod";
+import { ApiResponse } from "@ascnd-gg/types";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -17,7 +19,16 @@ export default async function Page() {
     },
   });
 
-  const user = await res.json();
+  const json: z.infer<typeof ApiResponse> = await res.json();
+
+  const result = ApiResponse.safeParse(json);
+
+  if (result.error?.issues) {
+    console.error(result.error.message);
+    return;
+  }
+
+  const user = json.data;
 
   return (
     <div className="container flex-1 flex flex-col justify-center items-center">

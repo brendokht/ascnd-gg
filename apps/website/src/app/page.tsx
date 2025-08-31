@@ -3,6 +3,8 @@
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { ApiResponse } from "@ascnd-gg/types";
+import z from "zod";
 
 export default function Home() {
   const router = useRouter();
@@ -40,10 +42,17 @@ export default function Home() {
                 console.error(`Error ${res.status} : ${res.statusText}`);
               }
 
-              const json = await res.json();
+              const json: z.infer<typeof ApiResponse> = await res.json();
+
+              const result = ApiResponse.safeParse(json);
+
+              if (result.error?.issues) {
+                console.error(result.error.message);
+                return;
+              }
 
               if (json.redirected) {
-                router.push(json.redirect);
+                router.push(json.redirect!);
               }
             }}
           >
@@ -58,12 +67,20 @@ export default function Home() {
 
               if (!res.ok) {
                 console.error(`Error ${res.status} : ${res.statusText}`);
+                return;
               }
 
-              const json = await res.json();
+              const json: z.infer<typeof ApiResponse> = await res.json();
+
+              const result = ApiResponse.safeParse(json);
+
+              if (result.error?.issues) {
+                console.error(result.error.message);
+                return;
+              }
 
               if (json.redirected) {
-                router.push(json.redirect);
+                router.push(json.redirect!);
               }
             }}
           >

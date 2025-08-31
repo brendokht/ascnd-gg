@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { WorkOS } from "@workos-inc/node";
-import { Request, Response } from "express";
+import type { Request } from "express";
 
 @Injectable()
 export class AuthGuard implements CanActivate {

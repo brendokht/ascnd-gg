@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@ascnd-gg/api/*": ["./src/*"]
+      "@ascnd-gg/api/*": ["./src/*"],
+      "@ascnd-gg/types/*": ["../../packages/types/src/*"]
     },
     "outDir": "./dist"
   }

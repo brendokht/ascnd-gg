@@ -26,8 +26,8 @@ export class AppModule implements NestModule {
       .apply(AuthMiddleware)
       .exclude(
         { path: "/auth/login", method: RequestMethod.GET },
-        { path: "/auth/logout", method: RequestMethod.GET },
         { path: "/auth/callback", method: RequestMethod.GET },
+        { path: "/ping", method: RequestMethod.GET },
       );
   }
 }

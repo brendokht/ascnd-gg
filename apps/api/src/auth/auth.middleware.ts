@@ -1,6 +1,10 @@
-import { Injectable, NestMiddleware } from "@nestjs/common";
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { WorkOS } from "@workos-inc/node";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -12,9 +16,23 @@ export class AuthMiddleware implements NestMiddleware {
     });
   }
 
+  /*
+   * This middleware simply tries to refresh the session if needed,
+   * the AuthGuard is responsible for protecting API endpoints
+   */
+
   async use(req: Request, res: Response, next: () => void) {
+    if (!req.cookies["wos-session"] && !req.headers["wos-session"]) {
+      console.error("no session cookie or header");
+      throw new UnauthorizedException();
+    }
+
+    const wosSession: string =
+      (req.headers["wos-session"] as string) ??
+      (req.cookies["wos-session"] as string);
+
     const session = this.workos.userManagement.loadSealedSession({
-      sessionData: req.cookies["wos-session"],
+      sessionData: wosSession,
       cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
     });
 
@@ -24,19 +42,12 @@ export class AuthMiddleware implements NestMiddleware {
       return next();
     }
 
-    if (
-      !authRes.authenticated &&
-      "reason" in authRes &&
-      authRes.reason === "no_session_cookie_provided"
-    ) {
-      return res.redirect("http://localhost:3000/login");
-    }
-
     try {
       const refreshRes = await session.refresh();
 
       if (!refreshRes.authenticated) {
-        return res.redirect("/login");
+        // AuthGuard will protect the endpoint
+        return next();
       }
 
       res.cookie("wos-session", refreshRes.sealedSession, {
@@ -45,12 +56,10 @@ export class AuthMiddleware implements NestMiddleware {
         secure: true,
         sameSite: "lax",
       });
-
-      return res.redirect(req.originalUrl);
     } catch (error) {
       console.error(error);
       res.clearCookie("wos-session");
-      res.redirect("/login");
+      // AuthGuard will protect the endpoint
     }
 
     next();
