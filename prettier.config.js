@@ -3,9 +3,9 @@
 /** @type {import('prettier').Config} */
 const config = {
   semi: true,
-  arrowParens: 'always',
+  arrowParens: "always",
   singleQuote: false,
-  trailingComma: 'all',
-}
+  trailingComma: "all",
+};
 
-export default config
+export default config;

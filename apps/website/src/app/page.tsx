@@ -1,6 +1,12 @@
-import Image from "next/image";
+"use client";
 
-export default async function Home() {
+import { Button } from "@ascnd-gg/ui/components/ui/button";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+
+export default function Home() {
+  const router = useRouter();
+
   return (
     <div className="container flex-1 flex flex-col justify-center items-center">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -22,6 +28,51 @@ export default async function Home() {
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
+        <div className="flex gap-4">
+          <Button
+            onClick={async () => {
+              const res = await fetch("http://localhost:8080/v1/auth/login", {
+                method: "GET",
+                credentials: "include",
+              });
+
+              if (!res.ok) {
+                console.error(`Error ${res.status} : ${res.statusText}`);
+              }
+
+              const json = await res.json();
+
+              if (json.redirected) {
+                router.push(json.redirect);
+              }
+            }}
+          >
+            Login
+          </Button>
+          <Button
+            onClick={async () => {
+              const res = await fetch("http://localhost:8080/v1/auth/logout", {
+                method: "GET",
+                credentials: "include",
+              });
+
+              if (!res.ok) {
+                console.error(`Error ${res.status} : ${res.statusText}`);
+              }
+
+              const json = await res.json();
+
+              if (json.redirected) {
+                router.push(json.redirect);
+              }
+            }}
+          >
+            Logout
+          </Button>
+          <Button onClick={() => router.push("/protected/dashboard")}>
+            Dashboard
+          </Button>
+        </div>
       </main>
     </div>
   );

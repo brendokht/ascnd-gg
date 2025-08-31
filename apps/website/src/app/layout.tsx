@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@ascnd-gg/ui/globals.css";
-import { ThemeProvider } from "../components/theme-provider";
 import { ThemeToggle } from "../components/theme-toggle";
+import Providers from "../components/providers";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,17 +19,12 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`antialiased flex flex-col min-h-screen`}
       >
-        <ThemeProvider
-          attribute={"class"}
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <Providers>
           {children}
-        </ThemeProvider>
-        <footer className="container">
-          <ThemeToggle />
-        </footer>
+          <footer className="container">
+            <ThemeToggle />
+          </footer>
+        </Providers>
       </body>
     </html>
   );
