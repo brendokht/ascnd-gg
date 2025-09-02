@@ -17,33 +17,20 @@ export class AuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.log("AuthGuard: started");
     const req = context.switchToHttp().getRequest<Request>();
 
-    if (!req.cookies["wos-session"] && !req.headers["wos-session"]) {
-      console.error("no session cookie or header");
-      throw new UnauthorizedException();
+    const authState = req["authState"];
+
+    if (!authState || !authState.authenticated || authState.refresh) {
+      console.error("AuthGuard: authState is invalid");
+      throw new UnauthorizedException("Session invalid");
     }
 
-    const wosSession: string =
-      (req.headers["wos-session"] as string) ??
-      (req.cookies["wos-session"] as string);
+    console.log("AuthGuard: Passing user into current request");
+    req["user"] = authState.user;
 
-    try {
-      const session = this.workos.userManagement.loadSealedSession({
-        sessionData: wosSession,
-        cookiePassword: process.env.WORKOS_COOKIE_PASSWORD,
-      });
-
-      const authRes = await session.authenticate();
-
-      if (authRes.authenticated) {
-        req["user"] = authRes.user;
-        return true;
-      }
-    } catch {
-      throw new UnauthorizedException();
-    }
-
-    throw new UnauthorizedException();
+    console.error("AuthGuard: Success");
+    return true;
   }
 }

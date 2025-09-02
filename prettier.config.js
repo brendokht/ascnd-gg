@@ -6,6 +6,7 @@ const config = {
   arrowParens: "always",
   singleQuote: false,
   trailingComma: "all",
+  plugins: ["prettier-plugin-tailwindcss"],
 };
 
 export default config;

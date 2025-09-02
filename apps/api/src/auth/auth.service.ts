@@ -12,7 +12,7 @@ export class AuthService {
 
   login(): string {
     const googleUrl = this.workos.userManagement.getAuthorizationUrl({
-      provider: "GoogleOAuth",
+      provider: "authkit",
       redirectUri: "http://localhost:8080/v1/auth/callback",
       clientId: process.env.WORKOS_CLIENT_ID,
     });

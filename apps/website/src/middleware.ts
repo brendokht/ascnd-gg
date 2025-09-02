@@ -1,12 +1,15 @@
+import { ApiResponse } from "@ascnd-gg/types/api";
 import { NextResponse, NextRequest } from "next/server";
+import z from "zod";
 
-// This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
+  console.log("Middleware: Started");
+
   const response = NextResponse.next({ request });
 
   if (request.nextUrl.pathname.startsWith("/protected")) {
     if (!request.cookies.has("wos-session")) {
-      console.error("middleware: no session");
+      console.error("Middleware: No session");
       return NextResponse.redirect(new URL("/?unauthorized=true", request.url));
     } else {
       const authRes = await fetch("http://localhost:8080/v1/auth/me", {
@@ -18,22 +21,57 @@ export async function middleware(request: NextRequest) {
       });
 
       if (!authRes.ok) {
-        console.error("middleware: authRes is not ok");
-        if (authRes.status === 401) {
-          console.error("middleware: user is unauthorized");
-        } else if (authRes.status === 500) {
-          console.error("middleware: authRes code 500; something went wrong");
+        console.log("Middleware: authRes is not ok, forwarding to refresh");
+        try {
+          console.log("Middleware: Refresh starting");
+
+          const refreshRes = await fetch(
+            "http://localhost:8080/v1/auth/refresh",
+            {
+              method: "POST",
+              credentials: "include",
+              headers: {
+                "wos-session": request.cookies.get("wos-session")!.value,
+              },
+            },
+          );
+
+          if (refreshRes.ok) {
+            console.log("Middleware: refreshRes is ok");
+
+            const { data }: z.infer<typeof ApiResponse> =
+              await refreshRes.json();
+
+            response.cookies.set("wos-session", data.session, {
+              path: "/",
+              httpOnly: true,
+              secure: true,
+              sameSite: "none",
+            });
+          } else {
+            console.log(`Middleware: Redirecting home`);
+
+            return NextResponse.redirect(
+              new URL("/?unauthorized=true", request.url),
+            );
+          }
+        } catch (error) {
+          console.error(error);
+          console.error(`Middleware: Redirecting home`);
+          return NextResponse.redirect(
+            new URL("/?unauthorized=true", request.url),
+          );
         }
-        return NextResponse.redirect(
-          new URL("/?unauthorized=true", request.url),
-        );
       }
     }
   }
 
+  console.log("Middleware: Success");
+
   return response;
 }
-
+// TODO: Ensure session can be refreshed in morning, continue with auth context/provider
+// TODO: Set up React Query; Ensure client side and server fetching utility is set up
 export const config = {
   matcher: [
     /*

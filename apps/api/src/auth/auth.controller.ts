@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  Post,
   Req,
   Res,
   UseGuards,
@@ -19,6 +20,8 @@ export class AuthController {
 
   @Get("login")
   login(): z.infer<typeof ApiResponse> {
+    console.log("/auth/login: Starting");
+
     const googleUrl = this.authService.login();
 
     return {
@@ -29,6 +32,8 @@ export class AuthController {
 
   @Get("callback")
   async callback(@Req() req: Request, @Res() res: Response) {
+    console.log("/auth/callback: Starting");
+
     const code = req.query.code.toString();
 
     if (!code) {
@@ -60,6 +65,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
   ): Promise<z.infer<typeof ApiResponse>> {
+    console.log("/auth/logout: Starting");
     if (!req.cookies["wos-session"]) {
       throw new BadRequestException("Bad logout request", {
         description: "Missing session",
@@ -84,11 +90,18 @@ export class AuthController {
     };
   }
 
+  @Post("refresh")
+  refresh(@Req() req: Request): z.infer<typeof ApiResponse> {
+    return {
+      data: { session: req["authState"].sessionData },
+    };
+  }
+
   @UseGuards(AuthGuard)
   @Get("me")
   me(@Req() req: Request): z.infer<typeof ApiResponse> {
     return {
-      data: req["user"],
+      data: { user: req["user"] },
     };
   }
 }

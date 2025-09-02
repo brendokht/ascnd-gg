@@ -22,8 +22,9 @@ export class AuthMiddleware implements NestMiddleware {
    */
 
   async use(req: Request, res: Response, next: () => void) {
+    console.log("AuthMiddleware: Started");
     if (!req.cookies["wos-session"] && !req.headers["wos-session"]) {
-      console.error("no session cookie or header");
+      console.error("AuthMiddleware: No session cookie or header");
       throw new UnauthorizedException();
     }
 
@@ -39,29 +40,51 @@ export class AuthMiddleware implements NestMiddleware {
     const authRes = await session.authenticate();
 
     if (authRes.authenticated) {
+      console.log("AuthMiddleware: authRes.user", authRes.user);
+      console.log("AuthMiddleware: Authenticated");
+      req["authState"] = {
+        refresh: false,
+        authenticated: true,
+        user: authRes.user,
+        sessionData: wosSession,
+      };
       return next();
     }
 
     try {
+      console.log("AuthMiddleware: Refreshing session");
+
       const refreshRes = await session.refresh();
 
       if (!refreshRes.authenticated) {
+        console.log("AuthMiddleware: Not authenticated");
         // AuthGuard will protect the endpoint
         return next();
       }
+
+      console.log("AuthMiddleware: Updating cookie");
 
       res.cookie("wos-session", refreshRes.sealedSession, {
         path: "/",
         httpOnly: true,
         secure: true,
-        sameSite: "lax",
+        sameSite: "none",
       });
+
+      req["authState"] = {
+        refresh: true,
+        authenticated: true,
+        user: refreshRes.user,
+        sessionData: refreshRes.sealedSession,
+      };
     } catch (error) {
       console.error(error);
+      console.log("AuthMiddleware: Caught error");
       res.clearCookie("wos-session");
       // AuthGuard will protect the endpoint
     }
 
+    console.log("AuthMiddleware: Moving to next");
     next();
   }
 }

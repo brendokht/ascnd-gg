@@ -1,6 +1,7 @@
 "use client";
 
-import { ThemeProvider } from "./theme-provider";
+import { AuthContextProvider } from "@ascnd-gg/website/context/auth-context";
+import { ThemeProvider } from "../theme/theme-provider";
 import { type ReactNode } from "react";
 
 export default function Providers({ children }: { children?: ReactNode }) {
@@ -11,7 +12,7 @@ export default function Providers({ children }: { children?: ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      {children}
+      <AuthContextProvider>{children}</AuthContextProvider>
     </ThemeProvider>
   );
 }
