@@ -5,11 +5,13 @@ import { AuthController } from "./auth/auth.controller";
 import { AuthService } from "./auth/auth.service";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
+import { PrismaModule } from "./prisma/prisma.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: [".env.development.local"] }),
     AuthModule,
+    PrismaModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService],
