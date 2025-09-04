@@ -1,0 +1,27 @@
+{
+  "name": "@ascnd-gg/database",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --skip-generate",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@ascnd-gg/eslint-config": "workspace:*",
+    "@ascnd-gg/typescript-config": "workspace:*",
+    "@types/node": "^24.3.0",
+    "eslint": "^9.34.0",
+    "prettier": "^3.6.2",
+    "prisma": "^6.15.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.15.0"
+  }
+}
