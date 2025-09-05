@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { auth, type BetterAuthType } from "@ascnd-gg/auth/src/auth";
+import { auth } from "@ascnd-gg/auth/src/auth";
 
 @Injectable()
 export class AuthService {
-  readonly client: BetterAuthType;
+  readonly client: typeof auth;
 
   constructor() {
     this.client = auth;

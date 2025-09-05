@@ -8,9 +8,10 @@ import {
   useEffect,
   useState,
 } from "react";
-import { ApiResponse, User } from "@ascnd-gg/types";
+import { User } from "@ascnd-gg/types";
 import z from "zod";
 import { useRouter } from "next/navigation";
+import { authClient } from "../lib/auth";
 
 interface AuthContextType {
   user: z.infer<typeof User> | undefined | null;
@@ -37,89 +38,55 @@ export function AuthContextProvider({
   }, []);
 
   async function refreshUserState() {
-    console.log("AuthContextProvider.refreshUserState: Starting");
+    const { data, error } = await authClient.getSession();
 
-    try {
-      const response = await fetch("http://localhost:8080/v1/auth/me", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const { data }: z.infer<typeof ApiResponse> = await response.json();
-
-        console.log("AuthContextProvider.refreshUserState data", data);
-
-        setUser({
-          email: data.user.email,
-          firstName: data.user.firstName,
-          lastName: data.user.lastName,
-          profilePictureUrl: data.user.profilePictureUrl,
-          createdAt: data.user.createdAt,
-          metadata: data.user.metadata,
-        });
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error(
-        "AuthContextProvider.refreshUserState: Failed to refresh user:",
-        error,
-      );
+    if (error) {
       setUser(null);
+      console.error("refresh user state error: ", error);
+      return;
     }
+
+    if (!data) {
+      setUser(null);
+      return;
+    }
+
+    setUser({
+      email: data.user.email!,
+      username: data.user.username ?? undefined,
+      createdAt: data.user.createdAt.toISOString(),
+      firstName: data.user.name.split(" ")[0],
+      lastName: data.user.name.split(" ")[1],
+      profilePictureUrl: data.user.image ?? undefined,
+    });
   }
 
   async function login() {
-    try {
-      const res = await fetch("http://localhost:8080/v1/auth/login", {
-        method: "GET",
-        credentials: "include",
-      });
+    const { data, error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "http://localhost:3000/protected/dashboard",
+    });
 
-      if (!res.ok) {
-        console.error(`Error ${res.status} : ${res.statusText}`);
-      }
-
-      const json: z.infer<typeof ApiResponse> = await res.json();
-
-      const result = ApiResponse.safeParse(json);
-
-      if (result.error?.issues) {
-        console.error(result.error.message);
-        return;
-      }
-
-      if (json.redirected) {
-        router.push(json.redirect!);
-      }
-    } catch (error) {
-      console.error("AuthContext.login Error: ", error);
+    if (error || !data) {
+      console.error("sign in error: ", error);
+      return;
     }
+
+    if (data.redirect) window.location.href = data.url!;
   }
 
   async function logout() {
-    const res = await fetch("http://localhost:8080/v1/auth/logout", {
-      method: "GET",
-      credentials: "include",
-    });
+    const { data, error } = await authClient.signOut();
 
-    if (!res.ok) {
-      console.error(`Error ${res.status} : ${res.statusText}`);
+    if (error || !data) {
+      console.error("sign out error: ", error);
       return;
     }
 
-    const json: z.infer<typeof ApiResponse> = await res.json();
+    if (data.success) {
+      setUser(null);
 
-    const result = ApiResponse.safeParse(json);
-
-    if (result.error?.issues) {
-      console.error(result.error.message);
-      return;
-    }
-
-    if (json.redirected) {
-      router.push(json.redirect!);
+      router.push("/logout");
     }
   }
 

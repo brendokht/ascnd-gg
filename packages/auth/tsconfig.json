@@ -4,7 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@ascnd-gg/auth/*": ["./src/*"]
-    }
+    },
+    "declaration": false,
+    "declarationMap": null
   },
   "include": ["src"],
   "exclude": ["node_modules"]

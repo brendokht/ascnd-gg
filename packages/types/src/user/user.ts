@@ -2,6 +2,8 @@ import z from "zod";
 
 const User = z.object({
   email: z.email(),
+  // Optional because user will pick username initially
+  username: z.string().min(3).max(30).optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   profilePictureUrl: z.url().optional(),
