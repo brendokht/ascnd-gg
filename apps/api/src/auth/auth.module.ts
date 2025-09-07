@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { HttpAdapterHost } from "@nestjs/core";
-import { toNodeHandler } from "@ascnd-gg/auth/src/auth";
+import { toNodeHandler } from "@ascnd-gg/auth";
 
 @Module({
   providers: [AuthService],
@@ -21,7 +21,6 @@ export class AuthModule {
     });
     this.adapter.httpAdapter.all(
       `/v1/auth/{*any}`,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       toNodeHandler(authService.client),
     );
   }

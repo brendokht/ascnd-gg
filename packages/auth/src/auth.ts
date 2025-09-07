@@ -6,7 +6,9 @@ import { prisma } from "@ascnd-gg/database";
 import { toNodeHandler } from "better-auth/node";
 import { username } from "better-auth/plugins";
 
-export const auth = betterAuth({
+type Auth = ReturnType<typeof betterAuth>;
+
+export const auth: Auth = betterAuth({
   trustedOrigins: ["http://localhost:3000"],
   basePath: "/v1/auth",
   plugins: [username()],
