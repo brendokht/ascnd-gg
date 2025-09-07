@@ -16,8 +16,8 @@ import { authClient } from "../lib/auth";
 interface AuthContextType {
   user: z.infer<typeof User> | undefined | null;
   setUser: Dispatch<SetStateAction<z.infer<typeof User> | undefined | null>>;
-  login: () => Promise<void>;
-  logout: () => Promise<void>;
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,7 +61,7 @@ export function AuthContextProvider({
     });
   }
 
-  async function login() {
+  async function signIn() {
     const { data, error } = await authClient.signIn.social({
       provider: "google",
       callbackURL: "http://localhost:3000/protected/dashboard",
@@ -75,7 +75,7 @@ export function AuthContextProvider({
     if (data.redirect) window.location.href = data.url!;
   }
 
-  async function logout() {
+  async function signOut() {
     const { data, error } = await authClient.signOut();
 
     if (error || !data) {
@@ -86,12 +86,12 @@ export function AuthContextProvider({
     if (data.success) {
       setUser(null);
 
-      router.push("/logout");
+      router.push("/sign-out");
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

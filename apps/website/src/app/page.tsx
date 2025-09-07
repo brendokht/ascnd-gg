@@ -1,4 +1,3 @@
-import { Button } from "@ascnd-gg/ui/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,9 +23,12 @@ export default function Home() {
         <li>Save and see your changes instantly.</li>
       </ol>
       <div className="flex gap-4">
-        <Button>
-          <Link href={"/protected/dashboard"}>Dashboard</Link>
-        </Button>
+        <Link
+          className="bg-primary rounded-md px-4 py-2 text-sm font-medium"
+          href={"/protected/dashboard"}
+        >
+          To Dashboard
+        </Link>
       </div>
     </>
   );

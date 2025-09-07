@@ -25,10 +25,13 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
-import { ThemeToggle } from "../theme/theme-toggle";
+import { ThemeToggle, ThemeToggleSub } from "../theme/theme-toggle";
+import { useRouter } from "next/navigation";
 
 export default function UserMenu() {
-  const { user, login, logout } = useAuth();
+  const { user, signOut } = useAuth();
+
+  const router = useRouter();
 
   return (
     <>
@@ -68,16 +71,19 @@ export default function UserMenu() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <ThemeToggle />
+              <ThemeToggleSub />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout}>
-              Log out <LogOut />
+            <DropdownMenuItem onClick={signOut}>
+              Sign Out <LogOut />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button onClick={login}>Login</Button>
+        <>
+          <ThemeToggle />
+          <Button onClick={() => router.push("/sign-in")}>Sign In</Button>
+        </>
       )}
     </>
   );
