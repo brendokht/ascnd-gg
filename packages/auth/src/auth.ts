@@ -1,9 +1,9 @@
 import "dotenv/config";
 
-import { betterAuth } from "better-auth";
+import { betterAuth, type Session } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@ascnd-gg/database";
-import { toNodeHandler } from "better-auth/node";
+import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { username } from "better-auth/plugins";
 
 type Auth = ReturnType<typeof betterAuth>;
@@ -29,4 +29,4 @@ export const auth: Auth = betterAuth({
   },
 });
 
-export { toNodeHandler };
+export { toNodeHandler, fromNodeHeaders, type Session };
