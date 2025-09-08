@@ -8,15 +8,16 @@ import {
   useEffect,
   useState,
 } from "react";
-import { ApiResponse, User } from "@ascnd-gg/types";
+import { User } from "@ascnd-gg/types";
 import z from "zod";
 import { useRouter } from "next/navigation";
+import { authClient } from "../lib/auth";
 
 interface AuthContextType {
   user: z.infer<typeof User> | undefined | null;
   setUser: Dispatch<SetStateAction<z.infer<typeof User> | undefined | null>>;
-  login: () => Promise<void>;
-  logout: () => Promise<void>;
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,94 +38,60 @@ export function AuthContextProvider({
   }, []);
 
   async function refreshUserState() {
-    console.log("AuthContextProvider.refreshUserState: Starting");
+    const { data, error } = await authClient.getSession();
 
-    try {
-      const response = await fetch("http://localhost:8080/v1/auth/me", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const { data }: z.infer<typeof ApiResponse> = await response.json();
-
-        console.log("AuthContextProvider.refreshUserState data", data);
-
-        setUser({
-          email: data.user.email,
-          firstName: data.user.firstName,
-          lastName: data.user.lastName,
-          profilePictureUrl: data.user.profilePictureUrl,
-          createdAt: data.user.createdAt,
-          metadata: data.user.metadata,
-        });
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error(
-        "AuthContextProvider.refreshUserState: Failed to refresh user:",
-        error,
-      );
+    if (error) {
       setUser(null);
+      console.error("refresh user state error: ", error);
+      return;
     }
+
+    if (!data) {
+      setUser(null);
+      return;
+    }
+
+    setUser({
+      email: data.user.email!,
+      username: data.user.username ?? undefined,
+      createdAt: data.user.createdAt.toISOString(),
+      firstName: data.user.name.split(" ")[0],
+      lastName: data.user.name.split(" ")[1],
+      profilePictureUrl: data.user.image ?? undefined,
+    });
   }
 
-  async function login() {
-    try {
-      const res = await fetch("http://localhost:8080/v1/auth/login", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        console.error(`Error ${res.status} : ${res.statusText}`);
-      }
-
-      const json: z.infer<typeof ApiResponse> = await res.json();
-
-      const result = ApiResponse.safeParse(json);
-
-      if (result.error?.issues) {
-        console.error(result.error.message);
-        return;
-      }
-
-      if (json.redirected) {
-        router.push(json.redirect!);
-      }
-    } catch (error) {
-      console.error("AuthContext.login Error: ", error);
-    }
-  }
-
-  async function logout() {
-    const res = await fetch("http://localhost:8080/v1/auth/logout", {
-      method: "GET",
-      credentials: "include",
+  async function signIn() {
+    const { data, error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "http://localhost:3000/protected/dashboard",
     });
 
-    if (!res.ok) {
-      console.error(`Error ${res.status} : ${res.statusText}`);
+    if (error || !data) {
+      console.error("sign in error: ", error);
       return;
     }
 
-    const json: z.infer<typeof ApiResponse> = await res.json();
+    if (data.redirect) window.location.href = data.url!;
+  }
 
-    const result = ApiResponse.safeParse(json);
+  async function signOut() {
+    const { data, error } = await authClient.signOut();
 
-    if (result.error?.issues) {
-      console.error(result.error.message);
+    if (error || !data) {
+      console.error("sign out error: ", error);
       return;
     }
 
-    if (json.redirected) {
-      router.push(json.redirect!);
+    if (data.success) {
+      setUser(null);
+
+      router.push("/sign-out");
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

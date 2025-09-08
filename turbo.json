@@ -1,18 +1,12 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
-  "globalEnv": [
-    "NODE_ENV",
-    "PORT",
-    "WORKOS_API_KEY",
-    "WORKOS_CLIENT_ID",
-    "WORKOS_COOKIE_PASSWORD"
-  ],
+  "globalEnv": ["NODE_ENV", "PORT", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
   "tasks": {
     "build": {
       "dependsOn": ["^build", "db:generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": ["DATABASE_URL"]
     },
     "lint": {

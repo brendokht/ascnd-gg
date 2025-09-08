@@ -1,6 +1,5 @@
-import { ApiResponse } from "@ascnd-gg/types/api";
+import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, NextRequest } from "next/server";
-import z from "zod";
 
 export async function middleware(request: NextRequest) {
   console.log("Middleware: Started");
@@ -8,61 +7,10 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
 
   if (request.nextUrl.pathname.startsWith("/protected")) {
-    if (!request.cookies.has("wos-session")) {
-      console.error("Middleware: No session");
+    const sessionCookie = getSessionCookie(request);
+
+    if (!sessionCookie) {
       return NextResponse.redirect(new URL("/?unauthorized=true", request.url));
-    } else {
-      const authRes = await fetch("http://localhost:8080/v1/auth/me", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "wos-session": request.cookies.get("wos-session")!.value,
-        },
-      });
-
-      if (!authRes.ok) {
-        console.log("Middleware: authRes is not ok, forwarding to refresh");
-        try {
-          console.log("Middleware: Refresh starting");
-
-          const refreshRes = await fetch(
-            "http://localhost:8080/v1/auth/refresh",
-            {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "wos-session": request.cookies.get("wos-session")!.value,
-              },
-            },
-          );
-
-          if (refreshRes.ok) {
-            console.log("Middleware: refreshRes is ok");
-
-            const { data }: z.infer<typeof ApiResponse> =
-              await refreshRes.json();
-
-            response.cookies.set("wos-session", data.session, {
-              path: "/",
-              httpOnly: true,
-              secure: true,
-              sameSite: "none",
-            });
-          } else {
-            console.log(`Middleware: Redirecting home`);
-
-            return NextResponse.redirect(
-              new URL("/?unauthorized=true", request.url),
-            );
-          }
-        } catch (error) {
-          console.error(error);
-          console.error(`Middleware: Redirecting home`);
-          return NextResponse.redirect(
-            new URL("/?unauthorized=true", request.url),
-          );
-        }
-      }
     }
   }
 

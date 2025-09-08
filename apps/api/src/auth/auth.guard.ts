@@ -4,33 +4,24 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { WorkOS } from "@workos-inc/node";
-import type { Request } from "express";
+import { AuthService } from "./auth.service";
+import { fromNodeHeaders } from "@ascnd-gg/auth";
+import { IncomingHttpHeaders } from "http";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private readonly workos: WorkOS;
-  constructor() {
-    this.workos = new WorkOS(process.env.WORKOS_API_KEY, {
-      clientId: process.env.WORKOS_CLIENT_ID,
-    });
-  }
+  constructor(private readonly authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log("AuthGuard: started");
-    const req = context.switchToHttp().getRequest<Request>();
+    const req = context.switchToHttp().getRequest();
+    const session = await this.authService.client.api.getSession({
+      headers: fromNodeHeaders(req.headers as IncomingHttpHeaders),
+    });
+    req["session"] = session?.session;
+    req["user"] = session?.user ?? null;
 
-    const authState = req["authState"];
+    if (!session) throw new UnauthorizedException();
 
-    if (!authState || !authState.authenticated || authState.refresh) {
-      console.error("AuthGuard: authState is invalid");
-      throw new UnauthorizedException("Session invalid");
-    }
-
-    console.log("AuthGuard: Passing user into current request");
-    req["user"] = authState.user;
-
-    console.error("AuthGuard: Success");
     return true;
   }
 }

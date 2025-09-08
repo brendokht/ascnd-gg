@@ -4,8 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@ascnd-gg/api/*": ["./src/*"],
-      "@ascnd-gg/types/*": ["../../packages/types/dist"],
-      "@ascnd-gg/database": ["../../packages/database/dist"]
+      "@ascnd-gg/types": ["../../packages/types/dist"],
+      "@ascnd-gg/database": ["../../packages/database/dist"],
+      "@ascnd-gg/auth": ["../../packages/auth/dist"]
     },
     "outDir": "./dist"
   }

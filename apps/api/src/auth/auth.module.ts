@@ -1,26 +1,27 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
-import { AuthMiddleware } from "./auth.middleware";
+import { HttpAdapterHost } from "@nestjs/core";
+import { toNodeHandler } from "@ascnd-gg/auth";
 
 @Module({
   providers: [AuthService],
   controllers: [AuthController],
   exports: [AuthService],
 })
-export class AuthModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .exclude(
-        { path: "/auth/login", method: RequestMethod.GET },
-        { path: "/auth/callback", method: RequestMethod.GET },
-      )
-      .forRoutes(AuthController);
+export class AuthModule {
+  constructor(
+    private readonly adapter: HttpAdapterHost,
+    private readonly authService: AuthService,
+  ) {
+    this.adapter.httpAdapter.enableCors({
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      credentials: true,
+    });
+    this.adapter.httpAdapter.all(
+      `/v1/auth/{*any}`,
+      toNodeHandler(authService.client),
+    );
   }
 }

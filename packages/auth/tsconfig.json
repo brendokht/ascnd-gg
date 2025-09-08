@@ -1,0 +1,14 @@
+{
+  "extends": "@ascnd-gg/typescript-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ascnd-gg/auth/*": ["./src/*"],
+      "@ascnd-gg/database": ["../database"]
+    },
+    "declaration": false,
+    "declarationMap": null
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

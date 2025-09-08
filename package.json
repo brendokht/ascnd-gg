@@ -5,6 +5,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
     "compose": "docker compose --env-file .env.development.local up -d",
     "down": "docker compose --env-file .env.development.local down",
     "stop": "docker compose --env-file .env.development.local stop",
