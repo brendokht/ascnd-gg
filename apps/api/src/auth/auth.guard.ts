@@ -20,7 +20,8 @@ export class AuthGuard implements CanActivate {
     req["session"] = session?.session;
     req["user"] = session?.user ?? null;
 
-    if (!session) throw new UnauthorizedException();
+    // using ["active"] due to issues with type inference
+    if (!session || !session.user["active"]) throw new UnauthorizedException();
 
     return true;
   }
