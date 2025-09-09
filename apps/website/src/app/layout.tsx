@@ -5,6 +5,7 @@ import Header from "../components/layout/header";
 import Footer from "../components/layout/footer";
 import { UsernameDialog } from "../components/dialogs/username-dialog";
 import CustomToaster from "../components/layout/custom-toaster";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Ascnd GG",
@@ -29,7 +30,9 @@ export default function RootLayout({
           </main>
           <Footer />
           <UsernameDialog />
-          <CustomToaster />
+          <Suspense>
+            <CustomToaster />
+          </Suspense>
         </Providers>
       </body>
     </html>

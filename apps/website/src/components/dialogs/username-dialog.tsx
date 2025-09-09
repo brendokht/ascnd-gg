@@ -21,7 +21,7 @@ import {
 import { Input } from "@ascnd-gg/ui/components/ui/input";
 import { useAuth } from "@ascnd-gg/website/context/auth-context";
 import { authClient } from "@ascnd-gg/website/lib/auth";
-import z from "zod/v4";
+import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 

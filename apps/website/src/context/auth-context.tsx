@@ -60,7 +60,8 @@ export function AuthContextProvider({
 
     setUser({
       email: data.user.email!,
-      username: data.user.username ?? undefined,
+      username: data.user.username,
+      displayUsername: data.user.displayUsername,
       createdAt: data.user.createdAt.toISOString(),
       firstName: data.user.name.split(" ")[0],
       lastName: data.user.name.split(" ")[1],

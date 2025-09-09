@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="container flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Ascnd GG</h1>
-      <div className="flex flex-col gap-4 text-sm">
+      <div className="flex flex-col gap-4 text-sm md:flex-row">
         <Link href="/">Home</Link>
         <Link href="#">Settings</Link>
         <Link href="#">Help</Link>

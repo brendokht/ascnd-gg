@@ -9,7 +9,13 @@ import { username } from "better-auth/plugins";
 const authConfig = {
   trustedOrigins: ["http://localhost:3000"],
   basePath: "/v1/auth",
-  plugins: [username({})],
+  plugins: [
+    username({
+      usernameValidator: (username) => {
+        return /^[a-zA-Z0-9._-]+$/.test(username);
+      },
+    }),
+  ],
   user: {
     additionalFields: {
       active: {

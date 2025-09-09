@@ -1,5 +1,6 @@
-import { z } from "zod/v4";
+import { z } from "zod";
 
+// TODO: Set up constants package
 const MIN_LENGTH = 3;
 const MAX_LENGTH = 30;
 
@@ -12,6 +13,10 @@ const updateUsernameSchema = z.object({
     })
     .max(MAX_LENGTH, {
       error: `Username must be ${MAX_LENGTH} characters or shorter`,
+    })
+    .regex(/^[a-zA-Z0-9.-_]+$/, {
+      error:
+        "Username can only contain alphanumeric characters, underscores, dots, and dashes",
     }),
 });
 
