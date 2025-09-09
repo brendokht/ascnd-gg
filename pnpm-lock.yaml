@@ -156,6 +156,9 @@ importers:
       '@ascnd-gg/ui':
         specifier: workspace:^
         version: link:../../packages/ui
+      '@hookform/resolvers':
+        specifier: ^5.2.1
+        version: 5.2.1(react-hook-form@7.62.0(react@19.1.0))
       better-auth:
         specifier: 1.3.8
         version: 1.3.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -174,6 +177,9 @@ importers:
       react-dom:
         specifier: 19.1.0
         version: 19.1.0(react@19.1.0)
+      react-hook-form:
+        specifier: ^7.62.0
+        version: 7.62.0(react@19.1.0)
       zod:
         specifier: ^4.0.17
         version: 4.1.5

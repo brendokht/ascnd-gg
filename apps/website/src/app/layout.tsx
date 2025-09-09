@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Providers from "../components/providers/providers";
 import Header from "../components/layout/header";
 import Footer from "../components/layout/footer";
+import { UsernameDialog } from "../components/dialogs/username-dialog";
 
 export const metadata: Metadata = {
   title: "Ascnd GG",
@@ -26,6 +27,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <UsernameDialog />
         </Providers>
       </body>
     </html>

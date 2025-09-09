@@ -16,8 +16,11 @@ import { authClient } from "../lib/auth";
 interface AuthContextType {
   user: z.infer<typeof User> | undefined | null;
   setUser: Dispatch<SetStateAction<z.infer<typeof User> | undefined | null>>;
+  requiresUsername: boolean;
+  setRequiresUsername: Dispatch<SetStateAction<boolean>>;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUserState: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,6 +35,8 @@ export function AuthContextProvider({
   const [user, setUser] = useState<z.infer<typeof User> | undefined | null>(
     undefined,
   );
+
+  const [requiresUsername, setRequiresUsername] = useState<boolean>(false);
 
   useEffect(() => {
     refreshUserState();
@@ -50,6 +55,8 @@ export function AuthContextProvider({
       setUser(null);
       return;
     }
+
+    if (!data.user.active) setRequiresUsername(true);
 
     setUser({
       email: data.user.email!,
@@ -91,7 +98,17 @@ export function AuthContextProvider({
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        requiresUsername,
+        setRequiresUsername,
+        signIn,
+        signOut,
+        refreshUserState,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
