@@ -2,6 +2,7 @@
 
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { useAuth } from "@ascnd-gg/website/context/auth-context";
+import { SiGoogle } from "@icons-pack/react-simple-icons";
 
 export default function Page() {
   const { signIn } = useAuth();
@@ -11,7 +12,10 @@ export default function Page() {
         <h1 className="text-2xl font-semibold">Welcome to Ascnd GG</h1>
         <p>To be able to compete, please sign in below</p>
       </div>
-      <Button onClick={signIn}>Continue with Google</Button>
+      <Button variant={"outline"} onClick={signIn}>
+        <SiGoogle color={"default"} />
+        Continue with Google
+      </Button>
     </>
   );
 }
