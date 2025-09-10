@@ -1,0 +1,11 @@
+{
+  "extends": "@ascnd-gg/typescript-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ascnd-gg/redis": ["./src/*"],
+      "@ascnd-gg/constants": ["../constants"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

@@ -6,6 +6,7 @@ import { prisma } from "@ascnd-gg/database";
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { username } from "better-auth/plugins";
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@ascnd-gg/constants";
+import { redis } from "@ascnd-gg/redis";
 
 const authConfig = {
   trustedOrigins: ["http://localhost:3000"],
@@ -27,6 +28,18 @@ const authConfig = {
         defaultValue: false,
         input: false,
       },
+    },
+  },
+  secondaryStorage: {
+    get: async (key) => {
+      return await redis.get(key);
+    },
+    set: async (key, value, ttl) => {
+      if (ttl) await redis.set(key, value, "EX", ttl);
+      else await redis.set(key, value);
+    },
+    delete: async (key) => {
+      await redis.del(key);
     },
   },
   databaseHooks: {
