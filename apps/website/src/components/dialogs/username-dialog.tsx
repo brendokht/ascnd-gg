@@ -33,15 +33,13 @@ export function UsernameDialog() {
     defaultValues: {
       username: "",
     },
+    mode: "onChange",
   });
 
   const onSubmit = async (values: z.infer<typeof updateUsernameSchema>) => {
-    console.log("onSubmit: starting");
     const availableRes = await authClient.isUsernameAvailable({
       username: values.username,
     });
-
-    console.log("onSubmit: availableRes", availableRes);
 
     if (availableRes.error) {
       console.error(availableRes.error);
@@ -50,7 +48,7 @@ export function UsernameDialog() {
 
     if (!availableRes.data.available) {
       form.setError("username", {
-        type: "value",
+        type: "duplicate",
         message: "This username has already been taken",
       });
       return;
@@ -61,20 +59,14 @@ export function UsernameDialog() {
       displayUsername: values.username,
     });
 
-    console.log("onSubmit: updateRes", updateRes);
-
     if (updateRes.error) {
       console.error(availableRes.error);
       return;
     }
 
-    console.log("onSubmit: user updated");
-
     setRequiresUsername(false);
 
     await refreshUserState();
-
-    console.log("onSubmit: user state updated");
   };
 
   return (
@@ -102,7 +94,9 @@ export function UsernameDialog() {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Submit</Button>
+              <Button disabled={!form.formState.isValid} type="submit">
+                Submit
+              </Button>
             </DialogFooter>
           </form>
         </Form>
