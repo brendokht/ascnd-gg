@@ -16,7 +16,7 @@
       "dependsOn": ["^format"]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["ts:build", "^check-types"]
     },
     "dev": {
       "dependsOn": ["ts:build-watch", "^db:generate", "//#compose"],
@@ -24,7 +24,7 @@
       "persistent": true
     },
     "ts:build": {
-      "cache": false,
+      "cache": true,
       "persistent": false
     },
     "ts:build-watch": {

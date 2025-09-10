@@ -5,6 +5,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "ts:build": "turbo run ts:build",
+    "ts:build-watch": "turbo run ts:build-watch",
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
     "compose": "docker compose up -d",

@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@ascnd-gg/types/*": ["./src/*"]
+      "@ascnd-gg/types/*": ["./src/*"],
+      "@ascnd-gg/constants": ["../constants"]
     },
     "strict": true
   },

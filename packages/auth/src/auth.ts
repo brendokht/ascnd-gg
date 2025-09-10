@@ -5,6 +5,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@ascnd-gg/database";
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { username } from "better-auth/plugins";
+import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@ascnd-gg/constants";
 
 const authConfig = {
   trustedOrigins: ["http://localhost:3000"],
@@ -14,6 +15,8 @@ const authConfig = {
       usernameValidator: (username) => {
         return /^[a-zA-Z0-9._-]+$/.test(username);
       },
+      minUsernameLength: USERNAME_MIN_LENGTH,
+      maxUsernameLength: USERNAME_MAX_LENGTH,
     }),
   ],
   user: {
