@@ -6,13 +6,10 @@ import { AuthService } from "./auth/auth.service";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { RedisModule } from './redis/redis.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ envFilePath: [".env.development.local"] }),
-    AuthModule,
-    PrismaModule,
-  ],
+  imports: [ConfigModule.forRoot(), AuthModule, PrismaModule, RedisModule],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService],
 })

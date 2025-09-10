@@ -24,6 +24,7 @@
     "@ascnd-gg/auth": "workspace:^",
     "@ascnd-gg/constants": "workspace:^",
     "@ascnd-gg/database": "workspace:^",
+    "@ascnd-gg/redis": "workspace:^",
     "@ascnd-gg/types": "workspace:^",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

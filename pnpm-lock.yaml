@@ -47,6 +47,9 @@ importers:
       '@ascnd-gg/database':
         specifier: workspace:^
         version: link:../../packages/database
+      '@ascnd-gg/redis':
+        specifier: workspace:^
+        version: link:../../packages/redis
       '@ascnd-gg/types':
         specifier: workspace:^
         version: link:../../packages/types

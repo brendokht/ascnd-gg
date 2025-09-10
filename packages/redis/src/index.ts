@@ -1,3 +1,3 @@
 import { Redis } from "ioredis";
 
-export const redis: Redis = new Redis();
+export const redis = new Redis();
