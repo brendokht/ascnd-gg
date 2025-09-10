@@ -14,5 +14,6 @@
   "include": ["src"],
   "watchOptions": {
     "watchDirectory": "usefsevents"
-  }
+  },
+  "references": [{ "path": "../constants/tsconfig.build.json" }]
 }

@@ -1,18 +1,15 @@
+import { USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH } from "@ascnd-gg/constants";
 import { z } from "zod";
-
-// TODO: Set up constants package
-const MIN_LENGTH = 3;
-const MAX_LENGTH = 30;
 
 // TODO: Set up validation Regex to ensure proper characters
 const updateUsernameSchema = z.object({
   username: z
     .string({ error: "Username is required" })
-    .min(MIN_LENGTH, {
-      error: `Username must be at least ${MIN_LENGTH} characters`,
+    .min(USERNAME_MIN_LENGTH, {
+      error: `Username must be at least ${USERNAME_MIN_LENGTH} characters`,
     })
-    .max(MAX_LENGTH, {
-      error: `Username must be ${MAX_LENGTH} characters or shorter`,
+    .max(USERNAME_MAX_LENGTH, {
+      error: `Username must be ${USERNAME_MAX_LENGTH} characters or shorter`,
     })
     .regex(/^[a-zA-Z0-9.-_]+$/, {
       error:

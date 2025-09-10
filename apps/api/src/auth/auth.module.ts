@@ -3,6 +3,7 @@ import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { HttpAdapterHost } from "@nestjs/core";
 import { toNodeHandler } from "@ascnd-gg/auth";
+import { CORS_OPTIONS } from "@ascnd-gg/constants";
 
 @Module({
   providers: [AuthService],
@@ -14,11 +15,7 @@ export class AuthModule {
     private readonly adapter: HttpAdapterHost,
     private readonly authService: AuthService,
   ) {
-    this.adapter.httpAdapter.enableCors({
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      credentials: true,
-    });
+    this.adapter.httpAdapter.enableCors(CORS_OPTIONS);
     this.adapter.httpAdapter.all(
       `/v1/auth/{*any}`,
       toNodeHandler(authService.client),

@@ -4,15 +4,17 @@
     "baseUrl": ".",
     "paths": {
       "@ascnd-gg/api/*": ["./src/*"],
-      "@ascnd-gg/types": ["../../packages/types/dist"],
-      "@ascnd-gg/database": ["../../packages/database/dist"],
-      "@ascnd-gg/auth": ["../../packages/auth/dist"]
+      "@ascnd-gg/types": ["../../packages/types"],
+      "@ascnd-gg/database": ["../../packages/database"],
+      "@ascnd-gg/auth": ["../../packages/auth"],
+      "@ascnd-gg/constants": ["../../packages/constants"]
     },
     "outDir": "./dist"
   },
   "references": [
     { "path": "../../packages/auth/tsconfig.build.json" },
     { "path": "../../packages/database/tsconfig.build.json" },
-    { "path": "../../packages/types/tsconfig.build.json" }
+    { "path": "../../packages/types/tsconfig.build.json" },
+    { "path": "../../packages/constants/tsconfig.build.json" }
   ]
 }
