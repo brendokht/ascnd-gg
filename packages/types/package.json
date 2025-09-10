@@ -7,12 +7,12 @@
   "exports": {
     ".": {
       "default": "./dist/index.js",
-      "types": "./src/index.ts"
+      "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
-    "dev": "tsc -p tsconfig.build.json --watch",
-    "build": "tsc -p tsconfig.build.json",
+    "ts:build": "tsc --build tsconfig.build.json",
+    "ts:build-watch": "tsc --build tsconfig.build.json --watch",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit"

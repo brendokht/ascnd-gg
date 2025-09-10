@@ -24,7 +24,7 @@ export default function Home() {
       </ol>
       <div className="flex gap-4">
         <Link
-          className="bg-primary rounded-md px-4 py-2 text-sm font-medium"
+          className="bg-primary rounded-md px-4 py-2 text-sm font-medium hover:cursor-default"
           href={"/protected/dashboard"}
         >
           To Dashboard

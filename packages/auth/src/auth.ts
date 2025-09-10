@@ -1,17 +1,46 @@
 import "dotenv/config";
 
-import { betterAuth, type Session } from "better-auth";
+import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@ascnd-gg/database";
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { username } from "better-auth/plugins";
 
-type Auth = ReturnType<typeof betterAuth>;
-
-export const auth: Auth = betterAuth({
+const authConfig = {
   trustedOrigins: ["http://localhost:3000"],
   basePath: "/v1/auth",
-  plugins: [username()],
+  plugins: [
+    username({
+      usernameValidator: (username) => {
+        return /^[a-zA-Z0-9._-]+$/.test(username);
+      },
+    }),
+  ],
+  user: {
+    additionalFields: {
+      active: {
+        type: "boolean",
+        required: true,
+        defaultValue: false,
+        input: false,
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      update: {
+        before: async (userData) => {
+          /*
+           * Ensure that if the user has a username and displayUsername,
+           * they are listed as active
+           */
+          if (userData["username"] && userData["displayUsername"])
+            userData["active"] = true;
+          return { data: { ...userData, updatedAt: new Date() } };
+        },
+      },
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -27,6 +56,12 @@ export const auth: Auth = betterAuth({
       maxAge: 10 * 60,
     },
   },
-});
+} satisfies BetterAuthOptions;
+
+export const auth = betterAuth(authConfig) as ReturnType<
+  typeof betterAuth<typeof authConfig>
+>;
+
+type Session = typeof auth.$Infer.Session;
 
 export { toNodeHandler, fromNodeHeaders, type Session };

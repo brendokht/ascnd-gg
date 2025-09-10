@@ -7,12 +7,12 @@
   "exports": {
     ".": {
       "default": "./dist/index.js",
-      "types": "./src/index.ts"
+      "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
-    "dev": "tsc -p tsconfig.build.json --watch",
-    "build": "tsc -p tsconfig.build.json",
+    "ts:build": "tsc --build tsconfig.build.json",
+    "ts:build-watch": "tsc --build tsconfig.build.json --watch",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --skip-generate",
     "lint": "eslint . --max-warnings 0",

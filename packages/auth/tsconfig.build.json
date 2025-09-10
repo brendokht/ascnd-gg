@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "declaration": true,
+    "composite": true,
+    "incremental": true,
+    "strict": true,
     "outDir": "dist",
     "rootDir": "src",
     "module": "CommonJS",
@@ -12,5 +15,6 @@
   "include": ["src"],
   "watchOptions": {
     "watchDirectory": "usefsevents"
-  }
+  },
+  "references": [{ "path": "../database/tsconfig.build.json" }]
 }

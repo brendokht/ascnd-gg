@@ -23,6 +23,8 @@ model User {
   username        String?
   displayUsername String?
 
+  active Boolean @default(false)
+
   @@unique([email])
   @@map("user")
   @@unique([username])
