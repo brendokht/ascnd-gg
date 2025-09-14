@@ -15,18 +15,11 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@ascnd-gg/ui/components/ui/avatar";
-import {
-  Cog,
-  CreditCard,
-  Gamepad,
-  LogOut,
-  Trophy,
-  User,
-  Users,
-} from "lucide-react";
+import { Cog, Gamepad, LogOut, Trophy, User, Users } from "lucide-react";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { ThemeToggle, ThemeToggleSub } from "../theme/theme-toggle";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function UserMenu() {
   const { user, signOut } = useAuth();
@@ -49,12 +42,11 @@ export default function UserMenu() {
               <DropdownMenuItem>
                 Profile <User />
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                Settings <Cog />
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Billing <CreditCard />
-              </DropdownMenuItem>
+              <Link href={"/settings"}>
+                <DropdownMenuItem>
+                  Settings <Cog />
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
