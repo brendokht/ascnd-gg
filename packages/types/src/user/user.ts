@@ -23,4 +23,9 @@ const User = z.object({
 
 type UserType = z.infer<typeof User>;
 
-export { User, type UserType };
+type UserViewModel = Pick<
+  UserType,
+  "displayUsername" | "profilePictureUrl" | "createdAt"
+>;
+
+export { User, type UserType, type UserViewModel };

@@ -1,1 +1,1 @@
-export { User, type UserType } from "./user";
+export * from "./user";
