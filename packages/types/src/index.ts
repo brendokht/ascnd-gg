@@ -1,3 +1,3 @@
 export { ApiResponse } from "./api";
-export { User } from "./user";
+export { User, type UserType } from "./user";
 export { updateUsernameSchema, updateNameSchema } from "./form";

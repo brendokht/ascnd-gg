@@ -21,4 +21,6 @@ const User = z.object({
   metadata: z.unknown().optional(),
 });
 
-export default User;
+type UserType = z.infer<typeof User>;
+
+export { User, type UserType };
