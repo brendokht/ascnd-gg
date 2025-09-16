@@ -8,19 +8,14 @@ import {
   useEffect,
   useState,
 } from "react";
-import { User } from "@ascnd-gg/types";
-import z from "zod";
 import { useRouter } from "next/navigation";
 import { authClient } from "../lib/auth";
 
 interface AuthContextType {
-  user: z.infer<typeof User> | undefined | null;
-  setUser: Dispatch<SetStateAction<z.infer<typeof User> | undefined | null>>;
   requiresUsername: boolean;
   setRequiresUsername: Dispatch<SetStateAction<boolean>>;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
-  refreshUserState: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,42 +27,28 @@ export function AuthContextProvider({
 }>) {
   const router = useRouter();
 
-  const [user, setUser] = useState<z.infer<typeof User> | undefined | null>(
-    undefined,
-  );
-
   const [requiresUsername, setRequiresUsername] = useState<boolean>(false);
 
   useEffect(() => {
-    refreshUserState();
-  }, []);
+    async function checkUserActive() {
+      const { data, error } = await authClient.getSession();
 
-  async function refreshUserState() {
-    const { data, error } = await authClient.getSession();
+      if (error) {
+        router.replace("/sign-in");
+        console.error("checkUserActive error: ", error);
+        return;
+      }
 
-    if (error) {
-      setUser(null);
-      console.error("refresh user state error: ", error);
-      return;
+      if (!data) {
+        router.replace("/sign-in");
+        return;
+      }
+
+      if (!data.user.active) setRequiresUsername(true);
     }
 
-    if (!data) {
-      setUser(null);
-      return;
-    }
-
-    if (!data.user.active) setRequiresUsername(true);
-
-    setUser({
-      email: data.user.email!,
-      username: data.user.username,
-      displayUsername: data.user.displayUsername,
-      createdAt: data.user.createdAt.toISOString(),
-      firstName: data.user.name.split(" ")[0],
-      lastName: data.user.name.split(" ")[1],
-      profilePictureUrl: data.user.image ?? undefined,
-    });
-  }
+    checkUserActive();
+  }, [router]);
 
   async function signIn() {
     const { data, error } = await authClient.signIn.social({
@@ -92,22 +73,19 @@ export function AuthContextProvider({
     }
 
     if (data.success) {
-      setUser(null);
-
       router.push("/sign-out");
     }
+
+    router.refresh();
   }
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        setUser,
         requiresUsername,
         setRequiresUsername,
         signIn,
         signOut,
-        refreshUserState,
       }}
     >
       {children}

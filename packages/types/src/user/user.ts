@@ -14,8 +14,7 @@ const User = z.object({
     .min(USERNAME_MIN_LENGTH)
     .max(USERNAME_MAX_LENGTH)
     .nullish(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
+  name: z.string().optional(),
   profilePictureUrl: z.url().optional(),
   createdAt: z.iso.datetime(),
   // TODO: Define metadata

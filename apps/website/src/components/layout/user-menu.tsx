@@ -17,19 +17,25 @@ import {
 } from "@ascnd-gg/ui/components/ui/avatar";
 import {
   Cog,
-  CreditCard,
   Gamepad,
   LogOut,
   Trophy,
-  User,
+  User as UserIcon,
   Users,
 } from "lucide-react";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { ThemeToggle, ThemeToggleSub } from "../theme/theme-toggle";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import z from "zod";
+import { User } from "@ascnd-gg/types";
 
-export default function UserMenu() {
-  const { user, signOut } = useAuth();
+export default function UserMenu({
+  user,
+}: {
+  user: z.infer<typeof User> | undefined | null;
+}) {
+  const { signOut } = useAuth();
 
   const router = useRouter();
 
@@ -40,21 +46,20 @@ export default function UserMenu() {
           <DropdownMenuTrigger className="rounded-full">
             <Avatar>
               <AvatarImage src={user.profilePictureUrl} />
-              <AvatarFallback>{`${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`}</AvatarFallback>
+              <AvatarFallback>{`${user.username?.charAt(0).toUpperCase()}`}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                Profile <User />
+                Profile <UserIcon />
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                Settings <Cog />
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Billing <CreditCard />
-              </DropdownMenuItem>
+              <Link href={"/settings"}>
+                <DropdownMenuItem>
+                  Settings <Cog />
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>

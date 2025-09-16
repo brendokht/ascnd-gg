@@ -1,7 +1,6 @@
 import { USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH } from "@ascnd-gg/constants";
 import { z } from "zod";
 
-// TODO: Set up validation Regex to ensure proper characters
 const updateUsernameSchema = z.object({
   username: z
     .string({ error: "Username is required" })
