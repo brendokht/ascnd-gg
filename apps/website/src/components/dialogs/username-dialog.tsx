@@ -24,9 +24,11 @@ import { authClient } from "@ascnd-gg/website/lib/auth";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 
 export function UsernameDialog() {
-  const { requiresUsername, setRequiresUsername, refreshUserState } = useAuth();
+  const router = useRouter();
+  const { requiresUsername, setRequiresUsername } = useAuth();
 
   const form = useForm<z.infer<typeof updateUsernameSchema>>({
     resolver: zodResolver(updateUsernameSchema),
@@ -66,7 +68,7 @@ export function UsernameDialog() {
 
     setRequiresUsername(false);
 
-    await refreshUserState();
+    router.refresh();
   };
 
   return (

@@ -12,10 +12,10 @@ import {
   FormMessage,
 } from "@ascnd-gg/ui/components/ui/form";
 import { Input } from "@ascnd-gg/ui/components/ui/input";
-import { useAuth } from "@ascnd-gg/website/context/auth-context";
 import { authClient } from "@ascnd-gg/website/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 export default function UpdateNameForm({
@@ -23,8 +23,6 @@ export default function UpdateNameForm({
 }: {
   currentName: string | undefined;
 }) {
-  const { refreshUserState } = useAuth();
-
   const form = useForm<z.infer<typeof updateNameSchema>>({
     resolver: zodResolver(updateNameSchema),
     defaultValues: {
@@ -33,8 +31,10 @@ export default function UpdateNameForm({
   });
 
   const onSubmit = async (values: z.infer<typeof updateNameSchema>) => {
+    const newName = values.name.trim();
+
     const updateRes = await authClient.updateUser({
-      name: values.name,
+      name: newName,
     });
 
     if (updateRes.error) {
@@ -42,7 +42,11 @@ export default function UpdateNameForm({
       return;
     }
 
-    await refreshUserState();
+    toast.success("Success", {
+      description: "Name has been successfully updated.",
+    });
+
+    form.reset({ name: newName });
   };
 
   return (
@@ -64,7 +68,14 @@ export default function UpdateNameForm({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={!form.formState.isValid}>
+        <Button
+          type="submit"
+          disabled={
+            !form.formState.isValid ||
+            form.formState.isLoading ||
+            !form.formState.dirtyFields.name
+          }
+        >
           Submit
         </Button>
       </form>

@@ -12,10 +12,10 @@ import {
   FormMessage,
 } from "@ascnd-gg/ui/components/ui/form";
 import { Input } from "@ascnd-gg/ui/components/ui/input";
-import { useAuth } from "@ascnd-gg/website/context/auth-context";
 import { authClient } from "@ascnd-gg/website/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 export default function UpdateUsernameForm({
@@ -23,8 +23,6 @@ export default function UpdateUsernameForm({
 }: {
   currentUsername: string | undefined;
 }) {
-  const { refreshUserState } = useAuth();
-
   const form = useForm<z.infer<typeof updateUsernameSchema>>({
     resolver: zodResolver(updateUsernameSchema),
     defaultValues: {
@@ -33,8 +31,10 @@ export default function UpdateUsernameForm({
   });
 
   const onSubmit = async (values: z.infer<typeof updateUsernameSchema>) => {
+    const newUsername = values.username.trim();
+
     const availableRes = await authClient.isUsernameAvailable({
-      username: values.username,
+      username: newUsername,
     });
 
     if (availableRes.error) {
@@ -51,8 +51,8 @@ export default function UpdateUsernameForm({
     }
 
     const updateRes = await authClient.updateUser({
-      username: values.username,
-      displayUsername: values.username,
+      username: newUsername,
+      displayUsername: newUsername,
     });
 
     if (updateRes.error) {
@@ -60,7 +60,11 @@ export default function UpdateUsernameForm({
       return;
     }
 
-    await refreshUserState();
+    toast.success("Success", {
+      description: "Username has been successfully updated.",
+    });
+
+    form.reset({ username: newUsername });
   };
 
   return (
@@ -82,7 +86,14 @@ export default function UpdateUsernameForm({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={!form.formState.isValid}>
+        <Button
+          type="submit"
+          disabled={
+            !form.formState.isValid ||
+            form.formState.isLoading ||
+            !form.formState.dirtyFields.username
+          }
+        >
           Submit
         </Button>
       </form>

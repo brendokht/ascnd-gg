@@ -1,10 +1,16 @@
-"use client";
-
+import { auth } from "@ascnd-gg/auth";
 import HomeButton from "./home-button";
-import { useAuth } from "@ascnd-gg/website/context/auth-context";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  const { user } = useAuth();
+export default async function Dashboard() {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  if (!session) {
+    redirect("/sign-in?unauthorized=true");
+  }
+
+  const user = session.user;
 
   return (
     <div className="container flex flex-1 flex-col items-center justify-center">
