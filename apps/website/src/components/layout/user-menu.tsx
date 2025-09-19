@@ -51,9 +51,11 @@ export default function UserMenu({
           <DropdownMenuContent>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                Profile <UserIcon />
-              </DropdownMenuItem>
+              <Link href={`/user/${user.username}`}>
+                <DropdownMenuItem>
+                  Profile <UserIcon />
+                </DropdownMenuItem>
+              </Link>
               <Link href={"/settings"}>
                 <DropdownMenuItem>
                   Settings <Cog />

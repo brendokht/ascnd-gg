@@ -31,7 +31,6 @@ export default async function UserProfile(props: PageProps<"/user/[user]">) {
           day: "numeric",
         })}
       </p>
-      <p>Nothing going on here yet!</p>
     </>
   );
 }
