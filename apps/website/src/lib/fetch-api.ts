@@ -9,8 +9,6 @@
 export async function fetchApi(route: string) {
   const response = await fetch(`http://localhost:8080/v1${route}`);
 
-  console.debug("response,", response);
-
   if (!response.ok) return null;
 
   if (response.status !== 200 && response.status !== 304) {
