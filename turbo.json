@@ -19,7 +19,8 @@
       "dependsOn": ["ts:build", "^check-types"]
     },
     "dev": {
-      "dependsOn": ["ts:build-watch", "^db:generate", "//#compose"],
+      "dependsOn": ["ts:build-watch", "^db:generate"],
+      "with": ["//#compose"],
       "cache": false,
       "persistent": true
     },
@@ -41,7 +42,7 @@
     },
     "//#compose": {
       "cache": false,
-      "persistent": false
+      "persistent": true
     }
   }
 }
