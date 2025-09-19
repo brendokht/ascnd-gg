@@ -10,9 +10,10 @@ import { RedisModule } from './redis/redis.module';
 import { UserService } from './user/user.service';
 import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, PrismaModule, RedisModule, UserModule],
+  imports: [ConfigModule.forRoot(), AuthModule, PrismaModule, RedisModule, UserModule, StorageModule],
   controllers: [AppController, AuthController, UserController],
   providers: [AppService, AuthService, UserService],
 })
