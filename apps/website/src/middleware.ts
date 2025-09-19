@@ -3,14 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { protectedPathnames } from "./lib/protected-routes";
 
 export async function middleware(request: NextRequest) {
-  console.log("Middleware: Started");
-
   const response = NextResponse.next({ request });
-
-  console.log(
-    "Middleware: `request.nextUrl.pathname` is",
-    request.nextUrl.pathname,
-  );
 
   /*
    * Get the first part of the pathname
@@ -21,10 +14,7 @@ export async function middleware(request: NextRequest) {
     ? `/${request.nextUrl.pathname.split("/")[1]}`
     : "/";
 
-  console.log("Middleware: Path is", path || "empty");
-
   if (protectedPathnames.includes(path)) {
-    console.log("Middleware: Protecting");
     const sessionCookie = getSessionCookie(request);
 
     if (!sessionCookie) {
@@ -33,8 +23,6 @@ export async function middleware(request: NextRequest) {
       );
     }
   }
-
-  console.log("Middleware: Success");
 
   return response;
 }

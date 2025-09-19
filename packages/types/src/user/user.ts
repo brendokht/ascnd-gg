@@ -21,4 +21,11 @@ const User = z.object({
   metadata: z.unknown().optional(),
 });
 
-export default User;
+type UserType = z.infer<typeof User>;
+
+type UserViewModel = Pick<
+  UserType,
+  "displayUsername" | "profilePictureUrl" | "createdAt"
+>;
+
+export { User, type UserType, type UserViewModel };

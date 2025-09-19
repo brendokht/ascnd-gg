@@ -27,13 +27,12 @@ import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { ThemeToggle, ThemeToggleSub } from "../theme/theme-toggle";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import z from "zod";
-import { User } from "@ascnd-gg/types";
+import { UserType } from "@ascnd-gg/types";
 
 export default function UserMenu({
   user,
 }: {
-  user: z.infer<typeof User> | undefined | null;
+  user: UserType | undefined | null;
 }) {
   const { signOut } = useAuth();
 
@@ -52,9 +51,11 @@ export default function UserMenu({
           <DropdownMenuContent>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                Profile <UserIcon />
-              </DropdownMenuItem>
+              <Link href={`/user/${user.username}`}>
+                <DropdownMenuItem>
+                  Profile <UserIcon />
+                </DropdownMenuItem>
+              </Link>
               <Link href={"/settings"}>
                 <DropdownMenuItem>
                   Settings <Cog />

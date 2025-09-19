@@ -1,0 +1,10 @@
+{
+  "extends": "@ascnd-gg/typescript-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ascnd-gg/storage": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

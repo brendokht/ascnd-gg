@@ -2,13 +2,12 @@ import Link from "next/link";
 import UserMenu from "./user-menu";
 import { auth } from "@ascnd-gg/auth";
 import { headers } from "next/headers";
-import z from "zod";
-import { User } from "@ascnd-gg/types";
+import { UserType } from "@ascnd-gg/types";
 
 export default async function Header() {
   const session = await auth.api.getSession({ headers: await headers() });
 
-  let user: z.infer<typeof User> | undefined | null = undefined;
+  let user: UserType | undefined | null = undefined;
 
   if (!session) {
     user = null;

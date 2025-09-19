@@ -1,7 +1,14 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
-  "globalEnv": ["NODE_ENV", "PORT", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
+  "globalEnv": [
+    "NODE_ENV",
+    "PORT",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "MINIO_ACCESS_KEY",
+    "MINIO_SECRET_KEY"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build", "ts:build", "db:generate"],
@@ -19,7 +26,8 @@
       "dependsOn": ["ts:build", "^check-types"]
     },
     "dev": {
-      "dependsOn": ["ts:build-watch", "^db:generate", "//#compose"],
+      "dependsOn": ["ts:build-watch", "^db:generate"],
+      "with": ["//#compose"],
       "cache": false,
       "persistent": true
     },
@@ -41,7 +49,7 @@
     },
     "//#compose": {
       "cache": false,
-      "persistent": false
+      "persistent": true
     }
   }
 }
