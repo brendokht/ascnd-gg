@@ -1,6 +1,6 @@
 import z from "zod";
 
-const ApiResponse = z.object({
+export const ApiResponse = z.object({
   ok: z.boolean().default(true).optional(),
   status: z
     .literal([
@@ -19,5 +19,3 @@ const ApiResponse = z.object({
 // .refine((res) => !res.redirected && !res.redirect, {
 //   error: "Redirect URL is required when being redirected",
 // });
-
-export default ApiResponse;

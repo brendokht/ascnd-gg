@@ -1,7 +1,7 @@
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@ascnd-gg/constants";
 import z from "zod";
 
-const User = z.object({
+export const User = z.object({
   email: z.email(),
   // Optional because user will pick username initially
   username: z
@@ -17,15 +17,12 @@ const User = z.object({
   name: z.string().optional(),
   profilePictureUrl: z.url().optional(),
   createdAt: z.iso.datetime(),
-  // TODO: Define metadata
-  metadata: z.unknown().optional(),
+  updatedAt: z.iso.datetime(),
 });
 
-type UserType = z.infer<typeof User>;
+export type UserType = z.infer<typeof User>;
 
-type UserViewModel = Pick<
+export type UserViewModel = Pick<
   UserType,
   "displayUsername" | "profilePictureUrl" | "createdAt"
 >;
-
-export { User, type UserType, type UserViewModel };

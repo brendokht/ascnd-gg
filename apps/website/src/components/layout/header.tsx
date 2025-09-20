@@ -15,11 +15,11 @@ export default async function Header() {
     user = {
       email: session.user.email,
       createdAt: session.user.createdAt.toISOString(),
+      updatedAt: session.user.updatedAt.toISOString(),
       name: session.user.name,
       username: session.user.username,
       displayUsername: session.user.displayUsername,
       profilePictureUrl: session.user.image ?? "",
-      metadata: null,
     };
   }
 

@@ -1,7 +1,7 @@
 import { USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH } from "@ascnd-gg/constants";
 import { z } from "zod";
 
-const updateUsernameSchema = z.object({
+export const updateUsernameSchema = z.object({
   username: z
     .string({ error: "Username is required" })
     .min(USERNAME_MIN_LENGTH, {
@@ -15,5 +15,3 @@ const updateUsernameSchema = z.object({
         "Username can only contain alphanumeric characters, underscores, dots, and dashes",
     }),
 });
-
-export default updateUsernameSchema;
