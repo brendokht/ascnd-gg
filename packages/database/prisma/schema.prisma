@@ -25,6 +25,8 @@ model User {
 
   active Boolean @default(false)
 
+  teams UserTeam[]
+
   @@unique([email])
   @@map("user")
   @@unique([username])
@@ -73,4 +75,30 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verification")
+}
+
+model Team {
+  id                String     @id
+  name              String
+  displayName       String
+  logo              String?
+  banner            String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @default(now()) @updatedAt
+  members           UserTeam[]
+
+  @@unique([name])
+  @@map("team")
+}
+
+model UserTeam {
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@id([teamId, userId])
+  @@map("user_team")
 }

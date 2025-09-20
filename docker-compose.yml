@@ -1,5 +1,6 @@
 services:
   db:
+    container_name: "ascnd-gg-postgres"
     image: postgres:17
     environment:
       - POSTGRES_DB=${POSTGRES_DB:?POSTGRES_DB variable is required}
@@ -18,12 +19,14 @@ services:
 
   # Adminer to view Postgres database
   adminer:
+    container_name: "ascnd-gg-adminer"
     image: adminer:latest
     restart: always
     ports:
       - ${ADMINER_PORT:-8080}:8080
 
   cache:
+    container_name: "ascnd-gg-redis"
     image: redis:8
     # Custom command to require a password for Redis
     command: /bin/sh -c - redis-server --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is required}"
@@ -33,12 +36,14 @@ services:
 
   # Redis Insight to view Redis cache
   redisinsight:
+    container_name: "ascnd-gg-redisinsight"
     image: redis/redisinsight
     restart: always
     ports:
       - ${REDISINSIGHT_PORT:-5540}:5540
 
   s3:
+    container_name: "ascnd-gg-minio"
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     ports:
       - ${MINIO_PORT:-9000}:9000
