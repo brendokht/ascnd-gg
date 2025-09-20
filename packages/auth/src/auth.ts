@@ -66,6 +66,9 @@ const authConfig = {
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  advanced: {
+    database: { generateId: false },
+  },
   session: {
     cookieCache: {
       enabled: true,
