@@ -5,10 +5,16 @@ import {
 import { z } from "zod";
 
 export const createTeamSchema = z.object({
-  name: z
+  displayName: z
     .string({ error: "Team name is required" })
-    .min(TEAM_NAME_MIN_LENGTH)
-    .max(TEAM_NAME_MAX_LENGTH),
+    .min(TEAM_NAME_MIN_LENGTH, {
+      error: "Team name must be at least 3 characters",
+    })
+    .max(TEAM_NAME_MAX_LENGTH, {
+      error: "Team name must be 30 characters or less",
+    }),
   logo: z.url().optional(),
   banner: z.url().optional(),
 });
+
+export type createTeamSchemaType = z.infer<typeof createTeamSchema>;

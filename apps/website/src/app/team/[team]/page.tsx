@@ -1,0 +1,40 @@
+import { TeamViewModel } from "@ascnd-gg/types";
+import { fetchApi } from "@ascnd-gg/website/lib/fetch-api";
+import Image from "next/image";
+
+export default async function TeamProfile(props: PageProps<"/team/[team]">) {
+  const { team } = await props.params;
+
+  const teamData: TeamViewModel = await fetchApi(`/team/${team}`);
+
+  if (!teamData) {
+    return <>Team, &apos;{team}&apos; was not found</>;
+  }
+
+  return (
+    <>
+      {teamData.logo ? (
+        <Image
+          src={teamData.logo}
+          alt={`${teamData.displayName}'s photo`}
+          width={96}
+          height={96}
+          className="rounded-full"
+        />
+      ) : (
+        <div className="bg-primary flex size-24 items-center justify-center rounded-full text-4xl font-semibold">
+          {teamData.displayName.charAt(0)}
+        </div>
+      )}
+      <h1 className="text-2xl font-semibold">{teamData.displayName}</h1>
+      <p className="text-muted-foreground text-sm">
+        Team active on Ascnd GG since{" "}
+        {new Date(teamData.createdAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}
+      </p>
+    </>
+  );
+}

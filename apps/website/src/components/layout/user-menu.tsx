@@ -19,6 +19,7 @@ import {
   Cog,
   Gamepad,
   LogOut,
+  PlusCircle,
   Trophy,
   User as UserIcon,
   Users,
@@ -41,50 +42,66 @@ export default function UserMenu({
   return (
     <>
       {user ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="rounded-full">
-            <Avatar>
-              <AvatarImage src={user.profilePictureUrl} />
-              <AvatarFallback>{`${user.username?.charAt(0).toUpperCase()}`}</AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuGroup>
-              <Link href={`/user/${user.username}`}>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <PlusCircle size={18} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Create</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => router.push("/create/team")}>
+                Team <Users />
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                Event <Gamepad />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="rounded-full">
+              <Avatar>
+                <AvatarImage src={user.profilePictureUrl} />
+                <AvatarFallback>{`${user.username?.charAt(0).toUpperCase()}`}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <Link href={`/user/${user.username}`}>
+                  <DropdownMenuItem>
+                    Profile <UserIcon />
+                  </DropdownMenuItem>
+                </Link>
+                <Link href={"/settings"}>
+                  <DropdownMenuItem>
+                    Settings <Cog />
+                  </DropdownMenuItem>
+                </Link>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Social</DropdownMenuLabel>
                 <DropdownMenuItem>
-                  Profile <UserIcon />
+                  Friends <Users />
                 </DropdownMenuItem>
-              </Link>
-              <Link href={"/settings"}>
                 <DropdownMenuItem>
-                  Settings <Cog />
+                  Games <Gamepad />
                 </DropdownMenuItem>
-              </Link>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Social</DropdownMenuLabel>
-              <DropdownMenuItem>
-                Friends <Users />
+                <DropdownMenuItem>
+                  Events <Trophy />
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <ThemeToggleSub />
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut}>
+                Sign Out <LogOut />
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                Games <Gamepad />
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Events <Trophy />
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <ThemeToggleSub />
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={signOut}>
-              Sign Out <LogOut />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
       ) : (
         <>
           <ThemeToggle />

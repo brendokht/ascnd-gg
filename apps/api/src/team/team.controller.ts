@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   NotFoundException,
   Param,
   Post,
@@ -16,6 +17,7 @@ import { User } from "@ascnd-gg/database";
 
 @Controller("team")
 export class TeamController {
+  private readonly logger = new Logger(TeamController.name);
   constructor(private readonly teamService: TeamService) {}
 
   @Get(":name")
@@ -33,7 +35,27 @@ export class TeamController {
 
   @UseGuards(AuthGuard)
   @Post()
-  async createTeam(@Req() req: Request, @Body() createTeamDto: CreateTeamDto) {
-    await this.teamService.createTeam(req["user"] as User, createTeamDto);
+  async createTeam(
+    @Req() req: Request,
+    @Body() createTeamDto: CreateTeamDto,
+  ): Promise<{ name: string }> {
+    this.logger.log("TeamController.createTeam(): Starting");
+    this.logger.log('TeamController.createTeam(): req["user"] =', req["user"]);
+    this.logger.log(
+      "TeamController.createTeam(): createTeamDto =",
+      createTeamDto,
+    );
+
+    const createdTeamName = await this.teamService.createTeam(
+      req["user"] as User,
+      createTeamDto,
+    );
+
+    this.logger.log(
+      "TeamController.createTeam(): createdTeamName =",
+      createdTeamName,
+    );
+
+    return { name: createdTeamName };
   }
 }

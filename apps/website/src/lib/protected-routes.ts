@@ -1,1 +1,5 @@
-export const protectedPathnames: Array<string> = ["/protected", "/settings"];
+export const protectedPathnames: Array<string> = [
+  "/protected",
+  "/settings",
+  "/create",
+];

@@ -25,7 +25,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <main className="container flex flex-1 flex-col items-center justify-center gap-8">
+          <main className="container flex min-h-[calc(100vh-96px)] flex-1 flex-col justify-center gap-8 md:min-h-0">
             {children}
           </main>
           <Footer />

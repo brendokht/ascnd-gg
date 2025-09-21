@@ -31,7 +31,7 @@ export const Team = z.object({
 export type TeamType = z.infer<typeof Team>;
 
 export class CreateTeamDto extends createZodDto(
-  Team.partial({ name: true }).pick({
+  Team.partial({ name: true, logo: true, banner: true }).pick({
     name: true,
     displayName: true,
     logo: true,
