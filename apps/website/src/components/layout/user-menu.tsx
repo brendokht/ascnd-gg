@@ -20,6 +20,7 @@ import {
   Gamepad,
   LogOut,
   PlusCircle,
+  ShieldHalf,
   Trophy,
   User as UserIcon,
   Users,
@@ -72,7 +73,7 @@ export default function UserMenu({
                     Profile <UserIcon />
                   </DropdownMenuItem>
                 </Link>
-                <Link href={"/settings"}>
+                <Link href={"/me/settings"}>
                   <DropdownMenuItem>
                     Settings <Cog />
                   </DropdownMenuItem>
@@ -84,9 +85,11 @@ export default function UserMenu({
                 <DropdownMenuItem>
                   Friends <Users />
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Games <Gamepad />
-                </DropdownMenuItem>
+                <Link href={"/me/teams"}>
+                  <DropdownMenuItem>
+                    Teams <ShieldHalf />
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem>
                   Events <Trophy />
                 </DropdownMenuItem>
