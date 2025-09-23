@@ -25,7 +25,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <main className="container flex min-h-[calc(100vh-96px)] flex-1 flex-col justify-center gap-8 md:min-h-0">
+          <main className="container flex min-h-[calc(100vh-96px)] flex-1 flex-col justify-center gap-8 pb-32 md:min-h-0 md:pb-8">
             {children}
           </main>
           <Footer />

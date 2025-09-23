@@ -26,7 +26,7 @@
       "dependsOn": ["ts:build", "^check-types"]
     },
     "dev": {
-      "dependsOn": ["ts:build-watch", "^db:generate"],
+      "dependsOn": ["^db:generate", "ts:build-watch"],
       "with": ["//#compose"],
       "cache": false,
       "persistent": true

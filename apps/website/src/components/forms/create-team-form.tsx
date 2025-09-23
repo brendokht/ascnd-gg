@@ -31,9 +31,7 @@ export default function CreateTeamForm() {
   });
 
   const onSubmit = async (values: createTeamSchemaType) => {
-    const createRes = (await postApi("/team", values)) as
-      | { name: string }
-      | false;
+    const createRes: { name: string } | false = await postApi("/team", values);
 
     if (!createRes) {
       console.error("something went wrong, check logs");
