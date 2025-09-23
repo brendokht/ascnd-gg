@@ -31,10 +31,19 @@ export default function CreateTeamForm() {
   });
 
   const onSubmit = async (values: createTeamSchemaType) => {
-    const createRes: { name: string } | false = await postApi("/team", values);
+    const { data, error } = await postApi<{ name: string }>("/team", values);
 
-    if (!createRes) {
-      console.error("something went wrong, check logs");
+    if (error) {
+      if (error.statusCode === 409)
+        form.setError("displayName", { message: error.message });
+      else form.setError("root", { message: error.message });
+      return;
+    }
+
+    if (!data) {
+      form.setError("root", {
+        message: "Something went wrong. Please try again.",
+      });
       return;
     }
 
@@ -42,7 +51,7 @@ export default function CreateTeamForm() {
       description: "Your team has been successfully created.",
     });
 
-    router.push(`/team/${createRes.name}`);
+    router.push(`/team/${data.name}`);
   };
 
   return (

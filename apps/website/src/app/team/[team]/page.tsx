@@ -5,7 +5,13 @@ import Image from "next/image";
 export default async function TeamProfile(props: PageProps<"/team/[team]">) {
   const { team } = await props.params;
 
-  const teamData: TeamViewModel = await fetchApi(`/team/${team}`);
+  const { data: teamData, error } = await fetchApi<TeamViewModel>(
+    `/team/${team}`,
+  );
+
+  if (error) {
+    return <>Error</>;
+  }
 
   if (!teamData) {
     return <>Team, &apos;{team}&apos; was not found</>;

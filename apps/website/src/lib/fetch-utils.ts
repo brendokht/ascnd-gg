@@ -1,28 +1,40 @@
 // TODO: Either remove or update this as need be
 
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
+import { type ApiErrorType } from "@ascnd-gg/types";
 
 /**
  *
  * @param route The route of the API to fetch. Must include a slash ("/") at the start
  * @param headers The headers for the request. Must be passed in when fetching from the server
- * @returns `null` if the response fails, else the JSON from the response
- */
-export async function fetchApi(route: string, headers?: ReadonlyHeaders) {
+ * @returns `{data, error}`, where data is either `T` or `null`, and error is either `null` or `ApiErrorType`
+   @example 
+   const { data: teams, error } = await fetchApi<Array<UserTeamViewModel>>(
+     "/me/teams",
+     await headers(),
+   );
+
+   if (error) {
+     return <>Something went wrong</>;
+   }
+  */
+export async function fetchApi<T>(
+  route: string,
+  headers?: ReadonlyHeaders,
+): Promise<{ data: T; error: null } | { data: null; error: ApiErrorType }> {
   const response = await fetch(`http://localhost:8080/v1${route}`, {
     credentials: "include",
     headers: headers,
   });
 
-  if (!response.ok) return null;
-
-  if (response.status !== 200 && response.status !== 304) {
-    return null;
+  if (!response.ok) {
+    const errorObject: ApiErrorType = await response.json();
+    return { data: null, error: errorObject };
   }
 
   const data = await response.json();
 
-  return data;
+  return { data: data, error: null };
 }
 
 /**
@@ -30,14 +42,34 @@ export async function fetchApi(route: string, headers?: ReadonlyHeaders) {
  * @param route The route of the API to post. Must include a slash ("/") at the start
  * @param body The object/values to be passed into the body of the request
  * @param headers The headers for the request. Must be passed in when fetching from the server
- * @returns `false` if the response fails, else the returned JSON from the response
- */
-export async function postApi(route: string, body: unknown, headers?: Headers) {
-  console.log("postApi: route =", route);
-  console.log("postApi: body =", body);
-  console.log("postApi: JSON.stringify(body) =", JSON.stringify(body));
+ * @returns `{data, error}`, where data is either `T` or `null`, and error is either `null` or `ApiErrorType`
+   @example 
+   const { data, error } = await postApi<{ name: string }>("/team", values);
 
-  headers?.append("Content-Type", "application/json");
+   if (error) {
+     if (error.statusCode === 409)
+      form.setError("displayName", { message: error.message });
+     else form.setError("root", { message: error.message });
+     return;
+   }
+
+   if (!data) {
+     form.setError("root", {
+       message: "Something went wrong. Please try again.",
+     });
+     return;
+   }
+*/
+export async function postApi<T>(
+  route: string,
+  body: unknown,
+  headers?: Headers,
+): Promise<{ data: T; error: null } | { data: null; error: ApiErrorType }> {
+  if (!headers) {
+    headers = new Headers();
+  }
+
+  headers.append("Content-Type", "application/json");
 
   const response = await fetch(`http://localhost:8080/v1${route}`, {
     method: "POST",
@@ -46,13 +78,12 @@ export async function postApi(route: string, body: unknown, headers?: Headers) {
     headers: headers,
   });
 
-  console.log("postApi: response =", response);
+  if (!response.ok) {
+    const errorObject: ApiErrorType = await response.json();
+    return { data: null, error: errorObject };
+  }
 
-  if (!response.ok) return false;
+  const responseObject: T = await response.json();
 
-  const responseObject = await response.json();
-
-  console.log("postApi: responseObject =", responseObject);
-
-  return responseObject;
+  return { data: responseObject, error: null };
 }

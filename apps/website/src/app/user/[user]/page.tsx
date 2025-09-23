@@ -5,7 +5,13 @@ import Image from "next/image";
 export default async function UserProfile(props: PageProps<"/user/[user]">) {
   const { user } = await props.params;
 
-  const userData: UserViewModel = await fetchApi(`/user/${user}`);
+  const { data: userData, error } = await fetchApi<UserViewModel>(
+    `/user/${user}`,
+  );
+
+  if (error) {
+    return <>Error</>;
+  }
 
   if (!userData) {
     return <>User &apos;{user}&apos; was not found</>;

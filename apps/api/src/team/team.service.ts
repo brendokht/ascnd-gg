@@ -1,8 +1,8 @@
 import { CreateTeamDto, TeamViewModel } from "@ascnd-gg/types";
-import { Injectable, Logger } from "@nestjs/common";
+import { ConflictException, Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { User } from "@ascnd-gg/database";
-
+import { Prisma } from "@ascnd-gg/database";
 @Injectable()
 export class TeamService {
   private readonly logger = new Logger(TeamService.name);
@@ -14,23 +14,34 @@ export class TeamService {
 
     this.logger.log("TeamService.createTeam(): createTeamDto =", createTeamDto);
 
-    const teamCreate = await this.prismaService.team.create({
-      data: {
-        displayName: createTeamDto.displayName,
-        name: createTeamDto.name,
-        logo: createTeamDto.logo,
-        banner: createTeamDto.banner,
-        members: {
-          create: {
-            userId: user.id,
+    try {
+      const teamCreate = await this.prismaService.team.create({
+        data: {
+          displayName: createTeamDto.displayName,
+          name: createTeamDto.name,
+          logo: createTeamDto.logo,
+          banner: createTeamDto.banner,
+          members: {
+            create: {
+              userId: user.id,
+            },
           },
         },
-      },
-    });
+      });
 
-    this.logger.log("TeamService.createTeam(): teamCreate =", teamCreate);
+      this.logger.log("TeamService.createTeam(): teamCreate =", teamCreate);
 
-    return teamCreate.name;
+      return teamCreate.name;
+    } catch (error) {
+      this.logger.error(error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          throw new ConflictException(
+            `Team with name ${createTeamDto.displayName} already exists. Please choose a different name.`,
+          );
+        }
+      }
+    }
   }
 
   async getTeamByName(name: string): Promise<TeamViewModel | null> {
