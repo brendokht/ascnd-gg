@@ -9,7 +9,12 @@ export class UserService {
   async getUserByUsername(username: string): Promise<UserViewModel | null> {
     const userSelect = await this.prismaService.user.findFirst({
       where: { username: username },
-      select: { displayUsername: true, image: true, createdAt: true },
+      select: {
+        displayUsername: true,
+        image: true,
+        createdAt: true,
+        teams: { select: { team: true } },
+      },
     });
 
     if (!userSelect) {
@@ -20,6 +25,13 @@ export class UserService {
       displayUsername: userSelect.displayUsername,
       profilePictureUrl: userSelect.image,
       createdAt: userSelect.createdAt.toISOString(),
+      teams: userSelect.teams.map((t) => {
+        return {
+          name: t.team.name,
+          displayName: t.team.displayName,
+          logo: t.team.logo,
+        };
+      }),
     };
 
     return user;

@@ -25,6 +25,7 @@ import {
 } from "nestjs-zod";
 import { BaseExceptionFilter } from "@nestjs/core";
 import { ZodError } from "@ascnd-gg/types";
+import { MeModule } from './me/me.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ZodError } from "@ascnd-gg/types";
     UserModule,
     StorageModule,
     TeamModule,
+    MeModule,
   ],
   controllers: [AppController, AuthController, UserController],
   providers: [

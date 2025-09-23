@@ -1,5 +1,6 @@
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@ascnd-gg/constants";
 import z from "zod";
+import { Team } from "./team";
 
 export const User = z.object({
   email: z.email(),
@@ -18,11 +19,19 @@ export const User = z.object({
   profilePictureUrl: z.url().optional(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
+  teams: Team.pick({ name: true, displayName: true, logo: true })
+    .array()
+    .optional(),
 });
 
 export type UserType = z.infer<typeof User>;
 
 export type UserViewModel = Pick<
   UserType,
-  "displayUsername" | "profilePictureUrl" | "createdAt"
+  "displayUsername" | "profilePictureUrl" | "createdAt" | "teams"
+>;
+
+export type UserTeamViewModel = Pick<
+  NonNullable<UserType["teams"]>[0],
+  "name" | "displayName" | "logo"
 >;
