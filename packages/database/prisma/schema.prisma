@@ -25,7 +25,8 @@ model User {
 
   active Boolean @default(false)
 
-  teams UserTeam[]
+  ownedTeams Team[]
+  teams      UserTeam[]
 
   @@unique([email])
   @@map("user")
@@ -79,6 +80,8 @@ model Verification {
 
 model Team {
   id          String     @id @default(uuid(7))
+  teamOwnerId String
+  teamOwner   User       @relation(fields: [teamOwnerId], references: [id], onDelete: Cascade)
   name        String
   displayName String
   logo        String?
