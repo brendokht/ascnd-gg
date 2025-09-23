@@ -1,5 +1,5 @@
 import { UserViewModel } from "@ascnd-gg/types";
-import { fetchApi } from "@ascnd-gg/website/lib/fetch-api";
+import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import Image from "next/image";
 
 export default async function UserProfile(props: PageProps<"/user/[user]">) {

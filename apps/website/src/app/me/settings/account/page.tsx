@@ -1,15 +1,9 @@
-import { auth } from "@ascnd-gg/auth";
 import UpdateNameForm from "@ascnd-gg/website/components/forms/update-name-form";
 import UpdateUsernameForm from "@ascnd-gg/website/components/forms/update-username-form";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { validateSession } from "@ascnd-gg/website/lib/validate-session";
 
 export default async function AccountSettings() {
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session) {
-    redirect("/sign-in?unauthorized=true");
-  }
+  const session = await validateSession();
 
   const user = session.user;
 

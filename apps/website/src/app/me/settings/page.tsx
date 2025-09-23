@@ -1,7 +1,9 @@
+import { validateSession } from "@ascnd-gg/website/lib/validate-session";
 import { Bell, CreditCard, Eye, User } from "lucide-react";
 import Link from "next/link";
 
-export default function Settings() {
+export default async function Settings() {
+  await validateSession();
   return (
     <>
       <h1 className="text-2xl font-semibold">Settings</h1>

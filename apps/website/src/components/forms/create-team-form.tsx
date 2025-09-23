@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@ascnd-gg/ui/components/ui/form";
 import { Input } from "@ascnd-gg/ui/components/ui/input";
-import { postApi } from "@ascnd-gg/website/lib/fetch-api";
+import { postApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
