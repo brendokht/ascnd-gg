@@ -23,9 +23,15 @@ import {
   ZodSerializerInterceptor,
   ZodValidationPipe,
 } from "nestjs-zod";
-import { BaseExceptionFilter } from "@nestjs/core";
+import {
+  APP_GUARD,
+  APP_INTERCEPTOR,
+  APP_PIPE,
+  BaseExceptionFilter,
+} from "@nestjs/core";
 import { ZodError } from "@ascnd-gg/types";
-import { MeModule } from './me/me.module';
+import { MeModule } from "./me/me.module";
+import { AuthGuard } from "./auth/auth.guard";
 
 @Module({
   imports: [
@@ -43,8 +49,9 @@ import { MeModule } from './me/me.module';
     AppService,
     AuthService,
     UserService,
-    { provide: "APP_PIPE", useClass: ZodValidationPipe },
-    { provide: "APP_INTERCEPTOR", useClass: ZodSerializerInterceptor },
+    { provide: APP_PIPE, useClass: ZodValidationPipe },
+    { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
+    { provide: APP_GUARD, useClass: AuthGuard },
   ],
 })
 export class AppModule {}
