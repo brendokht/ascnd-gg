@@ -26,6 +26,7 @@ export const Team = z.object({
   banner: z.url().nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
+  isTeamOwner: z.boolean().prefault(false),
 });
 
 export type TeamType = z.infer<typeof Team>;
@@ -41,5 +42,5 @@ export class CreateTeamDto extends createZodDto(
 
 export type TeamViewModel = Pick<
   TeamType,
-  "displayName" | "logo" | "banner" | "createdAt"
+  "displayName" | "logo" | "banner" | "createdAt" | "isTeamOwner"
 >;

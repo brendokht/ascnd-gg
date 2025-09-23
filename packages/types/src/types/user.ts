@@ -19,7 +19,12 @@ export const User = z.object({
   profilePictureUrl: z.url().optional(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-  teams: Team.pick({ name: true, displayName: true, logo: true })
+  teams: Team.pick({
+    name: true,
+    displayName: true,
+    logo: true,
+    isTeamOwner: true,
+  })
     .array()
     .optional(),
 });
@@ -33,5 +38,5 @@ export type UserViewModel = Pick<
 
 export type UserTeamViewModel = Pick<
   NonNullable<UserType["teams"]>[0],
-  "name" | "displayName" | "logo"
+  "name" | "displayName" | "logo" | "isTeamOwner"
 >;

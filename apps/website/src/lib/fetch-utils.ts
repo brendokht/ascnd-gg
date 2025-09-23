@@ -1,5 +1,3 @@
-// TODO: Either remove or update this as need be
-
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import { type ApiErrorType } from "@ascnd-gg/types";
 
@@ -21,13 +19,18 @@ import { type ApiErrorType } from "@ascnd-gg/types";
 export async function fetchApi<T>(
   route: string,
   headers?: ReadonlyHeaders,
-): Promise<{ data: T; error: null } | { data: null; error: ApiErrorType }> {
+): Promise<
+  { data: T | null; error: null } | { data: null; error: ApiErrorType }
+> {
   const response = await fetch(`http://localhost:8080/v1${route}`, {
     credentials: "include",
     headers: headers,
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      return { data: null, error: null };
+    }
     const errorObject: ApiErrorType = await response.json();
     return { data: null, error: errorObject };
   }
@@ -64,7 +67,9 @@ export async function postApi<T>(
   route: string,
   body: unknown,
   headers?: Headers,
-): Promise<{ data: T; error: null } | { data: null; error: ApiErrorType }> {
+): Promise<
+  { data: T | null; error: null } | { data: null; error: ApiErrorType }
+> {
   if (!headers) {
     headers = new Headers();
   }

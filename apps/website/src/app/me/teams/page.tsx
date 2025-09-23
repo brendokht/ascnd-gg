@@ -19,7 +19,7 @@ export default async function Teams() {
     <>
       <h1 className="text-center text-4xl font-semibold">Your Teams</h1>
       <div className="grid gap-8">
-        {teams.length > 0 ? (
+        {teams && teams.length > 0 ? (
           teams.map((team) => {
             return (
               <div
@@ -43,13 +43,15 @@ export default async function Teams() {
                   <p className="text-lg font-semibold">{team.displayName}</p>
                 </div>
                 <div className="flex gap-4">
-                  <Link
-                    href="/"
-                    className="bg-primary flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:cursor-default"
-                  >
-                    Edit
-                    <Edit size={16} />
-                  </Link>
+                  {team.isTeamOwner && (
+                    <Link
+                      href="/"
+                      className="bg-primary flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:cursor-default"
+                    >
+                      Edit
+                      <Edit size={16} />
+                    </Link>
+                  )}
                   <Link
                     href={`/team/${team.name}`}
                     className="bg-primary flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:cursor-default"

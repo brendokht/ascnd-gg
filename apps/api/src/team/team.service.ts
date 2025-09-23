@@ -12,8 +12,6 @@ export class TeamService {
     // Set 'name' to normalized version of 'displayName'
     createTeamDto.name = createTeamDto.displayName.toLowerCase();
 
-    this.logger.log("TeamService.createTeam(): createTeamDto =", createTeamDto);
-
     try {
       const teamCreate = await this.prismaService.team.create({
         data: {
@@ -21,6 +19,7 @@ export class TeamService {
           name: createTeamDto.name,
           logo: createTeamDto.logo,
           banner: createTeamDto.banner,
+          teamOwner: { connect: { id: user.id } },
           members: {
             create: {
               userId: user.id,
@@ -29,11 +28,8 @@ export class TeamService {
         },
       });
 
-      this.logger.log("TeamService.createTeam(): teamCreate =", teamCreate);
-
       return teamCreate.name;
     } catch (error) {
-      this.logger.error(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           throw new ConflictException(
@@ -44,10 +40,19 @@ export class TeamService {
     }
   }
 
-  async getTeamByName(name: string): Promise<TeamViewModel | null> {
+  async getTeamByName(
+    name: string,
+    userId: string | undefined,
+  ): Promise<TeamViewModel | null> {
     const teamSelect = await this.prismaService.team.findFirst({
       where: { name: name },
-      select: { displayName: true, logo: true, banner: true, createdAt: true },
+      select: {
+        displayName: true,
+        logo: true,
+        banner: true,
+        createdAt: true,
+        teamOwnerId: true,
+      },
     });
 
     if (!teamSelect) {
@@ -59,6 +64,7 @@ export class TeamService {
       logo: teamSelect.logo,
       banner: teamSelect.banner,
       createdAt: teamSelect.createdAt.toISOString(),
+      isTeamOwner: userId === teamSelect.teamOwnerId,
     };
 
     return team;

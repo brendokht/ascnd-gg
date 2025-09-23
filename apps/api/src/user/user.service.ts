@@ -10,6 +10,7 @@ export class UserService {
     const userSelect = await this.prismaService.user.findFirst({
       where: { username: username },
       select: {
+        id: true,
         displayUsername: true,
         image: true,
         createdAt: true,
@@ -30,6 +31,7 @@ export class UserService {
           name: t.team.name,
           displayName: t.team.displayName,
           logo: t.team.logo,
+          isTeamOwner: t.team.teamOwnerId === userSelect.id,
         };
       }),
     };

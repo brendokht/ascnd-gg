@@ -1,5 +1,6 @@
 import { TeamViewModel } from "@ascnd-gg/types";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
+import { headers } from "next/headers";
 import Image from "next/image";
 
 export default async function TeamProfile(props: PageProps<"/team/[team]">) {
@@ -7,6 +8,7 @@ export default async function TeamProfile(props: PageProps<"/team/[team]">) {
 
   const { data: teamData, error } = await fetchApi<TeamViewModel>(
     `/team/${team}`,
+    await headers(),
   );
 
   if (error) {
@@ -40,6 +42,9 @@ export default async function TeamProfile(props: PageProps<"/team/[team]">) {
           month: "long",
           day: "numeric",
         })}
+      </p>
+      <p>
+        {teamData.isTeamOwner ? "You are the owner" : "You are not the owner"}
       </p>
     </>
   );
