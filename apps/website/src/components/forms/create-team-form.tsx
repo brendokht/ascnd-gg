@@ -58,7 +58,7 @@ export default function CreateTeamForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex grow flex-col justify-between"
+        className="flex max-w-lg flex-col"
       >
         <div className="space-y-4">
           <FormField
@@ -104,7 +104,18 @@ export default function CreateTeamForm() {
             )}
           />
         </div>
-        <Button type="submit">Create</Button>
+        <div className="flex flex-col gap-4 md:flex-row-reverse md:justify-between">
+          <Button type="submit">Create</Button>
+          <Button
+            type="button"
+            variant={"outline"}
+            onClick={() => {
+              router.back();
+            }}
+          >
+            Back
+          </Button>
+        </div>
       </form>
     </Form>
   );

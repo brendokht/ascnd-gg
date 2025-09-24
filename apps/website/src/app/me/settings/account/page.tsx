@@ -9,11 +9,9 @@ export default async function AccountSettings() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">Account Settings</h1>
-      <div className="flex w-full flex-col gap-3 rounded-md border p-4">
+      <h1 className="text-center text-2xl font-semibold">Account Settings</h1>
+      <div className="flex flex-col items-center gap-8 *:w-full *:rounded-md *:border *:p-4">
         <UpdateUsernameForm currentUsername={user.username ?? ""} />
-      </div>
-      <div className="flex w-full flex-col gap-3 rounded-md border p-4">
         <UpdateNameForm currentName={user.name ?? ""} />
       </div>
     </>
