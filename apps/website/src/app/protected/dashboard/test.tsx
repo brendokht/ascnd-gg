@@ -5,7 +5,13 @@ import { FileUploadDialog } from "@ascnd-gg/website/components/dialogs/file-uplo
 
 export default function FileUploadTest() {
   return (
-    <FileUploadDialog shape="rectangle">
+    <FileUploadDialog
+      shape="rectangle"
+      onSubmit={(fileUrl, fileBlob) => {
+        console.log("fileUrl", fileUrl);
+        console.log("fileBlob", fileBlob);
+      }}
+    >
       <Button>Upload File</Button>
     </FileUploadDialog>
   );

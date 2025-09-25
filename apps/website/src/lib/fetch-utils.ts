@@ -65,7 +65,8 @@ export async function fetchApi<T>(
 */
 export async function postApi<T>(
   route: string,
-  body: unknown,
+  body: BodyInit,
+  contentType?: string,
   headers?: Headers,
 ): Promise<
   { data: T | null; error: null } | { data: null; error: ApiErrorType }
@@ -74,11 +75,11 @@ export async function postApi<T>(
     headers = new Headers();
   }
 
-  headers.append("Content-Type", "application/json");
+  if (contentType) headers.append("Content-Type", contentType);
 
   const response = await fetch(`http://localhost:8080/v1${route}`, {
     method: "POST",
-    body: JSON.stringify(body),
+    body: body,
     credentials: "include",
     headers: headers,
   });

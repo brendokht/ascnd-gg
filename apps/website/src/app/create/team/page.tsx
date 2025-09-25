@@ -7,7 +7,7 @@ export default async function CreateTeam() {
   return (
     <>
       <h1 className="text-center text-2xl font-semibold">Create a Team</h1>
-      <div className="flex justify-center *:w-full *:gap-8 *:rounded-md *:border *:p-4 *:md:gap-16">
+      <div className="flex justify-center *:h-full *:w-full *:gap-8 *:rounded-md *:border *:p-4 *:md:gap-16">
         <CreateTeamForm />
       </div>
     </>

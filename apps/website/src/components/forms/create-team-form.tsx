@@ -17,6 +17,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { FileUploadDialog } from "../dialogs/file-upload-dialog";
+import { useState } from "react";
+import Image from "next/image";
 
 export default function CreateTeamForm() {
   const router = useRouter();
@@ -25,13 +28,20 @@ export default function CreateTeamForm() {
     resolver: zodResolver(createTeamSchema),
     defaultValues: {
       displayName: "",
-      logo: undefined,
-      banner: undefined,
     },
   });
 
+  const [logoPreview, setLogoPreview] = useState<string>("");
+  const [bannerPreview, setBannerPreview] = useState<string>("");
+
   const onSubmit = async (values: createTeamSchemaType) => {
-    const { data, error } = await postApi<{ name: string }>("/team", values);
+    const formData = new FormData();
+
+    formData.append("displayName", values.displayName);
+    formData.append("logo", values.logo ?? "");
+    formData.append("banner", values.banner ?? "");
+
+    const { data, error } = await postApi<{ name: string }>("/team", formData);
 
     if (error) {
       if (error.statusCode === 409)
@@ -75,29 +85,71 @@ export default function CreateTeamForm() {
               </FormItem>
             )}
           />
+          {logoPreview && (
+            <div className="relative aspect-square">
+              <Image
+                src={logoPreview}
+                alt="Image Preview"
+                loading="eager"
+                fill
+                quality={25}
+                placeholder="empty"
+              />
+            </div>
+          )}
           <FormField
             control={form.control}
             name="logo"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Team Logo</FormLabel>
                 <FormDescription>Your team&apos;s logo</FormDescription>
                 <FormControl>
-                  <Input type="file" {...field} />
+                  <FileUploadDialog
+                    shape="square"
+                    item="logo"
+                    onSubmit={(fileUrl, fileBlob) => {
+                      form.setValue("logo", fileBlob);
+                      setLogoPreview(fileUrl);
+                    }}
+                  >
+                    <Button variant={"outline"}>Upload Logo</Button>
+                  </FileUploadDialog>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {bannerPreview && (
+            <div className="aspect-rectangle relative">
+              <Image
+                src={bannerPreview}
+                alt="Image Preview"
+                loading="eager"
+                fill
+                quality={25}
+                placeholder="empty"
+              />
+            </div>
+          )}
           <FormField
             control={form.control}
             name="banner"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Team Banner</FormLabel>
                 <FormDescription>Your team&apos;s banner</FormDescription>
                 <FormControl>
-                  <Input type="file" {...field} />
+                  <FileUploadDialog
+                    shape="rectangle"
+                    item="banner"
+                    onSubmit={(fileUrl, fileBlob) => {
+                      form.setValue("banner", fileBlob);
+                      setBannerPreview(fileUrl);
+                    }}
+                  >
+                    <Button variant={"outline"}>Upload Banner</Button>
+                  </FileUploadDialog>
                 </FormControl>
                 <FormMessage />
               </FormItem>

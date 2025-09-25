@@ -23,16 +23,18 @@ export function FileUploadDialog({
   item = "file",
   maxFileSizeMB = 4,
   acceptedFileTypes = ["image/png", "image/jpg", "image/jpeg"],
+  onSubmit,
 }: {
   children: ReactNode;
   shape: "square" | "rectangle";
   item?: string;
   maxFileSizeMB?: number;
   acceptedFileTypes?: string[];
+  onSubmit: (fileUrl: string, fileBlob: Blob) => void;
 }) {
   const maxFileSize = maxFileSizeMB * 1024 * 1024;
 
-  const [file, setFile] = useState<string | undefined>(undefined);
+  const [fileUrl, setFileUrl] = useState<string | undefined>(undefined);
   const [fileName, setFileName] = useState<string | undefined>(undefined);
   const [fileSize, setFileSize] = useState<number | undefined>(undefined);
 
@@ -43,8 +45,6 @@ export function FileUploadDialog({
 
   const handleFileValidation = (file: File) => {
     const selectedFileType = file.type;
-
-    console.log(file);
 
     if (!acceptedFileTypes.includes(selectedFileType)) {
       toast.error("Image submission error", {
@@ -82,7 +82,7 @@ export function FileUploadDialog({
         return;
       }
 
-      setFile(result.blobUrl);
+      setFileUrl(result.blobUrl);
       setFileName(result.name);
       setFileSize(result.size);
     }
@@ -100,14 +100,14 @@ export function FileUploadDialog({
         return;
       }
 
-      setFile(result.blobUrl);
+      setFileUrl(result.blobUrl);
       setFileName(result.name);
       setFileSize(result.size);
     }
   };
 
   const resetUpload = () => {
-    setFile(undefined);
+    setFileUrl(undefined);
     setFileName("");
     setFileSize(0);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -137,7 +137,7 @@ export function FileUploadDialog({
           </DialogDescription>
         </DialogHeader>
         <div>
-          {file ? (
+          {fileUrl ? (
             <div className={"rounded-sm border py-4"}>
               <div className="flex flex-col gap-4">
                 <div
@@ -147,7 +147,15 @@ export function FileUploadDialog({
                   )}
                 >
                   <div className="relative size-[90%]">
-                    <Image src={file} alt="Image Preview" loading="lazy" fill />
+                    {/* TODO: Fix slow loading of larger images */}
+                    <Image
+                      src={fileUrl}
+                      alt="Image Preview"
+                      loading="eager"
+                      fill
+                      quality={25}
+                      placeholder="empty"
+                    />
                   </div>
                 </div>
 
@@ -225,15 +233,31 @@ export function FileUploadDialog({
         </div>
         <DialogFooter>
           <div
-            className={`grid ${file ? "grid-cols-2" : "grid-cols-2"} w-full gap-3`}
+            className={`grid ${fileUrl ? "grid-cols-2" : "grid-cols-2"} w-full gap-3`}
           >
-            {file ? (
+            {fileUrl ? (
               <>
                 <Button variant="outline" onClick={resetUpload}>
                   <X />
                   Reset
                 </Button>
-                <Button onClick={() => console.log("handle submit")}>
+                <Button
+                  onClick={async () => {
+                    if (!fileUrl) {
+                      toast.error("Error", {
+                        description: "No file inputted.",
+                      });
+                    }
+
+                    const fileRes = await fetch(fileUrl);
+
+                    const fileBlob = await fileRes.blob();
+
+                    onSubmit(fileUrl, fileBlob);
+
+                    setOpen(false);
+                  }}
+                >
                   <Check />
                   Apply
                 </Button>

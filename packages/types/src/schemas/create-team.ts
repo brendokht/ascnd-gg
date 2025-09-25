@@ -1,20 +1,17 @@
-import {
-  TEAM_NAME_MAX_LENGTH,
-  TEAM_NAME_MIN_LENGTH,
-} from "@ascnd-gg/constants";
 import { z } from "zod";
+import { Team } from "../types";
+import { createZodDto } from "nestjs-zod";
 
 export const createTeamSchema = z.object({
-  displayName: z
-    .string({ error: "Team name is required" })
-    .min(TEAM_NAME_MIN_LENGTH, {
-      error: "Team name must be at least 3 characters",
-    })
-    .max(TEAM_NAME_MAX_LENGTH, {
-      error: "Team name must be 30 characters or less",
-    }),
-  logo: z.url().optional(),
-  banner: z.url().optional(),
+  ...Team.pick({ displayName: true }).shape,
+  logo: z.instanceof(Blob).optional(),
+  banner: z.instanceof(Blob).optional(),
 });
+
+const createTeamDto = createTeamSchema
+  .omit({ banner: true, logo: true })
+  .extend(Team.partial({ name: true }).pick({ name: true }).shape);
+
+export class CreateTeamDto extends createZodDto(createTeamDto) {}
 
 export type createTeamSchemaType = z.infer<typeof createTeamSchema>;

@@ -7,7 +7,9 @@
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "MINIO_ACCESS_KEY",
-    "MINIO_SECRET_KEY"
+    "MINIO_SECRET_KEY",
+    "S3_BUCKET",
+    "S3_ENDPOINT"
   ],
   "tasks": {
     "build": {
