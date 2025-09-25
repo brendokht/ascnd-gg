@@ -1,5 +1,6 @@
 import HomeButton from "./home-button";
 import { validateSession } from "@ascnd-gg/website/lib/validate-session";
+import FileUploadTest from "./test";
 
 export default async function Dashboard() {
   const session = await validateSession();
@@ -16,6 +17,7 @@ export default async function Dashboard() {
         <div className="flex gap-4">
           <HomeButton />
         </div>
+        <FileUploadTest />
       </main>
     </div>
   );
