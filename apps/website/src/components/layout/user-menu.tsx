@@ -29,13 +29,9 @@ import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { ThemeToggle, ThemeToggleSub } from "../theme/theme-toggle";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserType } from "@ascnd-gg/types";
+import { type UserViewModel } from "@ascnd-gg/types";
 
-export default function UserMenu({
-  user,
-}: {
-  user: UserType | undefined | null;
-}) {
+export default function UserMenu({ user }: { user: UserViewModel | null }) {
   const { signOut } = useAuth();
 
   const router = useRouter();

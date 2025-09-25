@@ -66,11 +66,8 @@ export default function CreateTeamForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex max-w-lg flex-col"
-      >
-        <div className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+        <div className="mb-8 space-y-4">
           <FormField
             control={form.control}
             name="displayName"
