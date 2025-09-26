@@ -16,6 +16,7 @@ export class MeService {
             name: true,
             displayName: true,
             logo: true,
+            banner: true,
             teamOwnerId: true,
           },
         },
@@ -27,6 +28,7 @@ export class MeService {
         name: team.name,
         displayName: team.displayName,
         logo: team.logo,
+        banner: team.banner,
         isTeamOwner: userId === team.teamOwnerId,
       };
     });

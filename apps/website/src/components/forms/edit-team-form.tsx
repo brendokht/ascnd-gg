@@ -12,27 +12,58 @@ import {
   FormMessage,
 } from "@ascnd-gg/ui/components/ui/form";
 import { Input } from "@ascnd-gg/ui/components/ui/input";
-import { postApi } from "@ascnd-gg/website/lib/fetch-utils";
+import { putApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FileUploadDialog } from "../dialogs/file-upload-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
-export default function CreateTeamForm() {
+export default function EditTeamForm({
+  defaultValues,
+}: {
+  defaultValues: {
+    displayName: string | undefined;
+    logo: string | null;
+    banner: string | null;
+  };
+}) {
   const router = useRouter();
 
   const form = useForm<createTeamSchemaType>({
     resolver: zodResolver(createTeamSchema),
     defaultValues: {
-      displayName: "",
+      displayName: defaultValues?.displayName ?? "",
     },
   });
 
-  const [logoPreview, setLogoPreview] = useState<string>("");
-  const [bannerPreview, setBannerPreview] = useState<string>("");
+  useEffect(() => {
+    async function getBlobs() {
+      if (defaultValues?.logo) {
+        const logoBlob = await fetch(defaultValues.logo).then(
+          async (res) => await res.blob(),
+        );
+        form.setValue("logo", logoBlob);
+      }
+      if (defaultValues?.banner) {
+        const bannerBlob = await fetch(defaultValues.banner).then(
+          async (res) => await res.blob(),
+        );
+        form.setValue("banner", bannerBlob);
+      }
+    }
+
+    getBlobs();
+  }, [defaultValues, form]);
+
+  const [logoPreview, setLogoPreview] = useState<string>(
+    defaultValues?.logo ?? "",
+  );
+  const [bannerPreview, setBannerPreview] = useState<string>(
+    defaultValues?.banner ?? "",
+  );
 
   const onSubmit = async (values: createTeamSchemaType) => {
     const formData = new FormData();
@@ -41,7 +72,7 @@ export default function CreateTeamForm() {
     formData.append("logo", values.logo ?? "");
     formData.append("banner", values.banner ?? "");
 
-    const { data, error } = await postApi<{ name: string }>("/team", formData);
+    const { data, error } = await putApi<{ name: string }>("/team", formData);
 
     if (error) {
       if (error.statusCode === 409)
@@ -58,10 +89,10 @@ export default function CreateTeamForm() {
     }
 
     toast.success("Success", {
-      description: "Your team has been successfully created.",
+      description: "Your team has been successfully updated.",
     });
 
-    router.push(`/team/${data.name}`);
+    router.refresh();
   };
 
   return (
@@ -189,7 +220,7 @@ export default function CreateTeamForm() {
               !form.formState.dirtyFields
             }
           >
-            Create
+            Update
           </Button>
           <Button
             type="button"

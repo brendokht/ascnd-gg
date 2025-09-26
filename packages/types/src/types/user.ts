@@ -25,6 +25,7 @@ export const User = z.object({
     name: true,
     displayName: true,
     logo: true,
+    banner: true,
     isTeamOwner: true,
   })
     .array()
@@ -40,5 +41,5 @@ export type UserViewModel = Pick<
 
 export type UserTeamViewModel = Pick<
   NonNullable<UserType["teams"]>[0],
-  "name" | "displayName" | "logo" | "isTeamOwner"
+  "name" | "displayName" | "logo" | "banner" | "isTeamOwner"
 >;
