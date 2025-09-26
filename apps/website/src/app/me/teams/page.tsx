@@ -26,13 +26,6 @@ export default async function Teams() {
     );
   }
 
-  teams.push({
-    isTeamOwner: false,
-    name: "thisisaveryveryverylongteamname",
-    displayName: "ThisIsAVeryVeryVeryLongTeamName",
-    logo: null,
-  });
-
   return (
     <>
       <div className="space-y-2">

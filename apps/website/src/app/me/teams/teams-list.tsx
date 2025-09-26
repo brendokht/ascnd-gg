@@ -9,6 +9,7 @@ import {
 import { Badge } from "@ascnd-gg/ui/components/ui/badge";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
+import { EditTeamDialog } from "@ascnd-gg/website/components/dialogs/edit-team-dialog";
 import { Crown, Edit, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -62,13 +63,21 @@ export default function TeamsList({
                   <Eye />
                 </Button>
                 {team.isTeamOwner && (
-                  <Button
-                    size="icon"
-                    onClick={() => console.log(`Editing team ${team.name}`)}
-                    className="gap-2"
+                  <EditTeamDialog
+                    defaultValues={{
+                      displayName: team.displayName,
+                      logo: team.logo,
+                      banner: team.banner,
+                    }}
                   >
-                    <Edit />
-                  </Button>
+                    <Button
+                      size="icon"
+                      onClick={() => console.log(`Editing team ${team.name}`)}
+                      className="gap-2"
+                    >
+                      <Edit />
+                    </Button>
+                  </EditTeamDialog>
                 )}
               </div>
             </div>
