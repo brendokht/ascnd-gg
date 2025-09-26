@@ -10,12 +10,14 @@ export default function Page() {
     <>
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-semibold">Welcome to Ascnd GG</h1>
-        <p>To be able to compete, please sign in below</p>
+        <p>To continue using Asncd GG, please sign in below</p>
       </div>
-      <Button variant={"outline"} onClick={signIn}>
-        <SiGoogle color={"default"} />
-        Continue with Google
-      </Button>
+      <div className="flex justify-center">
+        <Button className="w-fit" variant={"outline"} onClick={signIn}>
+          <SiGoogle color={"default"} />
+          Continue with Google
+        </Button>
+      </div>
     </>
   );
 }

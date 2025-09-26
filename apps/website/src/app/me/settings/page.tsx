@@ -6,7 +6,12 @@ export default async function Settings() {
   await validateSession();
   return (
     <>
-      <h1 className="text-2xl font-semibold">Settings</h1>
+      <div className="space-y-2">
+        <h1 className="text-4xl font-semibold">Settings</h1>
+        <p className="text-muted-foreground text-pretty">
+          Manage your acccount settings, notifications, billing, and privacy
+        </p>
+      </div>
       <div className="*:bg-primary *:hover:scale-98 grid grid-cols-2 gap-4 *:flex *:aspect-square *:min-w-36 *:items-center *:justify-center *:gap-4 *:rounded-md *:p-4 *:text-lg *:font-semibold *:duration-150 lg:grid-cols-4">
         <Link href="/me/settings/account">
           <User />

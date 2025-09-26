@@ -7,12 +7,15 @@ import {
   Param,
   Post,
   Req,
+  UploadedFiles,
+  UseInterceptors,
 } from "@nestjs/common";
 import { TeamService } from "./team.service";
 import { CreateTeamDto, TeamViewModel } from "@ascnd-gg/types";
 import { Request } from "express";
 import { User } from "@ascnd-gg/database";
 import { Optional } from "../auth/auth.decorator";
+import { FileFieldsInterceptor } from "@nestjs/platform-express";
 
 @Controller("team")
 export class TeamController {
@@ -38,13 +41,25 @@ export class TeamController {
   }
 
   @Post()
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: "logo", maxCount: 1 },
+        { name: "banner", maxCount: 1 },
+      ],
+      { limits: { fileSize: 4 * 1024 * 1024 } },
+    ),
+  )
   async createTeam(
     @Req() req: Request,
     @Body() createTeamDto: CreateTeamDto,
+    @UploadedFiles()
+    files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ): Promise<{ name: string }> {
     const createdTeamName = await this.teamService.createTeam(
       req["user"] as User,
       createTeamDto,
+      files,
     );
 
     return { name: createdTeamName };

@@ -1,3 +1,4 @@
+import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
 import CreateTeamForm from "@ascnd-gg/website/components/forms/create-team-form";
 import { validateSession } from "@ascnd-gg/website/lib/validate-session";
 
@@ -6,10 +7,17 @@ export default async function CreateTeam() {
 
   return (
     <>
-      <h1 className="text-center text-2xl font-semibold">Create a Team</h1>
-      <div className="flex grow flex-col">
-        <CreateTeamForm />
+      <div className="space-y-2">
+        <h1 className="text-4xl font-semibold">Create a Team</h1>
+        <p className="text-muted-foreground text-pretty">
+          Create a new team to compete with in events
+        </p>
       </div>
+      <Card>
+        <CardContent>
+          <CreateTeamForm />
+        </CardContent>
+      </Card>
     </>
   );
 }

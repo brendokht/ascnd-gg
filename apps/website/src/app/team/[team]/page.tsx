@@ -1,7 +1,11 @@
 import { TeamViewModel } from "@ascnd-gg/types";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@ascnd-gg/ui/components/ui/avatar";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
-import Image from "next/image";
 
 export default async function TeamProfile(props: PageProps<"/team/[team]">) {
   const { team } = await props.params;
@@ -21,19 +25,16 @@ export default async function TeamProfile(props: PageProps<"/team/[team]">) {
 
   return (
     <>
-      {teamData.logo ? (
-        <Image
-          src={teamData.logo}
-          alt={`${teamData.displayName}'s photo`}
-          width={96}
-          height={96}
-          className="rounded-full"
+      <Avatar className="size-24">
+        <AvatarImage
+          src={teamData.logo ?? ""}
+          alt={`${teamData.displayName!}'s logo`}
+          className="object-fill"
         />
-      ) : (
-        <div className="bg-primary flex size-24 items-center justify-center rounded-full text-4xl font-semibold">
-          {teamData.displayName.charAt(0)}
-        </div>
-      )}
+        <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-semibold">
+          {teamData.displayName!.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
       <h1 className="text-2xl font-semibold">{teamData.displayName}</h1>
       <p className="text-muted-foreground text-sm">
         Team active on Ascnd GG since{" "}

@@ -2,6 +2,8 @@ import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@ascnd-gg/constants";
 import z from "zod";
 import { Team } from "./team";
 
+// TODO: Support descriptions and banners
+
 export const User = z.object({
   email: z.email(),
   // Optional because user will pick username initially
@@ -33,7 +35,7 @@ export type UserType = z.infer<typeof User>;
 
 export type UserViewModel = Pick<
   UserType,
-  "displayUsername" | "profilePictureUrl" | "createdAt" | "teams"
+  "username" | "displayUsername" | "profilePictureUrl" | "createdAt" | "teams"
 >;
 
 export type UserTeamViewModel = Pick<

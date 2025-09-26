@@ -1,3 +1,4 @@
+import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
 import UpdateNameForm from "@ascnd-gg/website/components/forms/update-name-form";
 import UpdateUsernameForm from "@ascnd-gg/website/components/forms/update-username-form";
 import { validateSession } from "@ascnd-gg/website/lib/validate-session";
@@ -9,13 +10,22 @@ export default async function AccountSettings() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">Account Settings</h1>
-      <div className="flex w-full flex-col gap-3 rounded-md border p-4">
-        <UpdateUsernameForm currentUsername={user.username ?? ""} />
+      <div className="space-y-2">
+        <h1 className="text-4xl font-semibold">Account Settings</h1>
+        <p className="text-muted-foreground text-pretty">
+          Update your accounts settings like username, and full name
+        </p>
       </div>
-      <div className="flex w-full flex-col gap-3 rounded-md border p-4">
-        <UpdateNameForm currentName={user.name ?? ""} />
-      </div>
+      <Card>
+        <CardContent>
+          <UpdateUsernameForm currentUsername={user.username ?? ""} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent>
+          <UpdateNameForm currentName={user.name ?? ""} />
+        </CardContent>
+      </Card>
     </>
   );
 }
