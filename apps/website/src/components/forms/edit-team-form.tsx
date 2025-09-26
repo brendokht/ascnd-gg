@@ -1,6 +1,6 @@
 "use client";
 
-import { createTeamSchema, createTeamSchemaType } from "@ascnd-gg/types";
+import { editTeamSchema, editTeamSchemaType } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
   Form,
@@ -23,20 +23,24 @@ import Image from "next/image";
 
 export default function EditTeamForm({
   defaultValues,
+  callback,
 }: {
   defaultValues: {
-    displayName: string | undefined;
+    name: string;
+    displayName: string;
     logo: string | null;
     banner: string | null;
   };
+  callback?: () => void;
 }) {
   const router = useRouter();
 
-  const form = useForm<createTeamSchemaType>({
-    resolver: zodResolver(createTeamSchema),
+  const form = useForm<editTeamSchemaType>({
+    resolver: zodResolver(editTeamSchema),
     defaultValues: {
       displayName: defaultValues?.displayName ?? "",
     },
+    reValidateMode: "onChange",
   });
 
   useEffect(() => {
@@ -65,12 +69,16 @@ export default function EditTeamForm({
     defaultValues?.banner ?? "",
   );
 
-  const onSubmit = async (values: createTeamSchemaType) => {
+  const onSubmit = async (values: editTeamSchemaType) => {
     const formData = new FormData();
 
-    formData.append("displayName", values.displayName);
-    formData.append("logo", values.logo ?? "");
-    formData.append("banner", values.banner ?? "");
+    formData.append("name", defaultValues.name);
+    if (form.formState.dirtyFields.displayName)
+      formData.append("displayName", values.displayName);
+    if (form.formState.dirtyFields.logo)
+      formData.append("logo", values.logo ?? new Blob());
+    if (form.formState.dirtyFields.banner)
+      formData.append("banner", values.banner ?? new Blob());
 
     const { data, error } = await putApi<{ name: string }>("/team", formData);
 
@@ -91,6 +99,8 @@ export default function EditTeamForm({
     toast.success("Success", {
       description: "Your team has been successfully updated.",
     });
+
+    if (callback) callback();
 
     router.refresh();
   };
@@ -130,7 +140,7 @@ export default function EditTeamForm({
                 variant={"destructive"}
                 className="w-full"
                 onClick={() => {
-                  form.setValue("logo", undefined);
+                  form.setValue("logo", null, { shouldDirty: true });
                   setLogoPreview("");
                 }}
                 type="button"
@@ -151,7 +161,7 @@ export default function EditTeamForm({
                     shape="circle"
                     item="logo"
                     onSubmit={(fileUrl, fileBlob) => {
-                      form.setValue("logo", fileBlob);
+                      form.setValue("logo", fileBlob, { shouldDirty: true });
                       setLogoPreview(fileUrl);
                     }}
                   >
@@ -178,7 +188,7 @@ export default function EditTeamForm({
                 variant={"destructive"}
                 className="w-full"
                 onClick={() => {
-                  form.setValue("banner", undefined);
+                  form.setValue("banner", null, { shouldDirty: true });
                   setBannerPreview("");
                 }}
                 type="button"
@@ -199,7 +209,7 @@ export default function EditTeamForm({
                     shape="rectangle"
                     item="banner"
                     onSubmit={(fileUrl, fileBlob) => {
-                      form.setValue("banner", fileBlob);
+                      form.setValue("banner", fileBlob, { shouldDirty: true });
                       setBannerPreview(fileUrl);
                     }}
                   >
@@ -217,7 +227,7 @@ export default function EditTeamForm({
             disabled={
               !form.formState.isValid ||
               form.formState.isLoading ||
-              !form.formState.dirtyFields
+              !form.formState.isDirty
             }
           >
             Update

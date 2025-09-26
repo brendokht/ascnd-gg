@@ -1,11 +1,16 @@
-import { CreateTeamDto, TeamViewModel } from "@ascnd-gg/types";
-import { ConflictException, Injectable, Logger } from "@nestjs/common";
+import { CreateTeamDto, EditTeamDto, TeamViewModel } from "@ascnd-gg/types";
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { User } from "@ascnd-gg/database";
 import { Prisma } from "@ascnd-gg/database";
 import { StorageService } from "../storage/storage.service";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { getPublicUrl } from "../utils/get-public-url";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { parseKey, getPublicUrl } from "../utils";
 
 @Injectable()
 export class TeamService {
@@ -39,36 +44,43 @@ export class TeamService {
           select: { id: true },
         });
 
-        const logoKey = `teams/${newTeamId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
-        const bannerKey = `teams/${newTeamId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
+        let logoKey: string | undefined = undefined;
 
-        await this.storageService.client.send(
-          new PutObjectCommand({
-            Bucket: "ascnd-gg",
-            Key: logoKey,
-            Body: files.logo.at(0).buffer,
-            ContentType: files.logo.at(0).mimetype,
-          }),
-        );
+        if (files.logo) {
+          logoKey = `teams/${newTeamId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
 
-        await this.storageService.client.send(
-          new PutObjectCommand({
-            Bucket: "ascnd-gg",
-            Key: bannerKey,
-            Body: files.banner.at(0).buffer,
-            ContentType: files.banner.at(0).mimetype,
-          }),
-        );
+          await this.storageService.client.send(
+            new PutObjectCommand({
+              Bucket: process.env.S3_BUCKET,
+              Key: logoKey,
+              Body: files.logo.at(0).buffer,
+              ContentType: files.logo.at(0).mimetype,
+            }),
+          );
+        }
+
+        let bannerKey: string | undefined = undefined;
+
+        if (files.banner) {
+          bannerKey = `teams/${newTeamId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
+
+          await this.storageService.client.send(
+            new PutObjectCommand({
+              Bucket: process.env.S3_BUCKET,
+              Key: bannerKey,
+              Body: files.banner.at(0).buffer,
+              ContentType: files.banner.at(0).mimetype,
+            }),
+          );
+        }
 
         await tx.team.update({
           data: {
-            logo: getPublicUrl(logoKey),
-            banner: getPublicUrl(bannerKey),
+            logo: logoKey ? getPublicUrl(logoKey) : null,
+            banner: bannerKey ? getPublicUrl(bannerKey) : null,
           },
           where: { id: newTeamId },
         });
-
-        this.logger.log("Team and assets created successfully");
 
         return createTeamDto.name;
       } catch (error) {
@@ -84,6 +96,119 @@ export class TeamService {
     });
 
     return newTeamName;
+  }
+
+  async updateTeam(
+    user: User,
+    editTeamDto: EditTeamDto,
+    files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
+  ) {
+    const oldName = editTeamDto.name;
+
+    const { teamOwnerId } = await this.prismaService.team.findFirst({
+      where: { name: oldName },
+      select: { teamOwnerId: true },
+    });
+
+    // TODO: Eventually have more complex authorization rules
+    if (user.id !== teamOwnerId) {
+      throw new UnauthorizedException(
+        "You are not permitted to update this team.",
+      );
+    }
+
+    const updatedTeamName = await this.prismaService.$transaction(
+      async (tx) => {
+        try {
+          // Set 'name' to normalized version of new 'displayName'
+          if (editTeamDto.displayName)
+            editTeamDto.name = editTeamDto.displayName.toLowerCase();
+
+          const {
+            id: updatedTeamId,
+            logo: oldLogoUrl,
+            banner: oldBannerUrl,
+          } = await tx.team.update({
+            data: {
+              displayName: editTeamDto.displayName,
+              name: editTeamDto.name,
+            },
+            where: { name: oldName },
+            select: { id: true, logo: true, banner: true },
+          });
+
+          let logoKey: string | undefined | null = undefined;
+          if (files.logo) {
+            if (files.logo.at(0).size > 0) {
+              logoKey = `teams/${updatedTeamId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
+
+              await this.storageService.client.send(
+                new PutObjectCommand({
+                  Bucket: process.env.S3_BUCKET,
+                  Key: logoKey,
+                  Body: files.logo.at(0).buffer,
+                  ContentType: files.logo.at(0).mimetype,
+                }),
+              );
+            } else {
+              logoKey = null;
+              await this.storageService.client.send(
+                new DeleteObjectCommand({
+                  Bucket: process.env.S3_BUCKET,
+                  Key: parseKey(oldLogoUrl),
+                }),
+              );
+            }
+          }
+
+          let bannerKey: string | undefined | null = undefined;
+
+          if (files.banner) {
+            if (files.banner[0].size > 0) {
+              bannerKey = `teams/${updatedTeamId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
+
+              await this.storageService.client.send(
+                new PutObjectCommand({
+                  Bucket: process.env.S3_BUCKET,
+                  Key: bannerKey,
+                  Body: files.banner.at(0).buffer,
+                  ContentType: files.banner.at(0).mimetype,
+                }),
+              );
+            } else {
+              bannerKey = null;
+              await this.storageService.client.send(
+                new DeleteObjectCommand({
+                  Bucket: process.env.S3_BUCKET,
+                  Key: parseKey(oldBannerUrl),
+                }),
+              );
+            }
+          }
+
+          await tx.team.update({
+            data: {
+              logo: logoKey ? getPublicUrl(logoKey) : logoKey,
+              banner: bannerKey ? getPublicUrl(bannerKey) : bannerKey,
+            },
+            where: { id: updatedTeamId },
+          });
+
+          return editTeamDto.name;
+        } catch (error) {
+          if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2002") {
+              throw new ConflictException(
+                `Team with name ${editTeamDto.displayName} already exists. Please choose a different name.`,
+              );
+            }
+          }
+          throw error;
+        }
+      },
+    );
+
+    return updatedTeamName;
   }
 
   async getTeamByName(
