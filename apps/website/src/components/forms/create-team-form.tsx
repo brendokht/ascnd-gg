@@ -83,16 +83,29 @@ export default function CreateTeamForm() {
             )}
           />
           {logoPreview && (
-            <div className="relative aspect-square">
-              <Image
-                src={logoPreview}
-                alt="Image Preview"
-                loading="eager"
-                fill
-                quality={25}
-                placeholder="empty"
-              />
-            </div>
+            <>
+              <div className="relative aspect-square">
+                <Image
+                  src={logoPreview}
+                  alt="Image Preview"
+                  loading="eager"
+                  fill
+                  quality={25}
+                  placeholder="empty"
+                  className="rounded-full"
+                />
+              </div>
+              <Button
+                variant={"destructive"}
+                className="w-full"
+                onClick={() => {
+                  form.setValue("logo", undefined);
+                  setLogoPreview("");
+                }}
+              >
+                Clear
+              </Button>
+            </>
           )}
           <FormField
             control={form.control}
@@ -103,7 +116,7 @@ export default function CreateTeamForm() {
                 <FormDescription>Your team&apos;s logo</FormDescription>
                 <FormControl>
                   <FileUploadDialog
-                    shape="square"
+                    shape="circle"
                     item="logo"
                     onSubmit={(fileUrl, fileBlob) => {
                       form.setValue("logo", fileBlob);
@@ -118,16 +131,28 @@ export default function CreateTeamForm() {
             )}
           />
           {bannerPreview && (
-            <div className="aspect-rectangle relative">
-              <Image
-                src={bannerPreview}
-                alt="Image Preview"
-                loading="eager"
-                fill
-                quality={25}
-                placeholder="empty"
-              />
-            </div>
+            <>
+              <div className="aspect-rectangle relative">
+                <Image
+                  src={bannerPreview}
+                  alt="Image Preview"
+                  loading="eager"
+                  fill
+                  quality={25}
+                  placeholder="empty"
+                />
+              </div>
+              <Button
+                variant={"destructive"}
+                className="w-full"
+                onClick={() => {
+                  form.setValue("logo", undefined);
+                  setLogoPreview("");
+                }}
+              >
+                Clear
+              </Button>
+            </>
           )}
           <FormField
             control={form.control}

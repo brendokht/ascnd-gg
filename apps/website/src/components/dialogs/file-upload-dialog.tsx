@@ -17,6 +17,10 @@ import Image from "next/image";
 import { useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
+{
+  /* TODO: Support lifted state for form/previewing compatibility} */
+}
+
 export function FileUploadDialog({
   children,
   shape,
@@ -26,7 +30,7 @@ export function FileUploadDialog({
   onSubmit,
 }: {
   children: ReactNode;
-  shape: "square" | "rectangle";
+  shape: "square" | "rectangle" | "circle";
   item?: string;
   maxFileSizeMB?: number;
   acceptedFileTypes?: string[];
@@ -140,13 +144,15 @@ export function FileUploadDialog({
           {fileUrl ? (
             <div className={"rounded-sm border py-4"}>
               <div className="flex flex-col gap-4">
-                <div
-                  className={cn(
-                    "flex items-center justify-center",
-                    shape === "square" ? "aspect-square" : "aspect-rectangle",
-                  )}
-                >
-                  <div className="relative size-[90%]">
+                <div className="flex items-center justify-center">
+                  <div
+                    className={cn(
+                      "relative size-[90%]",
+                      shape === "square" || shape === "circle"
+                        ? "aspect-square"
+                        : "aspect-rectangle",
+                    )}
+                  >
                     {/* TODO: Fix slow loading of larger images */}
                     <Image
                       src={fileUrl}
@@ -155,6 +161,7 @@ export function FileUploadDialog({
                       fill
                       quality={25}
                       placeholder="empty"
+                      className={cn(shape === "circle" && "rounded-full")}
                     />
                   </div>
                 </div>
