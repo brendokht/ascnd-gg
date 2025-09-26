@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { hostname: "lh3.googleusercontent.com" },
       { hostname: "localhost" },
+      { hostname: "placehold.co" },
     ],
     qualities: [25, 50, 75, 100],
   },

@@ -186,7 +186,7 @@ export default function CreateTeamForm() {
             disabled={
               !form.formState.isValid ||
               form.formState.isLoading ||
-              !form.formState.dirtyFields
+              !form.formState.isDirty
             }
           >
             Create

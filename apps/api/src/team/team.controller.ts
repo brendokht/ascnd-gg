@@ -6,12 +6,13 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Req,
   UploadedFiles,
   UseInterceptors,
 } from "@nestjs/common";
 import { TeamService } from "./team.service";
-import { CreateTeamDto, TeamViewModel } from "@ascnd-gg/types";
+import { CreateTeamDto, EditTeamDto, TeamViewModel } from "@ascnd-gg/types";
 import { Request } from "express";
 import { User } from "@ascnd-gg/database";
 import { Optional } from "../auth/auth.decorator";
@@ -63,5 +64,30 @@ export class TeamController {
     );
 
     return { name: createdTeamName };
+  }
+
+  @Put()
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: "logo", maxCount: 1 },
+        { name: "banner", maxCount: 1 },
+      ],
+      { limits: { fileSize: 4 * 1024 * 1024 } },
+    ),
+  )
+  async updateTeam(
+    @Req() req: Request,
+    @Body() editTeamDto: EditTeamDto,
+    @UploadedFiles()
+    files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
+  ) {
+    const updatedTeamName = await this.teamService.updateTeam(
+      req["user"] as User,
+      editTeamDto,
+      files,
+    );
+
+    return { name: updatedTeamName };
   }
 }

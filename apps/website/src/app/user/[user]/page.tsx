@@ -5,6 +5,7 @@ import {
   AvatarImage,
 } from "@ascnd-gg/ui/components/ui/avatar";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
+import Image from "next/image";
 
 export default async function UserProfile(props: PageProps<"/user/[user]">) {
   const { user } = await props.params;
@@ -23,6 +24,14 @@ export default async function UserProfile(props: PageProps<"/user/[user]">) {
 
   return (
     <>
+      <div className="aspect-rectangle relative">
+        <Image
+          src="https://placehold.co/600x200/red/white/png?text=Banner&font=montersatt"
+          alt="placeholder"
+          fill
+          priority
+        />
+      </div>
       <Avatar className="size-24">
         <AvatarImage
           src={userData.profilePictureUrl}

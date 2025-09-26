@@ -31,13 +31,11 @@ export default function TeamsList({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Avatar className="size-9">
-                  {team.logo && (
-                    <AvatarImage
-                      src={team.logo}
-                      alt={`${team.displayName}'s logo`}
-                      className="object-fill"
-                    />
-                  )}
+                  <AvatarImage
+                    src={team.logo ?? undefined}
+                    alt={`${team.displayName}'s logo`}
+                    className="object-fill"
+                  />
                   <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                     {team.name.charAt(0).toUpperCase()}
                   </AvatarFallback>
@@ -65,16 +63,13 @@ export default function TeamsList({
                 {team.isTeamOwner && (
                   <EditTeamDialog
                     defaultValues={{
+                      name: team.name,
                       displayName: team.displayName,
                       logo: team.logo,
                       banner: team.banner,
                     }}
                   >
-                    <Button
-                      size="icon"
-                      onClick={() => console.log(`Editing team ${team.name}`)}
-                      className="gap-2"
-                    >
+                    <Button size="icon" className="gap-2">
                       <Edit />
                     </Button>
                   </EditTeamDialog>

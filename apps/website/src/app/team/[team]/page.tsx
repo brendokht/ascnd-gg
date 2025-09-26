@@ -6,6 +6,7 @@ import {
 } from "@ascnd-gg/ui/components/ui/avatar";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
+import Image from "next/image";
 
 export default async function TeamProfile(props: PageProps<"/team/[team]">) {
   const { team } = await props.params;
@@ -25,6 +26,17 @@ export default async function TeamProfile(props: PageProps<"/team/[team]">) {
 
   return (
     <>
+      <div className="aspect-rectangle relative">
+        <Image
+          src={
+            teamData.banner ??
+            "https://placehold.co/600x200/red/white/png?text=Banner&font=montersatt"
+          }
+          alt={`${teamData.displayName}'s banner`}
+          fill
+          priority
+        />
+      </div>
       <Avatar className="size-24">
         <AvatarImage
           src={teamData.logo ?? ""}
