@@ -5,7 +5,7 @@ import TeamsList from "./teams-list";
 
 export default async function Teams() {
   const { data: teams, error } = await fetchApi<Array<UserTeamViewModel>>(
-    "/me/teams",
+    "/me/team",
     await headers(),
   );
 

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { UserTeamViewModel } from "@ascnd-gg/types";
+import { TeamInviteViewModel, UserTeamViewModel } from "@ascnd-gg/types";
 
 @Injectable()
 export class MeService {
@@ -34,5 +34,47 @@ export class MeService {
     });
 
     return teams;
+  }
+
+  async getCurrentUserTeamInvites(
+    userId: string,
+  ): Promise<Array<TeamInviteViewModel>> {
+    const teamInvitesSelect = await this.prismaService.teamInvite.findMany({
+      where: {
+        userId: userId,
+        status: {
+          equals: "PENDING",
+        },
+      },
+      select: {
+        status: true,
+        createdAt: true,
+        team: {
+          select: {
+            displayName: true,
+            logo: true,
+          },
+        },
+      },
+    });
+
+    const teamInvites: Array<TeamInviteViewModel> = teamInvitesSelect.map(
+      (teamInvite) => {
+        return {
+          team: {
+            displayName: teamInvite.team.displayName,
+            logo: teamInvite.team.logo,
+          },
+          status: teamInvite.status as
+            | "Pending"
+            | "Declined"
+            | "Cancelled"
+            | "Accepted",
+          createdAt: teamInvite.createdAt.toISOString(),
+        };
+      },
+    );
+
+    return teamInvites;
   }
 }
