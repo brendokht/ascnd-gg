@@ -37,7 +37,7 @@ export default function TeamsList({
                     className="object-fill"
                   />
                   <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                    {team.name.charAt(0).toUpperCase()}
+                    {team.displayName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
