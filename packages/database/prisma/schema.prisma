@@ -10,27 +10,26 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid(7))
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-
+  id              String   @id @default(uuid(7))
+  name            String
+  email           String
+  emailVerified   Boolean  @default(false)
+  image           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
   username        String?
   displayUsername String?
+  active          Boolean  @default(false)
 
-  active Boolean @default(false)
-
-  ownedTeams Team[]
-  teams      UserTeam[]
+  sessions    Session[]
+  accounts    Account[]
+  ownedTeams  Team[]
+  teams       UserTeam[]
+  invitations TeamInvite[]
 
   @@unique([email])
-  @@map("user")
   @@unique([username])
+  @@map("user")
 }
 
 model Session {
@@ -79,16 +78,18 @@ model Verification {
 }
 
 model Team {
-  id          String     @id @default(uuid(7))
+  id          String   @id @default(uuid(7))
   teamOwnerId String
-  teamOwner   User       @relation(fields: [teamOwnerId], references: [id], onDelete: Cascade)
+  teamOwner   User     @relation(fields: [teamOwnerId], references: [id], onDelete: Cascade)
   name        String
   displayName String
   logo        String?
   banner      String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @default(now()) @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
   members     UserTeam[]
+  invitations TeamInvite[]
 
   @@unique([name])
   @@map("team")
@@ -104,4 +105,24 @@ model UserTeam {
 
   @@id([teamId, userId])
   @@map("user_team")
+}
+
+model TeamInvite {
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId    String
+  team      Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  status    TeamInviteStatus
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @default(now()) @updatedAt
+
+  @@id([teamId, userId])
+  @@map("team_invite")
+}
+
+enum TeamInviteStatus {
+  PENDING
+  DECLINED
+  CANCELLED
+  ACCEPTED
 }
