@@ -16,7 +16,7 @@ import { authClient } from "@ascnd-gg/website/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import z from "zod";
+import * as z from "zod";
 
 export default function UpdateNameForm({
   currentName,

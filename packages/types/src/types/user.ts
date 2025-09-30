@@ -1,5 +1,5 @@
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@ascnd-gg/constants";
-import z from "zod";
+import * as z from "zod";
 import { Team } from "./team";
 
 // TODO: Support descriptions and banners
