@@ -18,6 +18,7 @@ import {
 import {
   Cog,
   Gamepad,
+  Inbox,
   LogOut,
   PlusCircle,
   ShieldHalf,
@@ -89,6 +90,11 @@ export default function UserMenu({ user }: { user: UserViewModel | null }) {
                 <DropdownMenuItem>
                   Events <Trophy />
                 </DropdownMenuItem>
+                <Link href={"/me/invites"}>
+                  <DropdownMenuItem>
+                    Invites <Inbox />
+                  </DropdownMenuItem>
+                </Link>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
