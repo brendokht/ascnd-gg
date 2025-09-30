@@ -2,7 +2,7 @@ import {
   TEAM_NAME_MAX_LENGTH,
   TEAM_NAME_MIN_LENGTH,
 } from "@ascnd-gg/constants";
-import z from "zod";
+import * as z from "zod";
 
 export const Team = z.object({
   name: z
