@@ -12,16 +12,27 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { TeamService } from "./team.service";
-import { CreateTeamDto, EditTeamDto, TeamViewModel } from "@ascnd-gg/types";
+import {
+  CreateTeamDto,
+  CreateTeamInviteDto,
+  EditTeamDto,
+  TeamInviteViewModel,
+  TeamViewModel,
+  UpdateTeamInviteDto,
+} from "@ascnd-gg/types";
 import { Request } from "express";
 import { User } from "@ascnd-gg/database";
 import { Optional } from "../auth/auth.decorator";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
+import { InviteService } from "../invite/invite.service";
 
 @Controller("team")
 export class TeamController {
   private readonly logger = new Logger(TeamController.name);
-  constructor(private readonly teamService: TeamService) {}
+  constructor(
+    private readonly teamService: TeamService,
+    private readonly inviteService: InviteService,
+  ) {}
 
   @Get(":name")
   @Optional()
@@ -89,5 +100,40 @@ export class TeamController {
     );
 
     return { name: updatedTeamName };
+  }
+
+  // TODO: Create TeamRoles guard to ensure proper users can perform specfic actions
+
+  // TODO: Allow input for invite status
+  @Get("invite:name")
+  async getTeamInvites(
+    @Param() params: { name: string },
+  ): Promise<Array<TeamInviteViewModel>> {
+    const invites = await this.inviteService.getTeamInvitesForTeam(
+      "PENDING",
+      params.name,
+    );
+
+    return invites;
+  }
+
+  @Post("invite")
+  async sendTeamInvite(
+    @Req() req: Request,
+    @Body() createTeamInviteDto: CreateTeamInviteDto,
+  ): Promise<TeamInviteViewModel> {
+    const invite =
+      await this.inviteService.createTeamInvite(createTeamInviteDto);
+
+    return invite;
+  }
+
+  @Put("invite")
+  async updateTeamInvite(
+    @Body() updateTeamInviteDto: UpdateTeamInviteDto,
+  ): Promise<TeamInviteViewModel> {
+    await this.inviteService.updateTeamInvite(updateTeamInviteDto);
+
+    return;
   }
 }
