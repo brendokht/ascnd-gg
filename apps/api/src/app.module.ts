@@ -32,6 +32,8 @@ import {
 import { ZodError } from "@ascnd-gg/types";
 import { MeModule } from "./me/me.module";
 import { AuthGuard } from "./auth/auth.guard";
+import { InviteService } from './invite/invite.service';
+import { InviteModule } from './invite/invite.module';
 
 @Module({
   imports: [
@@ -43,6 +45,7 @@ import { AuthGuard } from "./auth/auth.guard";
     StorageModule,
     TeamModule,
     MeModule,
+    InviteModule,
   ],
   controllers: [AppController, AuthController, UserController],
   providers: [
@@ -52,6 +55,7 @@ import { AuthGuard } from "./auth/auth.guard";
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
     { provide: APP_GUARD, useClass: AuthGuard },
+    InviteService,
   ],
 })
 export class AppModule {}
