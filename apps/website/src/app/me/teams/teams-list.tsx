@@ -10,7 +10,8 @@ import { Badge } from "@ascnd-gg/ui/components/ui/badge";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
 import { EditTeamDialog } from "@ascnd-gg/website/components/dialogs/edit-team-dialog";
-import { Crown, Edit, Eye } from "lucide-react";
+import { TeamInvitationDialog } from "@ascnd-gg/website/components/dialogs/team-invitation-dialog";
+import { Crown, Edit, Eye, MailPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function TeamsList({
@@ -56,23 +57,29 @@ export default function TeamsList({
                   variant="outline"
                   size="icon"
                   onClick={() => router.push(`/team/${team.name}`)}
-                  className="gap-2"
                 >
                   <Eye />
                 </Button>
                 {team.isTeamOwner && (
-                  <EditTeamDialog
-                    defaultValues={{
-                      name: team.name,
-                      displayName: team.displayName,
-                      logo: team.logo,
-                      banner: team.banner,
-                    }}
-                  >
-                    <Button size="icon" className="gap-2">
-                      <Edit />
-                    </Button>
-                  </EditTeamDialog>
+                  <>
+                    <TeamInvitationDialog teamName={team.displayName}>
+                      <Button size={"icon"}>
+                        <MailPlus />
+                      </Button>
+                    </TeamInvitationDialog>
+                    <EditTeamDialog
+                      defaultValues={{
+                        name: team.name,
+                        displayName: team.displayName,
+                        logo: team.logo,
+                        banner: team.banner,
+                      }}
+                    >
+                      <Button size="icon">
+                        <Edit />
+                      </Button>
+                    </EditTeamDialog>
+                  </>
                 )}
               </div>
             </div>
