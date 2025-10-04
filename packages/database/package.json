@@ -10,6 +10,9 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed.ts"
+  },
   "scripts": {
     "ts:build": "tsc --build tsconfig.build.json",
     "ts:build-watch": "tsc --build tsconfig.build.json --watch",

@@ -6,6 +6,6 @@
       "@ascnd-gg/database/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "prisma/seed.ts"],
   "exclude": ["node_modules", "dist"]
 }

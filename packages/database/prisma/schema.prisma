@@ -120,6 +120,7 @@ model TeamInvite {
   @@map("team_invite")
 }
 
+// TODO: Change to lookup table for easier queries
 enum TeamInviteStatus {
   PENDING
   DECLINED
