@@ -90,9 +90,16 @@ export async function postApi<T>(
     return { data: null, error: errorObject };
   }
 
-  const responseObject: T = await response.json();
+  if (response.status === 204) {
+    return { data: null, error: null };
+  }
 
-  return { data: responseObject, error: null };
+  try {
+    const responseObject: T = await response.json();
+    return { data: responseObject, error: null };
+  } catch {
+    return { data: null, error: null };
+  }
 }
 
 /**
@@ -145,7 +152,14 @@ export async function putApi<T>(
     return { data: null, error: errorObject };
   }
 
-  const responseObject: T = await response.json();
+  if (response.status === 204) {
+    return { data: null, error: null };
+  }
 
-  return { data: responseObject, error: null };
+  try {
+    const responseObject: T = await response.json();
+    return { data: responseObject, error: null };
+  } catch {
+    return { data: null, error: null };
+  }
 }
