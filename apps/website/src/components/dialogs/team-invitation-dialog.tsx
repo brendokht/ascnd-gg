@@ -1,6 +1,6 @@
 "use client";
 
-import { UserViewModel } from "@ascnd-gg/types";
+import { TeamInviteViewModel, UserViewModel } from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -23,11 +23,19 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 } from "@ascnd-gg/ui/components/ui/pagination";
+import { fetchApi, postApi, putApi } from "@ascnd-gg/website/lib/fetch-utils";
+import { ChevronsLeft, ChevronsRight, LoaderCircle } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
 const MAX_USERS_PER_PAGE = 5;
+
+type UserType = Omit<UserViewModel, "teams" | "createdAt">;
+
+type TeamInvitationUserType = Array<UserType>;
 
 export function TeamInvitationDialog({
   teamName,
@@ -36,183 +44,200 @@ export function TeamInvitationDialog({
   teamName: string;
   children: ReactNode;
 }) {
-  // Mock data - replace with actual API call
-  const mockUsers: Array<
-    Omit<UserViewModel, "teams" | "createdAt" | "emailVerified">
-  > = [
-    {
-      username: "sarahchen",
-      displayUsername: "SarahChen",
-    },
-    {
-      username: "marcusjohnson",
-      displayUsername: "marcusjohnson",
-    },
-    {
-      username: "cooldude",
-      displayUsername: "CoolDude",
-    },
-    {
-      username: "brendo",
-      displayUsername: "Brendo",
-    },
-    {
-      username: "purzaa",
-      displayUsername: "purzaa",
-    },
-    {
-      username: "theo",
-      displayUsername: "Theo",
-    },
-    {
-      username: "xxskaterguyxx",
-      displayUsername: "XxSkaterGuyxX",
-    },
-    {
-      username: "bestr6player",
-      displayUsername: "BestR6Player",
-    },
-    {
-      username: "simpleton",
-      displayUsername: "Simpleton",
-    },
-    {
-      username: "xyz",
-      displayUsername: "xyz",
-    },
-    {
-      username: "hypr",
-      displayUsername: "Hypr",
-    },
-    {
-      username: "drpepper",
-      displayUsername: "DrPepper",
-    },
-    {
-      username: "ninja",
-      displayUsername: "Ninja",
-    },
-    {
-      username: "shroud",
-      displayUsername: "Shroud",
-    },
-    {
-      username: "pokimane",
-      displayUsername: "Pokimane",
-    },
-    {
-      username: "valkyrae",
-      displayUsername: "Valkyrae",
-    },
-    {
-      username: "tfue",
-      displayUsername: "Tfue",
-    },
-    {
-      username: "summit1g",
-      displayUsername: "Summit1g",
-    },
-    {
-      username: "timthetatman",
-      displayUsername: "TimTheTatman",
-    },
-    {
-      username: "nickmercs",
-      displayUsername: "NICKMERCS",
-    },
-    {
-      username: "drlupo",
-      displayUsername: "DrLupo",
-    },
-    {
-      username: "courage",
-      displayUsername: "CouRage",
-    },
-    {
-      username: "sykkuno",
-      displayUsername: "Sykkuno",
-    },
-    {
-      username: "ludwig",
-      displayUsername: "Ludwig",
-    },
-    {
-      username: "moistcr1tikal",
-      displayUsername: "MoistCr1tikal",
-    },
-    {
-      username: "xqc",
-      displayUsername: "xQc",
-    },
-    {
-      username: "asmongold",
-      displayUsername: "Asmongold",
-    },
-    {
-      username: "sodapoppin",
-      displayUsername: "Sodapoppin",
-    },
-    {
-      username: "lirik",
-      displayUsername: "LIRIK",
-    },
-    {
-      username: "forsen",
-      displayUsername: "forsen",
-    },
-  ];
-
   // TODO: Use React Query for data fetching and optimistic updates for invites
 
   const [open, setOpen] = useState<boolean>(false);
-  const [users, setUsers] = useState<
-    | Array<Omit<UserViewModel, "teams" | "createdAt" | "emailVerified">>
-    | undefined
+  const [users, setUsers] = useState<TeamInvitationUserType | undefined>(
+    undefined,
+  );
+  const [visitedPages, setVisitedPages] = useState<Set<number>>(new Set([1]));
+  const [currentUsers, setCurrentUsers] = useState<
+    TeamInvitationUserType | undefined
   >(undefined);
-  const [totalUsers, setTotalUsers] = useState<number>();
+  const [totalUsers, setTotalUsers] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [input, setInput] = useState<string>();
 
-  const changePage = (page: number) => {
-    console.log("page", page);
-
-    const newStart = (page - 1) * MAX_USERS_PER_PAGE;
-    const newEnd = newStart + MAX_USERS_PER_PAGE;
-
-    console.log("newStart", newStart);
-    console.log("newEnd", newEnd);
-
-    console.log("thing 1", (page - 1) * MAX_USERS_PER_PAGE);
-    console.log(
-      "thing 2",
-      newEnd <= (mockUsers?.length ?? 0) ? newEnd : undefined,
-    );
-
-    const newUsers = mockUsers
-      .filter((user) => {
-        return user.username?.includes(input?.toLowerCase() ?? "");
-      })
-      .slice(
-        (page - 1) * MAX_USERS_PER_PAGE,
-        newEnd <= mockUsers.length ? newEnd : undefined,
-      );
-
-    console.log("newUsers", newUsers);
-
-    setUsers(newUsers);
-    setCurrentPage(page);
+  const resetSearchState = () => {
+    setInput(undefined);
+    setLoading(false);
+    setCurrentUsers(undefined);
+    setUsers(undefined);
+    setTotalUsers(0);
+    setCurrentPage(1);
+    setVisitedPages(new Set([1]));
+    setTotalPages(0);
   };
 
-  const handleDebouncedSearch = useDebouncedCallback((input: string) => {
-    if (!input) {
-      setInput(undefined);
-      setLoading(false);
+  const updateInviteState = async (invitedUser: UserType, invited: boolean) => {
+    // Optimistically update invite state for both user array states
+    console.log("updating invite state optimistically");
+    const updatedCurrentUsers = currentUsers?.map((user) => {
+      if (invitedUser.username === user.username) {
+        return {
+          ...user,
+          isInvited: invited,
+        };
+      } else {
+        return user;
+      }
+    });
+    setCurrentUsers(updatedCurrentUsers);
+
+    const updatedUsers = users?.map((user) => {
+      if (invitedUser.username === user.username) {
+        return {
+          ...user,
+          isInvited: invited,
+        };
+      } else {
+        return user;
+      }
+    });
+    setUsers(updatedUsers);
+
+    if (invited) {
+      const createdInviteBody = JSON.stringify({
+        teamName: teamName.toLowerCase(),
+        username: invitedUser.username!.toLowerCase(),
+      });
+
+      console.log("createdInviteBody", createdInviteBody);
+
+      const { data: inviteData, error } = await postApi<TeamInviteViewModel>(
+        "/team/invite",
+        createdInviteBody,
+        "application/json",
+      );
+
+      if (error || !inviteData) {
+        // Revert optimistically updated invite state
+        console.log(`Reverting optimistically updated invite`);
+        const updatedCurrentUsers = currentUsers?.map((user) => {
+          if (invitedUser.username === user.username) {
+            return {
+              ...user,
+              isInvited: !invited,
+            };
+          } else {
+            return user;
+          }
+        });
+        setCurrentUsers(updatedCurrentUsers);
+
+        const updatedUsers = users?.map((user) => {
+          if (invitedUser.username === user.username) {
+            return {
+              ...user,
+              isInvited: !invited,
+            };
+          } else {
+            return user;
+          }
+        });
+        setUsers(updatedUsers);
+        console.error(error ?? "missing invite data.");
+        return;
+      }
+
+      console.log(`user ${invitedUser.displayUsername} was invited`);
+    } else {
+      const updatedInviteBody = JSON.stringify({
+        teamName: teamName.toLowerCase(),
+        username: invitedUser.username!.toLowerCase(),
+        cancelled: true,
+      });
+      console.log("updatedInviteBody", updatedInviteBody);
+
+      const { error } = await putApi<never>(
+        "/team/invite",
+        updatedInviteBody,
+        "application/json",
+      );
+
+      if (error) {
+        // Revert optimistically updated invite state
+        console.log(`Reverting optimistically updated invite`);
+        const updatedCurrentUsers = currentUsers?.map((user) => {
+          if (invitedUser.username === user.username) {
+            return {
+              ...user,
+              isInvited: !invited,
+            };
+          } else {
+            return user;
+          }
+        });
+        setCurrentUsers(updatedCurrentUsers);
+
+        const updatedUsers = users?.map((user) => {
+          if (invitedUser.username === user.username) {
+            return {
+              ...user,
+              isInvited: !invited,
+            };
+          } else {
+            return user;
+          }
+        });
+        setUsers(updatedUsers);
+        console.error(error ?? "missing invite data.");
+        return;
+      }
+
+      console.log(`user ${invitedUser.displayUsername}'s invite was cancelled`);
+    }
+  };
+
+  const changePage = async (page: number) => {
+    if (page === 0 || page > totalPages) {
+      return;
+    }
+
+    setCurrentPage(page);
+
+    if (visitedPages.has(page)) {
+      const newStart = (page - 1) * MAX_USERS_PER_PAGE;
+      const newEnd = Math.min(newStart + MAX_USERS_PER_PAGE, totalUsers);
+      setCurrentUsers(users?.slice(newStart, newEnd));
+      return;
+    }
+
+    setVisitedPages(new Set([...visitedPages, page]));
+
+    setLoading(true);
+
+    const { data: newUsers, error } = await fetchApi<{
+      users: Array<Omit<UserViewModel, "teams" | "createdAt">> | null;
+      totalCount: number;
+    }>(
+      `/user?username=${input}&page=${page}&limit=${MAX_USERS_PER_PAGE}&teamName=${teamName}`,
+    );
+
+    setLoading(false);
+
+    if (error) {
+      resetSearchState();
+      console.error(error);
+      return;
+    }
+
+    if (!newUsers || !newUsers.users) {
+      console.error("Something went wrong");
       setUsers(undefined);
-      setTotalUsers(0);
-      setCurrentPage(1);
-      setTotalPages(0);
+      setCurrentUsers(undefined);
+      return;
+    }
+
+    setUsers([...(users ?? []), ...newUsers.users]);
+    setCurrentUsers(newUsers.users);
+  };
+
+  const handleDebouncedSearch = useDebouncedCallback(async (input: string) => {
+    if (!input) {
+      resetSearchState();
       return;
     }
 
@@ -220,18 +245,37 @@ export function TeamInvitationDialog({
 
     setInput(input);
 
-    const searchResult = mockUsers.filter((user) => {
-      return user.username?.includes(input.toLowerCase());
-    });
-
-    console.log(searchResult);
-
-    setTotalUsers(searchResult.length);
-    setTotalPages(Math.ceil(searchResult.length / MAX_USERS_PER_PAGE));
-    const startIndex = (currentPage - 1) * MAX_USERS_PER_PAGE;
-    setUsers(searchResult.slice(startIndex, startIndex + MAX_USERS_PER_PAGE));
+    const { data: searchResult, error } = await fetchApi<{
+      users: Array<UserType> | null;
+      totalCount: number;
+    }>(
+      `/user?username=${input}&page=1&limit=${MAX_USERS_PER_PAGE}&teamName=${teamName}`,
+    );
 
     setLoading(false);
+    setCurrentPage(1);
+    setVisitedPages(new Set([1]));
+
+    if (error) {
+      resetSearchState();
+      console.error(error);
+      return;
+    }
+
+    if (!searchResult || !searchResult.users || searchResult.totalCount === 0) {
+      resetSearchState();
+      return;
+    }
+
+    const tempTotalPages = Math.ceil(
+      searchResult.totalCount / MAX_USERS_PER_PAGE,
+    );
+
+    setTotalUsers(searchResult.totalCount);
+    setTotalPages(tempTotalPages);
+
+    setCurrentUsers(searchResult.users);
+    setUsers(searchResult.users);
   }, 250);
 
   return (
@@ -251,13 +295,14 @@ export function TeamInvitationDialog({
               id="search"
               className="bg-[url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlNWU3ZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1zZWFyY2gtaWNvbiBsdWNpZGUtc2VhcmNoIj48cGF0aCBkPSJtMjEgMjEtNC4zNC00LjM0Ii8+PGNpcmNsZSBjeD0iMTEiIGN5PSIxMSIgcj0iOCIvPjwvc3ZnPg==)] bg-[0.5em] bg-no-repeat px-9"
               onChange={(e) => handleDebouncedSearch(e.target.value)}
+              defaultValue={input}
               placeholder="Search..."
             />
           </div>
         </div>
-        <div className="space-y-2">
-          {users ? (
-            users.map((user) => (
+        <div className="h-112.5 space-y-2">
+          {currentUsers && !loading ? (
+            currentUsers.map((user) => (
               <Card key={user.username}>
                 <CardContent className="flex justify-between">
                   <div className="flex items-center gap-2">
@@ -274,59 +319,91 @@ export function TeamInvitationDialog({
                     {user.displayUsername}
                   </div>
                   <div className="space-x-2">
-                    <Button
-                      size={"sm"}
-                      onClick={() =>
-                        console.log("Invited user '%s'", user.username)
-                      }
-                    >
-                      Invite
-                    </Button>
-                    <Button
-                      size={"sm"}
-                      variant={"destructive"}
-                      onClick={() =>
-                        console.log(
-                          "Cancelled invite for user '%s'",
-                          user.username,
-                        )
-                      }
-                    >
-                      Cancel
-                    </Button>
+                    {!user.isInvited ? (
+                      <Button
+                        size={"sm"}
+                        onClick={async () => {
+                          console.log("Invited user '%s'", user.username);
+                          await updateInviteState(user, true);
+                        }}
+                      >
+                        Invite
+                      </Button>
+                    ) : (
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        onClick={async () => {
+                          console.log(
+                            "Cancelled invite for user '%s'",
+                            user.username,
+                          );
+                          await updateInviteState(user, false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             ))
           ) : loading ? (
-            <>Loading...</>
+            <div className="flex h-full animate-spin items-center justify-center">
+              <LoaderCircle />
+            </div>
           ) : (
-            <div className="text-center">No users found</div>
+            <div className="flex h-full flex-col items-center justify-center gap-2">
+              <p>No users found.</p>
+              <p className="text-muted-foreground text-sm">
+                Try searching a username or try again.
+              </p>
+            </div>
           )}
         </div>
         {totalUsers ? (
           <div className="text-center">
-            Showing {(currentPage - 1) * MAX_USERS_PER_PAGE + 1} to{" "}
-            {Math.min(currentPage * MAX_USERS_PER_PAGE, totalUsers ?? 0)} of{" "}
-            {totalUsers} users
+            Page {currentPage} out of {totalPages}
           </div>
         ) : null}
-        <Pagination>
-          <PaginationContent>
-            {totalUsers
-              ? [...Array(totalPages)].map((_, index) => (
-                  <PaginationItem key={index}>
-                    <PaginationLink
-                      onClick={() => changePage(index + 1)}
-                      isActive={currentPage === index + 1}
-                    >
-                      {index + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))
-              : null}
-          </PaginationContent>
-        </Pagination>
+        {totalPages > 0 ? (
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationLink
+                  onClick={() => {
+                    changePage(1);
+                  }}
+                >
+                  <ChevronsLeft />
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => {
+                    changePage(currentPage - 1);
+                  }}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => {
+                    changePage(currentPage + 1);
+                  }}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink
+                  onClick={() => {
+                    changePage(totalPages);
+                  }}
+                >
+                  <ChevronsRight />
+                </PaginationLink>
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

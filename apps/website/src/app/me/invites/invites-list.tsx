@@ -14,13 +14,53 @@ import {
   TabsList,
   TabsTrigger,
 } from "@ascnd-gg/ui/components/ui/tabs";
+import { putApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { Check, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function InvitesList({
+  currentUser,
   teamInvites,
 }: {
+  currentUser: string;
   teamInvites: Array<TeamInviteViewModel>;
 }) {
+  const router = useRouter();
+
+  const [invites, setInvites] =
+    useState<Array<TeamInviteViewModel>>(teamInvites);
+
+  const updateInvite = async (
+    invite: TeamInviteViewModel,
+    accepted: boolean,
+  ) => {
+    // Optimistically remove invite
+    const prevInvites = invites;
+    const updatedInvites = invites.filter((i) => i !== invite);
+    setInvites(updatedInvites);
+
+    const updatedInviteBody = JSON.stringify({
+      teamName: invite.team?.displayName,
+      username: currentUser,
+      accepted: accepted,
+    });
+
+    const { error } = await putApi<void>(
+      "/team/invite",
+      updatedInviteBody,
+      "application/json",
+    );
+
+    if (error) {
+      setInvites(prevInvites);
+      console.error(error);
+      return;
+    }
+
+    if (updatedInvites.length === 0) router.refresh();
+  };
+
   return (
     <Tabs defaultValue="team">
       <TabsList>
@@ -53,7 +93,7 @@ export default function InvitesList({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => console.log("accepted")}
+                      onClick={() => updateInvite(teamInvite, true)}
                       className="gap-2"
                     >
                       <Check /> Accept
@@ -61,7 +101,7 @@ export default function InvitesList({
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => console.log("declined")}
+                      onClick={() => updateInvite(teamInvite, false)}
                       className="gap-2"
                     >
                       <X /> Decline

@@ -2,8 +2,13 @@ import { type TeamInviteViewModel } from "@ascnd-gg/types";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
 import InvitesList from "./invites-list";
+import { validateSession } from "@ascnd-gg/website/lib/validate-session";
 
 export default async function Invites() {
+  const session = await validateSession();
+
+  const user = session.user;
+
   const { data: teamInvites, error } = await fetchApi<
     Array<TeamInviteViewModel>
   >("/me/team/invite", await headers());
@@ -11,18 +16,6 @@ export default async function Invites() {
   if (error) {
     return <>Something went wrong</>;
   }
-
-  const today = new Date();
-
-  // TODO: Remove after testing
-  teamInvites?.push({
-    team: {
-      displayName: "Test",
-      logo: null,
-    },
-    status: "Pending",
-    createdAt: today.toISOString(),
-  });
 
   // TODO: Add event and hub invites to this if statement
   if (!teamInvites || teamInvites.length <= 0) {
@@ -47,7 +40,7 @@ export default async function Invites() {
           hubs. You can accept or decline the invites you have received.
         </p>
       </div>
-      <InvitesList teamInvites={teamInvites} />
+      <InvitesList currentUser={user.username!} teamInvites={teamInvites} />
     </>
   );
 }
