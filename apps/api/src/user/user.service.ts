@@ -54,21 +54,43 @@ export class UserService {
     const count = await this.prismaService.user.count({
       where: {
         username: { mode: "insensitive", contains: username },
-        AND: { username: { not: currentUser.username } },
+        AND: {
+          username: { not: currentUser.username },
+          teams: {
+            none: {
+              team: {
+                name: {
+                  equals: teamName.toLowerCase(),
+                },
+              },
+            },
+          },
+        },
       },
     });
 
     const usersSelect = await this.prismaService.user.findMany({
       where: {
         username: { mode: "insensitive", contains: username },
-        AND: { username: { not: currentUser.username } },
+        AND: {
+          username: { not: currentUser.username },
+          teams: {
+            none: {
+              team: {
+                name: {
+                  equals: teamName.toLowerCase(),
+                },
+              },
+            },
+          },
+        },
       },
       select: {
         username: true,
         displayUsername: true,
         image: true,
         createdAt: true,
-        teams: {},
+        teams: true,
         invitations: {
           select: {
             team: {
