@@ -240,4 +240,32 @@ export class TeamService {
 
     return team;
   }
+
+  async removeMemberFromTeam(teamName: string, username: string) {
+    const { id: teamId, teamOwnerId } = await this.prismaService.team.findFirst(
+      {
+        where: { name: teamName.toLowerCase() },
+        select: { id: true, teamOwnerId: true },
+      },
+    );
+
+    const { id: userId } = await this.prismaService.user.findFirst({
+      where: { username: username.toLowerCase() },
+      select: { id: true },
+    });
+
+    if (teamOwnerId === userId) {
+      throw new ConflictException(
+        "Owner cannot remove themselves from the team. Please delete the team to perform this action.",
+      );
+    }
+
+    await this.prismaService.userTeam.delete({
+      where: {
+        teamId_userId: { teamId, userId },
+      },
+    });
+
+    return;
+  }
 }
