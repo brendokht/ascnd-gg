@@ -100,12 +100,12 @@ export class InviteService {
         status: "PENDING",
         team: {
           connect: {
-            name: createTeamInviteDto.teamName,
+            name: createTeamInviteDto.teamName.toLowerCase(),
           },
         },
         user: {
           connect: {
-            username: createTeamInviteDto.username,
+            username: createTeamInviteDto.username.toLowerCase(),
           },
         },
       },
@@ -121,11 +121,7 @@ export class InviteService {
     });
 
     const invite: TeamInviteViewModel = {
-      status: "Pending",
-      user: {
-        displayUsername: inviteCreation.user.displayUsername,
-        profilePictureUrl: inviteCreation.user.image,
-      },
+      status: "PENDING",
       createdAt: inviteCreation.createdAt.toISOString(),
     };
 
@@ -135,28 +131,28 @@ export class InviteService {
   async updateTeamInvite(updateTeamInviteDto: UpdateTeamInviteDto) {
     let newInviteStatus: TeamInviteType["status"];
     if (updateTeamInviteDto.accepted === true) {
-      newInviteStatus = "Accepted";
+      newInviteStatus = "ACCEPTED";
     } else if (updateTeamInviteDto.accepted === false) {
-      newInviteStatus = "Declined";
+      newInviteStatus = "DECLINED";
     } else if (updateTeamInviteDto.cancelled === true) {
-      newInviteStatus = "Cancelled";
+      newInviteStatus = "CANCELLED";
     } else {
       newInviteStatus = undefined;
     }
 
     const user = await this.prismaService.user.findUnique({
-      where: { username: updateTeamInviteDto.username },
+      where: { username: updateTeamInviteDto.username.toLowerCase() },
       select: { id: true },
     });
 
     const team = await this.prismaService.team.findUnique({
-      where: { name: updateTeamInviteDto.teamName },
+      where: { name: updateTeamInviteDto.teamName.toLowerCase() },
       select: { id: true },
     });
 
     await this.prismaService.teamInvite.update({
       data: {
-        status: newInviteStatus as TeamInviteStatus | undefined,
+        status: newInviteStatus,
       },
       where: {
         teamId_userId: {
@@ -165,6 +161,15 @@ export class InviteService {
         },
       },
     });
+
+    if (updateTeamInviteDto.accepted) {
+      await this.prismaService.userTeam.create({
+        data: {
+          userId: user.id,
+          teamId: team.id,
+        },
+      });
+    }
 
     return;
   }
