@@ -1,6 +1,7 @@
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@ascnd-gg/constants";
 import * as z from "zod";
 import { Team } from "./team";
+import { TeamInviteType } from "./team-invites";
 
 // TODO: Support descriptions and banners
 
@@ -37,7 +38,8 @@ export type UserType = z.infer<typeof User>;
 export type UserViewModel = Pick<
   UserType,
   "username" | "displayUsername" | "profilePictureUrl" | "createdAt" | "teams"
->;
+> &
+  Pick<TeamInviteType, "isInvited">;
 
 export type UserTeamViewModel = Pick<
   NonNullable<UserType["teams"]>[0],
