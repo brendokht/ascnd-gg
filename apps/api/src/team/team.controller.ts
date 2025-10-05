@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Logger,
   NotFoundException,
@@ -135,5 +136,16 @@ export class TeamController {
     await this.inviteService.updateTeamInvite(updateTeamInviteDto);
 
     return;
+  }
+
+  @Delete(":teamName/member/:username")
+  async removeUserFromTeam(
+    @Param() parmas: { teamName: string; username: string },
+  ) {
+    // TODO: RBAC
+    await this.teamService.removeMemberFromTeam(
+      parmas.teamName,
+      parmas.username,
+    );
   }
 }

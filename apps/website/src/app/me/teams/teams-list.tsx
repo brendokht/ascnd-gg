@@ -10,14 +10,17 @@ import { Badge } from "@ascnd-gg/ui/components/ui/badge";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
 import { EditTeamDialog } from "@ascnd-gg/website/components/dialogs/edit-team-dialog";
+import { LeaveTeamDialog } from "@ascnd-gg/website/components/dialogs/leave-team-dialog";
 import { TeamInvitationDialog } from "@ascnd-gg/website/components/dialogs/team-invitation-dialog";
-import { Crown, Edit, Eye, MailPlus } from "lucide-react";
+import { Crown, Edit, Eye, LogOut, MailPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function TeamsList({
   teams,
+  currentUser,
 }: {
   teams: Array<UserTeamViewModel>;
+  currentUser: string;
 }) {
   const router = useRouter();
 
@@ -60,7 +63,7 @@ export default function TeamsList({
                 >
                   <Eye />
                 </Button>
-                {team.isTeamOwner && (
+                {team.isTeamOwner ? (
                   <>
                     <TeamInvitationDialog teamName={team.displayName}>
                       <Button size={"icon"}>
@@ -80,6 +83,15 @@ export default function TeamsList({
                       </Button>
                     </EditTeamDialog>
                   </>
+                ) : (
+                  <LeaveTeamDialog
+                    currentUser={currentUser}
+                    teamName={team.displayName}
+                  >
+                    <Button variant={"destructive"} size={"icon"}>
+                      <LogOut />
+                    </Button>
+                  </LeaveTeamDialog>
                 )}
               </div>
             </div>
