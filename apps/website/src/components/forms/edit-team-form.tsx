@@ -1,6 +1,10 @@
 "use client";
 
-import { editTeamSchema, editTeamSchemaType } from "@ascnd-gg/types";
+import {
+  editTeamSchema,
+  editTeamSchemaType,
+  type TeamSummary,
+} from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
   Form,
@@ -25,12 +29,7 @@ export default function EditTeamForm({
   defaultValues,
   callback,
 }: {
-  defaultValues: {
-    name: string;
-    displayName: string;
-    logo: string | null;
-    banner: string | null;
-  };
+  defaultValues: TeamSummary;
   callback?: () => void;
 }) {
   const router = useRouter();
@@ -74,7 +73,7 @@ export default function EditTeamForm({
 
     formData.append("name", defaultValues.name);
     if (form.formState.dirtyFields.displayName)
-      formData.append("displayName", values.displayName);
+      formData.append("displayName", values.displayName ?? "");
     if (form.formState.dirtyFields.logo)
       formData.append("logo", values.logo ?? new Blob());
     if (form.formState.dirtyFields.banner)

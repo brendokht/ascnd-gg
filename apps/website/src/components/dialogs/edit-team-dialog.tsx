@@ -11,18 +11,14 @@ import {
 import EditTeamForm from "../forms/edit-team-form";
 import { useState, type ReactNode } from "react";
 import { ScrollArea } from "@ascnd-gg/ui/components/ui/scroll-area";
+import { type TeamSummary } from "@ascnd-gg/types";
 
 export function EditTeamDialog({
   children,
   defaultValues,
 }: {
   children: ReactNode;
-  defaultValues: {
-    name: string;
-    displayName: string;
-    logo: string | null;
-    banner: string | null;
-  };
+  defaultValues: TeamSummary;
 }) {
   const [open, setOpen] = useState<boolean>(false);
 

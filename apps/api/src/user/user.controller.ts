@@ -6,7 +6,7 @@ import {
   Query,
   Req,
 } from "@nestjs/common";
-import { UserViewModel } from "@ascnd-gg/types";
+import { UserSearchViewModel, UserViewModel } from "@ascnd-gg/types";
 import { UserService } from "./user.service";
 import { Public } from "../auth/auth.decorator";
 import { User } from "@ascnd-gg/database";
@@ -38,7 +38,7 @@ export class UserController {
     @Query("limit") limit: string = "5",
     @Query("teamName") teamName?: string | undefined,
   ): Promise<{
-    users: Array<Omit<UserViewModel, "teams" | "createdAt">> | null;
+    users: Array<UserSearchViewModel> | null;
     totalCount: number;
   }> {
     const user = req["user"] as User;

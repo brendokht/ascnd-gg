@@ -5,7 +5,12 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@ascnd-gg/database";
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { username } from "better-auth/plugins";
-import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@ascnd-gg/constants";
+import {
+  DISPLAY_USERNAME_REGEX,
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+  USERNAME_REGEX,
+} from "@ascnd-gg/constants";
 import { redis } from "@ascnd-gg/redis";
 
 const authConfig = {
@@ -14,7 +19,10 @@ const authConfig = {
   plugins: [
     username({
       usernameValidator: (username) => {
-        return /^[a-zA-Z0-9._-]+$/.test(username);
+        return USERNAME_REGEX.test(username);
+      },
+      displayUsernameValidator(displayUsername) {
+        return DISPLAY_USERNAME_REGEX.test(displayUsername);
       },
       minUsernameLength: USERNAME_MIN_LENGTH,
       maxUsernameLength: USERNAME_MAX_LENGTH,
@@ -52,7 +60,7 @@ const authConfig = {
            */
           if (userData["username"] && userData["displayUsername"])
             userData["active"] = true;
-          return { data: { ...userData, updatedAt: new Date() } };
+          return { data: { ...userData } };
         },
       },
     },

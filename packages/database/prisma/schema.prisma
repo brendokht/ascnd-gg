@@ -9,6 +9,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//www.better-auth.com/docs/guides/optimizing-for-performance#database-optimizations
+
 model User {
   id              String   @id @default(uuid(7))
   name            String
@@ -121,6 +123,7 @@ model TeamInvite {
 }
 
 // TODO: Change to lookup table for easier queries
+
 enum TeamInviteStatus {
   PENDING
   DECLINED

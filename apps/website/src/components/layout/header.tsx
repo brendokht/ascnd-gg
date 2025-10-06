@@ -13,8 +13,9 @@ export default async function Header() {
     user = null;
   } else {
     user = {
-      username: session.user.username,
-      displayUsername: session.user.displayUsername,
+      id: session.user.id,
+      username: session.user.username ?? undefined,
+      displayUsername: session.user.displayUsername ?? undefined,
       profilePictureUrl: session.user.image ?? undefined,
       createdAt: session.user.createdAt.toISOString(),
     };

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { UserViewModel } from "@ascnd-gg/types";
+import { UserSearchViewModel, UserViewModel } from "@ascnd-gg/types";
 import { User } from "@ascnd-gg/database";
 
 @Injectable()
@@ -12,6 +12,7 @@ export class UserService {
       where: { username: username },
       select: {
         id: true,
+        username: true,
         displayUsername: true,
         image: true,
         createdAt: true,
@@ -24,17 +25,22 @@ export class UserService {
     }
 
     const user: UserViewModel = {
+      id: userSelect.id,
+      username: userSelect.username,
       displayUsername: userSelect.displayUsername,
       profilePictureUrl: userSelect.image,
       createdAt: userSelect.createdAt.toISOString(),
-      teams: userSelect.teams.map((t) => {
-        return {
-          name: t.team.name,
-          displayName: t.team.displayName,
-          logo: t.team.logo,
-          isTeamOwner: t.team.teamOwnerId === userSelect.id,
-        };
-      }),
+      teams: userSelect.teams
+        ? userSelect.teams.map((t) => {
+            return {
+              id: t.team.id,
+              name: t.team.name,
+              displayName: t.team.displayName,
+              logo: t.team.logo,
+              isTeamOwner: t.team.teamOwnerId === userSelect.id,
+            };
+          })
+        : [],
     };
 
     return user;
@@ -47,7 +53,7 @@ export class UserService {
     limit?: number,
     teamName?: string,
   ): Promise<{
-    users: Array<UserViewModel> | null;
+    users: Array<UserSearchViewModel> | null;
     totalCount: number;
   }> {
     // TODO: RBAC for ensuring users with proper roles can select a user's invitations
@@ -86,15 +92,22 @@ export class UserService {
         },
       },
       select: {
+        id: true,
         username: true,
         displayUsername: true,
         image: true,
         createdAt: true,
-        teams: true,
+        teams: {
+          select: {
+            team: true,
+          },
+        },
         invitations: {
           select: {
             team: {
               select: {
+                id: true,
+                name: true,
                 displayName: true,
                 logo: true,
               },
@@ -116,23 +129,13 @@ export class UserService {
       return { users: [], totalCount: count };
     }
 
-    const users: Array<UserViewModel> = usersSelect.map((user) => {
+    const users: Array<UserSearchViewModel> = usersSelect.map((user) => {
       return {
+        id: user.id,
         username: user.username,
         displayUsername: user.displayUsername,
         profilePictureUrl: user.image,
         createdAt: user.createdAt.toISOString(),
-        teams: user.teams
-          ? user.teams.map((t) => {
-              const team = (t as any).team ?? t;
-              return {
-                name: team?.name,
-                displayName: team?.displayName,
-                logo: team?.logo,
-                isTeamOwner: false,
-              };
-            })
-          : [],
         isInvited: !!user.invitations.find(
           (invite) =>
             invite.status === "PENDING" &&

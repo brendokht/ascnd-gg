@@ -3,6 +3,7 @@ import { PrismaClient, TeamInviteStatus } from "../";
 
 const prisma = new PrismaClient();
 
+// TODO: Add data to accounts, after adding magic link authentication
 async function main() {
   // #region Users
   const owner = await prisma.user.upsert({

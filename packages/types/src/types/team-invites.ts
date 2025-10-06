@@ -1,24 +1,31 @@
 import * as z from "zod";
-import { Team } from "./team";
+import { TeamSummarySchema } from "./team";
+import { TeamInviteStatus } from "@ascnd-gg/database";
+import { UserSummarySchema } from "./user";
 
-const TeamInviteStatus = [
-  "PENDING",
-  "DECLINED",
-  "CANCELLED",
-  "ACCEPTED",
-] as const;
-
-export const TeamInvite = z.object({
-  status: z.enum(TeamInviteStatus),
-  team: Team.pick({ displayName: true, logo: true }).optional(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  isInvited: z.boolean().prefault(false).optional(),
+export const TeamInviteSchema = z.object({
+  status: z.enum(TeamInviteStatus, { error: "Invite status is required." }),
+  user: UserSummarySchema,
+  team: TeamSummarySchema,
+  createdAt: z.iso.datetime({
+    error: "Team invitation creation date is required.",
+  }),
 });
 
-export type TeamInviteType = z.infer<typeof TeamInvite>;
+export const TeamInviteForUserViewModelSchema = TeamInviteSchema.omit({
+  user: true,
+});
 
-export type TeamInviteViewModel = Pick<
-  TeamInviteType,
-  "status" | "team" | "createdAt"
+export const TeamInviteForTeamViewModelSchema = TeamInviteSchema.omit({
+  team: true,
+});
+
+export type TeamInvite = z.infer<typeof TeamInviteSchema>;
+
+export type TeamInviteForUserViewModel = z.infer<
+  typeof TeamInviteForUserViewModelSchema
+>;
+
+export type TeamInviteForTeamViewModel = z.infer<
+  typeof TeamInviteForTeamViewModelSchema
 >;

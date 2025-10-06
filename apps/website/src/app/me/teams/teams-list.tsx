@@ -1,6 +1,6 @@
 "use client";
 
-import { type UserTeamViewModel } from "@ascnd-gg/types";
+import { type TeamSummary } from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -19,7 +19,7 @@ export default function TeamsList({
   teams,
   currentUser,
 }: {
-  teams: Array<UserTeamViewModel>;
+  teams: Array<TeamSummary>;
   currentUser: string;
 }) {
   const router = useRouter();
@@ -65,19 +65,12 @@ export default function TeamsList({
                 </Button>
                 {team.isTeamOwner ? (
                   <>
-                    <TeamInvitationDialog teamName={team.displayName}>
+                    <TeamInvitationDialog team={team}>
                       <Button size={"icon"}>
                         <MailPlus />
                       </Button>
                     </TeamInvitationDialog>
-                    <EditTeamDialog
-                      defaultValues={{
-                        name: team.name,
-                        displayName: team.displayName,
-                        logo: team.logo,
-                        banner: team.banner,
-                      }}
-                    >
+                    <EditTeamDialog defaultValues={team}>
                       <Button size="icon">
                         <Edit />
                       </Button>

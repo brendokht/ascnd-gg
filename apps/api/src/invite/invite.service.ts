@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   CreateTeamInviteDto,
-  TeamInviteType,
-  TeamInviteViewModel,
+  TeamInviteForTeamViewModel,
+  TeamInviteForUserViewModel,
   UpdateTeamInviteDto,
 } from "@ascnd-gg/types";
 import { TeamInviteStatus } from "@ascnd-gg/database";
@@ -15,7 +15,7 @@ export class InviteService {
   async getTeamInvitesForUser(
     status: TeamInviteStatus,
     userId: string,
-  ): Promise<Array<TeamInviteViewModel>> {
+  ): Promise<Array<TeamInviteForUserViewModel>> {
     const invitesSelect = await this.prismaService.teamInvite.findMany({
       where: {
         userId: userId,
@@ -28,21 +28,26 @@ export class InviteService {
         createdAt: true,
         team: {
           select: {
+            id: true,
+            name: true,
             displayName: true,
             logo: true,
+            teamOwnerId: true,
           },
         },
       },
     });
 
-    const teamInvites: Array<TeamInviteViewModel> = invitesSelect.map(
+    const teamInvites: Array<TeamInviteForUserViewModel> = invitesSelect.map(
       (teamInvite) => {
         return {
           team: {
+            id: teamInvite.team.id,
+            name: teamInvite.team.name,
             displayName: teamInvite.team.displayName,
             logo: teamInvite.team.logo,
           },
-          status: teamInvite.status as TeamInviteType["status"],
+          status: teamInvite.status,
           createdAt: teamInvite.createdAt.toISOString(),
         };
       },
@@ -54,7 +59,7 @@ export class InviteService {
   async getTeamInvitesForTeam(
     status: TeamInviteStatus,
     teamName: string,
-  ): Promise<Array<TeamInviteViewModel>> {
+  ): Promise<Array<TeamInviteForTeamViewModel>> {
     const invitesSelect = await this.prismaService.teamInvite.findMany({
       where: {
         team: {
@@ -69,6 +74,8 @@ export class InviteService {
         createdAt: true,
         user: {
           select: {
+            id: true,
+            username: true,
             displayUsername: true,
             image: true,
           },
@@ -76,14 +83,16 @@ export class InviteService {
       },
     });
 
-    const teamInvites: Array<TeamInviteViewModel> = invitesSelect.map(
+    const teamInvites: Array<TeamInviteForTeamViewModel> = invitesSelect.map(
       (teamInvite) => {
         return {
           user: {
+            id: teamInvite.user.id,
+            username: teamInvite.user.username,
             displayUsername: teamInvite.user.displayUsername,
             logo: teamInvite.user.image,
           },
-          status: teamInvite.status as TeamInviteType["status"],
+          status: teamInvite.status,
           createdAt: teamInvite.createdAt.toISOString(),
         };
       },
@@ -94,18 +103,18 @@ export class InviteService {
 
   async createTeamInvite(
     createTeamInviteDto: CreateTeamInviteDto,
-  ): Promise<TeamInviteViewModel> {
+  ): Promise<TeamInviteForTeamViewModel> {
     const inviteCreation = await this.prismaService.teamInvite.create({
       data: {
         status: "PENDING",
         team: {
           connect: {
-            name: createTeamInviteDto.teamName.toLowerCase(),
+            id: createTeamInviteDto.teamId,
           },
         },
         user: {
           connect: {
-            username: createTeamInviteDto.username.toLowerCase(),
+            id: createTeamInviteDto.userId,
           },
         },
       },
@@ -113,6 +122,8 @@ export class InviteService {
         createdAt: true,
         user: {
           select: {
+            id: true,
+            username: true,
             displayUsername: true,
             image: true,
           },
@@ -120,7 +131,8 @@ export class InviteService {
       },
     });
 
-    const invite: TeamInviteViewModel = {
+    const invite: TeamInviteForTeamViewModel = {
+      user: inviteCreation.user,
       status: "PENDING",
       createdAt: inviteCreation.createdAt.toISOString(),
     };
@@ -129,44 +141,23 @@ export class InviteService {
   }
 
   async updateTeamInvite(updateTeamInviteDto: UpdateTeamInviteDto) {
-    let newInviteStatus: TeamInviteType["status"];
-    if (updateTeamInviteDto.accepted === true) {
-      newInviteStatus = "ACCEPTED";
-    } else if (updateTeamInviteDto.accepted === false) {
-      newInviteStatus = "DECLINED";
-    } else if (updateTeamInviteDto.cancelled === true) {
-      newInviteStatus = "CANCELLED";
-    } else {
-      newInviteStatus = undefined;
-    }
-
-    const user = await this.prismaService.user.findUnique({
-      where: { username: updateTeamInviteDto.username.toLowerCase() },
-      select: { id: true },
-    });
-
-    const team = await this.prismaService.team.findUnique({
-      where: { name: updateTeamInviteDto.teamName.toLowerCase() },
-      select: { id: true },
-    });
-
     await this.prismaService.teamInvite.update({
       data: {
-        status: newInviteStatus,
+        status: updateTeamInviteDto.status,
       },
       where: {
         teamId_userId: {
-          teamId: team.id,
-          userId: user.id,
+          teamId: updateTeamInviteDto.teamId,
+          userId: updateTeamInviteDto.userId,
         },
       },
     });
 
-    if (updateTeamInviteDto.accepted) {
+    if (updateTeamInviteDto.status === "ACCEPTED") {
       await this.prismaService.userTeam.create({
         data: {
-          userId: user.id,
-          teamId: team.id,
+          userId: updateTeamInviteDto.userId,
+          teamId: updateTeamInviteDto.teamId,
         },
       });
     }

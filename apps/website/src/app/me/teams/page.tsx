@@ -1,4 +1,4 @@
-import { UserTeamViewModel } from "@ascnd-gg/types";
+import { type TeamSummary } from "@ascnd-gg/types";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
 import TeamsList from "./teams-list";
@@ -10,7 +10,7 @@ export default async function Teams() {
 
   const user = session.user;
 
-  const { data: teams, error } = await fetchApi<Array<UserTeamViewModel>>(
+  const { data: teams, error } = await fetchApi<Array<TeamSummary>>(
     "/me/team",
     await headers(),
   );

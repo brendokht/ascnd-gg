@@ -43,14 +43,16 @@ export default async function UserProfile(props: PageProps<"/user/[user]">) {
         </AvatarFallback>
       </Avatar>
       <h1 className="text-2xl font-semibold">{userData.displayUsername}</h1>
-      <p className="text-muted-foreground text-sm">
-        Member since{" "}
-        {new Date(userData.createdAt).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      </p>
+      {userData.createdAt && (
+        <p className="text-muted-foreground text-sm">
+          Member since{" "}
+          {new Date(userData.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      )}
     </>
   );
 }

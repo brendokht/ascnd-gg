@@ -17,7 +17,7 @@ import {
   CreateTeamDto,
   CreateTeamInviteDto,
   EditTeamDto,
-  TeamInviteViewModel,
+  TeamInviteForTeamViewModel,
   TeamViewModel,
   UpdateTeamInviteDto,
 } from "@ascnd-gg/types";
@@ -109,7 +109,7 @@ export class TeamController {
   @Get("invite:name")
   async getTeamInvites(
     @Param() params: { name: string },
-  ): Promise<Array<TeamInviteViewModel>> {
+  ): Promise<Array<TeamInviteForTeamViewModel>> {
     const invites = await this.inviteService.getTeamInvitesForTeam(
       "PENDING",
       params.name,
@@ -122,7 +122,7 @@ export class TeamController {
   async sendTeamInvite(
     @Req() req: Request,
     @Body() createTeamInviteDto: CreateTeamInviteDto,
-  ): Promise<TeamInviteViewModel> {
+  ): Promise<TeamInviteForTeamViewModel> {
     const invite =
       await this.inviteService.createTeamInvite(createTeamInviteDto);
 
@@ -132,7 +132,7 @@ export class TeamController {
   @Put("invite")
   async updateTeamInvite(
     @Body() updateTeamInviteDto: UpdateTeamInviteDto,
-  ): Promise<TeamInviteViewModel> {
+  ): Promise<TeamInviteForTeamViewModel> {
     await this.inviteService.updateTeamInvite(updateTeamInviteDto);
 
     return;

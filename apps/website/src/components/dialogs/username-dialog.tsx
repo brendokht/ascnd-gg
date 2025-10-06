@@ -1,6 +1,9 @@
 "use client";
 
-import { updateUsernameSchema } from "@ascnd-gg/types";
+import {
+  updateUsernameSchema,
+  updateUsernameSchemaType,
+} from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
   Dialog,
@@ -21,7 +24,6 @@ import {
 import { Input } from "@ascnd-gg/ui/components/ui/input";
 import { useAuth } from "@ascnd-gg/website/context/auth-context";
 import { authClient } from "@ascnd-gg/website/lib/auth";
-import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -30,17 +32,17 @@ export function UsernameDialog() {
   const router = useRouter();
   const { requiresUsername, setRequiresUsername } = useAuth();
 
-  const form = useForm<z.infer<typeof updateUsernameSchema>>({
+  const form = useForm<updateUsernameSchemaType>({
     resolver: zodResolver(updateUsernameSchema),
     defaultValues: {
-      username: "",
+      displayUsername: "",
     },
     mode: "onChange",
   });
 
-  const onSubmit = async (values: z.infer<typeof updateUsernameSchema>) => {
+  const onSubmit = async (values: updateUsernameSchemaType) => {
     const availableRes = await authClient.isUsernameAvailable({
-      username: values.username,
+      username: values.displayUsername,
     });
 
     if (availableRes.error) {
@@ -49,7 +51,7 @@ export function UsernameDialog() {
     }
 
     if (!availableRes.data.available) {
-      form.setError("username", {
+      form.setError("displayUsername", {
         type: "duplicate",
         message: "This username has already been taken",
       });
@@ -57,8 +59,8 @@ export function UsernameDialog() {
     }
 
     const updateRes = await authClient.updateUser({
-      username: values.username,
-      displayUsername: values.username,
+      username: values.displayUsername,
+      displayUsername: values.displayUsername,
     });
 
     if (updateRes.error) {
@@ -84,7 +86,7 @@ export function UsernameDialog() {
             </DialogHeader>
             <FormField
               control={form.control}
-              name="username"
+              name="displayUsername"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Username</FormLabel>
