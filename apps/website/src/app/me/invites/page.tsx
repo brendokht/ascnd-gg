@@ -1,4 +1,4 @@
-import { type TeamInviteViewModel } from "@ascnd-gg/types";
+import { type TeamInviteForUserViewModel } from "@ascnd-gg/types";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
 import InvitesList from "./invites-list";
@@ -10,7 +10,7 @@ export default async function Invites() {
   const user = session.user;
 
   const { data: teamInvites, error } = await fetchApi<
-    Array<TeamInviteViewModel>
+    Array<TeamInviteForUserViewModel>
   >("/me/team/invite", await headers());
 
   if (error) {

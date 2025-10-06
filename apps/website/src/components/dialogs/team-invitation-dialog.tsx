@@ -1,6 +1,12 @@
 "use client";
 
-import { TeamInviteViewModel, UserViewModel } from "@ascnd-gg/types";
+import {
+  CreateTeamInvite,
+  TeamInviteForTeamViewModel,
+  TeamSummary,
+  UpdateTeamInvite,
+  UserSearchViewModel,
+} from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -33,27 +39,29 @@ import { useDebouncedCallback } from "use-debounce";
 
 const MAX_USERS_PER_PAGE = 5;
 
-type UserType = Omit<UserViewModel, "teams" | "createdAt">;
+// type UserType = Omit<UserViewModel, "teams" | "createdAt"> & {
+//   isInvited?: boolean;
+// };
 
-type TeamInvitationUserType = Array<UserType>;
+// type TeamInvitationUserType = Array<UserType>;
 
 export function TeamInvitationDialog({
-  teamName,
+  team,
   children,
 }: {
-  teamName: string;
+  team: TeamSummary;
   children: ReactNode;
 }) {
   // TODO: Use React Query for data fetching and optimistic updates for invites
 
   const [open, setOpen] = useState<boolean>(false);
-  const [users, setUsers] = useState<TeamInvitationUserType | undefined>(
+  const [users, setUsers] = useState<Array<UserSearchViewModel> | undefined>(
     undefined,
   );
-  const [visitedPages, setVisitedPages] = useState<Set<number>>(new Set([1]));
   const [currentUsers, setCurrentUsers] = useState<
-    TeamInvitationUserType | undefined
+    Array<UserSearchViewModel> | undefined
   >(undefined);
+  const [visitedPages, setVisitedPages] = useState<Set<number>>(new Set([1]));
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -71,7 +79,10 @@ export function TeamInvitationDialog({
     setTotalPages(0);
   };
 
-  const updateInviteState = async (invitedUser: UserType, invited: boolean) => {
+  const updateInviteState = async (
+    invitedUser: UserSearchViewModel,
+    invited: boolean,
+  ) => {
     // Optimistically update invite state for both user array states
     console.log("updating invite state optimistically");
     const updatedCurrentUsers = currentUsers?.map((user) => {
@@ -99,18 +110,20 @@ export function TeamInvitationDialog({
     setUsers(updatedUsers);
 
     if (invited) {
-      const createdInviteBody = JSON.stringify({
-        teamName: teamName.toLowerCase(),
-        username: invitedUser.username!.toLowerCase(),
-      });
+      const createTeamInviteBody: CreateTeamInvite = {
+        teamId: team.id,
+        userId: invitedUser.id,
+        status: "PENDING",
+      };
 
-      console.log("createdInviteBody", createdInviteBody);
+      console.log("createdInviteBody", createTeamInviteBody);
 
-      const { data: inviteData, error } = await postApi<TeamInviteViewModel>(
-        "/team/invite",
-        createdInviteBody,
-        "application/json",
-      );
+      const { data: inviteData, error } =
+        await postApi<TeamInviteForTeamViewModel>(
+          "/team/invite",
+          JSON.stringify(createTeamInviteBody),
+          "application/json",
+        );
 
       if (error || !inviteData) {
         // Revert optimistically updated invite state
@@ -144,16 +157,16 @@ export function TeamInvitationDialog({
 
       console.log(`user ${invitedUser.displayUsername} was invited`);
     } else {
-      const updatedInviteBody = JSON.stringify({
-        teamName: teamName.toLowerCase(),
-        username: invitedUser.username!.toLowerCase(),
-        cancelled: true,
-      });
-      console.log("updatedInviteBody", updatedInviteBody);
+      const updateTeamInviteBody: UpdateTeamInvite = {
+        teamId: team.id,
+        userId: invitedUser.id,
+        status: "PENDING",
+      };
+      console.log("updatedInviteBody", updateTeamInviteBody);
 
       const { error } = await putApi<never>(
         "/team/invite",
-        updatedInviteBody,
+        JSON.stringify(updateTeamInviteBody),
         "application/json",
       );
 
@@ -210,10 +223,10 @@ export function TeamInvitationDialog({
     setLoading(true);
 
     const { data: newUsers, error } = await fetchApi<{
-      users: Array<Omit<UserViewModel, "teams" | "createdAt">> | null;
+      users: Array<UserSearchViewModel> | null;
       totalCount: number;
     }>(
-      `/user?username=${input}&page=${page}&limit=${MAX_USERS_PER_PAGE}&teamName=${teamName}`,
+      `/user?username=${input}&page=${page}&limit=${MAX_USERS_PER_PAGE}&teamName=${team.name}`,
     );
 
     setLoading(false);
@@ -246,10 +259,10 @@ export function TeamInvitationDialog({
     setInput(input);
 
     const { data: searchResult, error } = await fetchApi<{
-      users: Array<UserType> | null;
+      users: Array<UserSearchViewModel> | null;
       totalCount: number;
     }>(
-      `/user?username=${input}&page=1&limit=${MAX_USERS_PER_PAGE}&teamName=${teamName}`,
+      `/user?username=${input}&page=1&limit=${MAX_USERS_PER_PAGE}&teamName=${team.name}`,
     );
 
     setLoading(false);
@@ -283,9 +296,9 @@ export function TeamInvitationDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Invite to {teamName}</DialogTitle>
+          <DialogTitle>Invite to {team.displayName}</DialogTitle>
           <DialogDescription>
-            Invite your friends to {teamName}.
+            Invite your friends to {team.displayName}.
           </DialogDescription>
         </DialogHeader>
         <div className="text-gray- space-y-4">

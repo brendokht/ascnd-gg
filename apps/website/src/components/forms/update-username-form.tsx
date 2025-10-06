@@ -26,12 +26,12 @@ export default function UpdateUsernameForm({
   const form = useForm<z.infer<typeof updateUsernameSchema>>({
     resolver: zodResolver(updateUsernameSchema),
     defaultValues: {
-      username: currentUsername,
+      displayUsername: currentUsername,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof updateUsernameSchema>) => {
-    const newUsername = values.username.trim();
+    const newUsername = values.displayUsername.trim();
 
     const availableRes = await authClient.isUsernameAvailable({
       username: newUsername,
@@ -43,7 +43,7 @@ export default function UpdateUsernameForm({
     }
 
     if (!availableRes.data.available) {
-      form.setError("username", {
+      form.setError("displayUsername", {
         type: "duplicate",
         message: "This username has already been taken",
       });
@@ -64,7 +64,7 @@ export default function UpdateUsernameForm({
       description: "Username has been successfully updated.",
     });
 
-    form.reset({ username: newUsername });
+    form.reset({ displayUsername: newUsername });
   };
 
   return (
@@ -72,7 +72,7 @@ export default function UpdateUsernameForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="username"
+          name="displayUsername"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-lg font-semibold">Username</FormLabel>
@@ -91,7 +91,7 @@ export default function UpdateUsernameForm({
           disabled={
             !form.formState.isValid ||
             form.formState.isLoading ||
-            !form.formState.dirtyFields.username
+            !form.formState.dirtyFields.displayUsername
           }
         >
           Submit

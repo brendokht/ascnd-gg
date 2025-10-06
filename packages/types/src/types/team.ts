@@ -1,40 +1,67 @@
 import {
+  TEAM_DISPLAY_USERNAME_REGEX,
   TEAM_NAME_MAX_LENGTH,
   TEAM_NAME_MIN_LENGTH,
+  TEAM_NAME_REGEX,
 } from "@ascnd-gg/constants";
 import * as z from "zod";
+import { UserSummarySchema } from "./user";
 
-export const Team = z.object({
+export const TeamSchema = z.object({
+  id: z.uuidv7({ error: "ID is required." }),
   name: z
-    .string({ error: "Team name is required" })
+    .string({ error: "Team name is required." })
     .min(TEAM_NAME_MIN_LENGTH, {
-      error: "Team name must be at least 3 characters",
+      error: `Team name must be at least ${TEAM_NAME_MIN_LENGTH} characters.`,
     })
     .max(TEAM_NAME_MAX_LENGTH, {
-      error: "Team name must be 30 characters or less",
+      error: `Team name must be ${TEAM_NAME_MAX_LENGTH} characters or less.`,
     })
-    .regex(/^[a-zA-Z0-9.-_]+$/, {
+    .regex(TEAM_NAME_REGEX, {
       error:
-        "Team name can only contain alphanumeric characters, underscores, dots, and dashes",
+        "Team name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
   displayName: z
     .string({ error: "Team display name is required" })
     .min(TEAM_NAME_MIN_LENGTH)
     .max(TEAM_NAME_MAX_LENGTH)
-    .regex(/^[a-zA-Z0-9.-_]+$/, {
+    .regex(TEAM_DISPLAY_USERNAME_REGEX, {
       error:
-        "Team display name can only contain alphanumeric characters, underscores, dots, and dashes",
+        "Team name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
-  logo: z.url().nullable(),
-  banner: z.url().nullable(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  isTeamOwner: z.boolean().prefault(false),
+  logo: z
+    .url({ error: "Team logo is must be a URL pointing to an image" })
+    .optional(),
+  banner: z
+    .url({ error: "Team banner is must be a URL pointing to an image" })
+    .optional(),
+  teamOwnerId: z.uuidv7({ error: "Team owner ID is requied." }),
+  get members() {
+    return z.array(UserSummarySchema).optional();
+  },
+  createdAt: z.iso
+    .datetime({ error: "Team creation date is required." })
+    .optional(),
 });
 
-export type TeamType = z.infer<typeof Team>;
+export const TeamSummarySchema = TeamSchema.pick({
+  id: true,
+  name: true,
+  displayName: true,
+  logo: true,
+  banner: true,
+}).extend({
+  isTeamOwner: z.boolean().optional(),
+});
 
-export type TeamViewModel = Pick<
-  TeamType,
-  "displayName" | "logo" | "banner" | "createdAt" | "isTeamOwner"
->;
+export const TeamViewModelSchema = TeamSchema.omit({
+  teamOwnerId: true,
+}).extend({
+  isTeamOwner: z.boolean().optional(),
+});
+
+export type Team = z.infer<typeof TeamSchema>;
+
+export type TeamSummary = z.infer<typeof TeamSummarySchema>;
+
+export type TeamViewModel = z.infer<typeof TeamViewModelSchema>;

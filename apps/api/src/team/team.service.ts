@@ -25,15 +25,12 @@ export class TeamService {
     createTeamDto: CreateTeamDto,
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ) {
-    // Set 'name' to normalized version of 'displayName'
-    createTeamDto.name = createTeamDto.displayName.toLowerCase();
-
     const newTeamName = await this.prismaService.$transaction(async (tx) => {
       try {
-        const { id: newTeamId } = await tx.team.create({
+        const { id: newTeamId, name: newTeamName } = await tx.team.create({
           data: {
             displayName: createTeamDto.displayName,
-            name: createTeamDto.name,
+            name: createTeamDto.displayName.toLowerCase(),
             teamOwner: { connect: { id: user.id } },
             members: {
               create: {
@@ -41,7 +38,7 @@ export class TeamService {
               },
             },
           },
-          select: { id: true },
+          select: { id: true, name: true },
         });
 
         let logoKey: string | undefined = undefined;
@@ -82,7 +79,7 @@ export class TeamService {
           where: { id: newTeamId },
         });
 
-        return createTeamDto.name;
+        return newTeamName;
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
           if (error.code === "P2002") {
@@ -103,10 +100,8 @@ export class TeamService {
     editTeamDto: EditTeamDto,
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ) {
-    const oldName = editTeamDto.name;
-
     const { teamOwnerId } = await this.prismaService.team.findFirst({
-      where: { name: oldName },
+      where: { id: editTeamDto.id },
       select: { teamOwnerId: true },
     });
 
@@ -120,21 +115,18 @@ export class TeamService {
     const updatedTeamName = await this.prismaService.$transaction(
       async (tx) => {
         try {
-          // Set 'name' to normalized version of new 'displayName'
-          if (editTeamDto.displayName)
-            editTeamDto.name = editTeamDto.displayName.toLowerCase();
-
           const {
             id: updatedTeamId,
+            name: updatedTeamName,
             logo: oldLogoUrl,
             banner: oldBannerUrl,
           } = await tx.team.update({
             data: {
               displayName: editTeamDto.displayName,
-              name: editTeamDto.name,
+              name: editTeamDto.displayName.toLowerCase(),
             },
-            where: { name: oldName },
-            select: { id: true, logo: true, banner: true },
+            where: { id: editTeamDto.id },
+            select: { id: true, name: true, logo: true, banner: true },
           });
 
           let logoKey: string | undefined | null = undefined;
@@ -194,7 +186,7 @@ export class TeamService {
             where: { id: updatedTeamId },
           });
 
-          return editTeamDto.name;
+          return updatedTeamName;
         } catch (error) {
           if (error instanceof Prisma.PrismaClientKnownRequestError) {
             if (error.code === "P2002") {
@@ -218,11 +210,18 @@ export class TeamService {
     const teamSelect = await this.prismaService.team.findFirst({
       where: { name: name },
       select: {
+        id: true,
+        name: true,
         displayName: true,
         logo: true,
         banner: true,
         createdAt: true,
         teamOwnerId: true,
+        members: {
+          select: {
+            user: true,
+          },
+        },
       },
     });
 
@@ -231,9 +230,19 @@ export class TeamService {
     }
 
     const team: TeamViewModel = {
+      id: teamSelect.id,
+      name: teamSelect.name,
       displayName: teamSelect.displayName,
       logo: teamSelect.logo,
       banner: teamSelect.banner,
+      members: teamSelect.members.map(({ user }) => {
+        return {
+          id: user.id,
+          username: user.username,
+          displayUsername: user.displayUsername,
+          profilePictureUrl: user.image,
+        };
+      }),
       createdAt: teamSelect.createdAt.toISOString(),
       isTeamOwner: userId === teamSelect.teamOwnerId,
     };

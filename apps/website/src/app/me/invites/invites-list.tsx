@@ -1,6 +1,6 @@
 "use client";
 
-import { type TeamInviteViewModel } from "@ascnd-gg/types";
+import { type TeamInviteForUserViewModel } from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -24,15 +24,15 @@ export default function InvitesList({
   teamInvites,
 }: {
   currentUser: string;
-  teamInvites: Array<TeamInviteViewModel>;
+  teamInvites: Array<TeamInviteForUserViewModel>;
 }) {
   const router = useRouter();
 
   const [invites, setInvites] =
-    useState<Array<TeamInviteViewModel>>(teamInvites);
+    useState<Array<TeamInviteForUserViewModel>>(teamInvites);
 
   const updateInvite = async (
-    invite: TeamInviteViewModel,
+    invite: TeamInviteForUserViewModel,
     accepted: boolean,
   ) => {
     // Optimistically remove invite

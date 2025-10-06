@@ -48,14 +48,16 @@ export default async function TeamProfile(props: PageProps<"/team/[team]">) {
         </AvatarFallback>
       </Avatar>
       <h1 className="text-2xl font-semibold">{teamData.displayName}</h1>
-      <p className="text-muted-foreground text-sm">
-        Team active on Ascnd GG since{" "}
-        {new Date(teamData.createdAt).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      </p>
+      {teamData.createdAt && (
+        <p className="text-muted-foreground text-sm">
+          Team active on Ascnd GG since{" "}
+          {new Date(teamData.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      )}
       <p>
         {teamData.isTeamOwner ? "You are the owner" : "You are not the owner"}
       </p>
