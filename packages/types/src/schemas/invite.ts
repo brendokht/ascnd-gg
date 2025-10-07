@@ -51,14 +51,33 @@ export type TeamInviteUpdateParameter = z.infer<
   typeof teamInviteUpdateParameterSchema
 >;
 
+/**
+ * @param {string} userId The ID of the user to invite - Required
+ */
 export class CreateTeamInviteDto extends createZodDto(createTeamInviteSchema) {}
+/**
+ * @param {string} userId The ID of the user to invite - Required
+ * @param status The new status of the invite - Required
+ */
 export class UpdateTeamInviteDto extends createZodDto(updateTeamInviteSchema) {}
+/**
+ * @param {string} username The username of the user to search for - Required
+ * @param {string} page The page of the set of users - Required
+ * @param {string} limit The limit of how many users are returned - Required
+ */
 export class TeamInviteSearchQueryDto extends createZodDto(
   teamInviteSearchQuerySchema,
 ) {}
+/**
+ * @param {string} teamId The team's ID
+ */
 export class TeamInviteSearchParameterDto extends createZodDto(
   teamInviteSearchParameterSchema,
 ) {}
+/**
+ * @param {string} teamId The team's ID
+ * @param {string} inviteId The invites's ID
+ */
 export class TeamInviteUpdateParameterDto extends createZodDto(
   teamInviteUpdateParameterSchema,
 ) {}
