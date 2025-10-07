@@ -45,12 +45,32 @@ export type TeamMemberDeleteParameter = z.infer<
   typeof teamMemberDeleteParameterSchema
 >;
 
+/**
+ * @param {string} displayName The team's display name - Required
+ * @param {Blob} [logo] The Blob object for the team's logo - Optional
+ * @param {Blob} [banner] The Blob object for the team's banner - Optional
+ */
 export class CreateTeamDto extends createZodDto(createTeamSchema) {}
+/**
+ * @param {string} [displayName] The team's updated display name - Optional
+ * @param {Blob} [logo] The Blob object for the updated team's logo - Optional
+ * @param {Blob} [banner] The Blob object for the updated team's banner - Optional
+ */
 export class EditTeamDto extends createZodDto(editTeamSchema) {}
+/**
+ * @param {string} teamId The team's ID - Required
+ */
 export class TeamIdParameterDto extends createZodDto(teamIdParameterSchema) {}
+/**
+ * @param {string} name The team's name - Required
+ */
 export class TeamNameParameterDto extends createZodDto(
   teamNameParameterSchema,
 ) {}
+/**
+ * @param {string} teamId The team's ID - Required
+ * @param {string} userId The user's ID - Required
+ */
 export class TeamMemberDeleteParameterDto extends createZodDto(
   teamMemberDeleteParameterSchema,
 ) {}
