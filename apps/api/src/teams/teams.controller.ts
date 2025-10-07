@@ -11,6 +11,7 @@ import {
   Req,
   UploadedFiles,
   UseInterceptors,
+  Query,
 } from "@nestjs/common";
 import { TeamsService } from "./teams.service";
 import {
@@ -20,6 +21,7 @@ import {
   type TeamInviteForTeamViewModel,
   type TeamViewModel,
   UpdateTeamInviteDto,
+  type InviteUserSearchViewModel,
 } from "@ascnd-gg/types";
 import { type Request } from "express";
 import type { User } from "@ascnd-gg/database";
@@ -51,6 +53,30 @@ export class TeamsController {
     }
 
     return team;
+  }
+
+  @Get(":teamId/invites/search")
+  async getUsersToInviteBy(
+    @Req() req: Request,
+    @Param() parmas: { teamId: string },
+    @Query("username") username: string,
+    @Query("page") page: string = "1",
+    @Query("limit") limit: string = "5",
+  ): Promise<{
+    users: Array<InviteUserSearchViewModel> | null;
+    totalCount: number;
+  }> {
+    const user = req["user"] as User;
+
+    const { users, totalCount } = await this.teamService.searchInvitableUsers(
+      user,
+      username,
+      parseInt(page),
+      parseInt(limit),
+      parmas.teamId,
+    );
+
+    return { users, totalCount };
   }
 
   @Post()

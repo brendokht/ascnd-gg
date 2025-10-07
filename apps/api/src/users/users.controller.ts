@@ -1,16 +1,7 @@
-import {
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  Query,
-  Req,
-} from "@nestjs/common";
-import { type UserSearchViewModel, type UserViewModel } from "@ascnd-gg/types";
+import { Controller, Get, NotFoundException, Param } from "@nestjs/common";
+import { type UserViewModel } from "@ascnd-gg/types";
 import { UsersService } from "./users.service";
 import { Public } from "../auth/auth.decorator";
-import type { User } from "@ascnd-gg/database";
-import { type Request } from "express";
 
 @Controller("users")
 export class UsersController {
@@ -28,29 +19,5 @@ export class UsersController {
     }
 
     return user;
-  }
-
-  @Get()
-  async getUsersByUsername(
-    @Req() req: Request,
-    @Query("username") username: string,
-    @Query("page") page: string = "1",
-    @Query("limit") limit: string = "5",
-    @Query("teamId") teamId?: string | undefined,
-  ): Promise<{
-    users: Array<UserSearchViewModel> | null;
-    totalCount: number;
-  }> {
-    const user = req["user"] as User;
-
-    const { users, totalCount } = await this.userService.searchUsersByUsername(
-      user,
-      username,
-      parseInt(page),
-      parseInt(limit),
-      teamId,
-    );
-
-    return { users, totalCount };
   }
 }
