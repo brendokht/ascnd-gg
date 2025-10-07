@@ -4,14 +4,14 @@ import {
   type TeamInviteForUserViewModel,
   type TeamSummary,
 } from "@ascnd-gg/types";
-import { InvitesService } from "../invites/invites.service";
+import { TeamsService } from "../teams/teams.service";
 
 @Injectable()
 export class MeService {
   private readonly logger = new Logger(MeService.name);
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly inviteService: InvitesService,
+    private readonly teamService: TeamsService,
   ) {}
 
   async getCurrentUserTeams(userId: string): Promise<Array<TeamSummary>> {
@@ -49,7 +49,7 @@ export class MeService {
   async getCurrentUserTeamInvites(
     userId: string,
   ): Promise<Array<TeamInviteForUserViewModel>> {
-    const teamInvites = await this.inviteService.getTeamInvitesForUser(
+    const teamInvites = await this.teamService.getTeamInvitesForUser(
       "PENDING",
       userId,
     );

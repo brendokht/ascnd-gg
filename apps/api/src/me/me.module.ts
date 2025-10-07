@@ -2,10 +2,10 @@ import { Module } from "@nestjs/common";
 import { MeService } from "./me.service";
 import { MeController } from "./me.controller";
 import { AuthService } from "../auth/auth.service";
-import { InvitesService } from "../invites/invites.service";
+import { TeamsService } from "../teams/teams.service";
 
 @Module({
-  providers: [MeService, AuthService, InvitesService],
+  providers: [MeService, AuthService, TeamsService],
   controllers: [MeController],
 })
 export class MeModule {}
