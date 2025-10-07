@@ -86,7 +86,7 @@ export const UserViewModelSchema = UserSchema.pick({
   createdAt: true,
 });
 
-export const UserSearchViewModelSchema = UserSummarySchema.extend({
+export const InviteUserSearchViewModelSchema = UserSummarySchema.extend({
   isInvited: z.boolean().default(false),
   inviteId: z.uuidv7().optional(),
 });
@@ -97,4 +97,6 @@ export type UserSummary = z.infer<typeof UserSummarySchema>;
 
 export type UserViewModel = z.infer<typeof UserViewModelSchema>;
 
-export type UserSearchViewModel = z.infer<typeof UserSearchViewModelSchema>;
+export type InviteUserSearchViewModel = z.infer<
+  typeof InviteUserSearchViewModelSchema
+>;

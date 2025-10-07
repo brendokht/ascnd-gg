@@ -5,7 +5,7 @@ import {
   type TeamInviteForTeamViewModel,
   type TeamSummary,
   type UpdateTeamInvite,
-  type UserSearchViewModel,
+  type InviteUserSearchViewModel,
 } from "@ascnd-gg/types";
 import {
   Avatar,
@@ -49,11 +49,11 @@ export function TeamInvitationDialog({
   // TODO: Use React Query for data fetching and optimistic updates for invites
 
   const [open, setOpen] = useState<boolean>(false);
-  const [users, setUsers] = useState<Array<UserSearchViewModel> | undefined>(
-    undefined,
-  );
+  const [users, setUsers] = useState<
+    Array<InviteUserSearchViewModel> | undefined
+  >(undefined);
   const [currentUsers, setCurrentUsers] = useState<
-    Array<UserSearchViewModel> | undefined
+    Array<InviteUserSearchViewModel> | undefined
   >(undefined);
   const [visitedPages, setVisitedPages] = useState<Set<number>>(new Set([1]));
   const [totalUsers, setTotalUsers] = useState<number>(0);
@@ -74,7 +74,7 @@ export function TeamInvitationDialog({
   };
 
   const updateInviteState = async (
-    invitedUser: UserSearchViewModel,
+    invitedUser: InviteUserSearchViewModel,
     invited: boolean,
   ) => {
     // Optimistically update invite state for both user array states
@@ -230,10 +230,10 @@ export function TeamInvitationDialog({
     setLoading(true);
 
     const { data: newUsers, error } = await fetchApi<{
-      users: Array<UserSearchViewModel> | null;
+      users: Array<InviteUserSearchViewModel> | null;
       totalCount: number;
     }>(
-      `/users?username=${input}&page=${page}&limit=${MAX_USERS_PER_PAGE}&teamId=${team.id}`,
+      `/teams/${team.id}/invites/search?username=${input}&page=${page}&limit=${MAX_USERS_PER_PAGE}`,
     );
 
     setLoading(false);
@@ -266,10 +266,10 @@ export function TeamInvitationDialog({
     setInput(input);
 
     const { data: searchResult, error } = await fetchApi<{
-      users: Array<UserSearchViewModel> | null;
+      users: Array<InviteUserSearchViewModel> | null;
       totalCount: number;
     }>(
-      `/users?username=${input}&page=1&limit=${MAX_USERS_PER_PAGE}&teamId=${team.id}`,
+      `/teams/${team.id}/invites/search?username=${input}&page=${1}&limit=${MAX_USERS_PER_PAGE}`,
     );
 
     setLoading(false);
