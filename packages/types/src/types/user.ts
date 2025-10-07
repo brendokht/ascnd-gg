@@ -14,10 +14,12 @@ import { TeamInviteForUserViewModelSchema } from "./team-invites";
 // TODO: Support descriptions and banners
 
 export const UserSchema = z.object({
-  id: z.uuidv7({ error: "ID is required." }),
-  email: z.email({ error: "Email is required." }),
+  id: z.uuidv7({ error: "ID is required." }).trim(),
+  email: z.email({ error: "Email is required." }).trim(),
   username: z
     .string()
+    .trim()
+    .toLowerCase()
     .min(USERNAME_MIN_LENGTH, {
       error: `Username must be at least ${USERNAME_MIN_LENGTH} characters.`,
     })
@@ -31,6 +33,7 @@ export const UserSchema = z.object({
     .optional(),
   displayUsername: z
     .string()
+    .trim()
     .min(USERNAME_MIN_LENGTH, {
       error: `Username must be at least ${USERNAME_MIN_LENGTH} characters.`,
     })
@@ -44,6 +47,7 @@ export const UserSchema = z.object({
     .optional(),
   name: z
     .string()
+    .trim()
     .min(NAME_MIN_LENGTH, {
       error: `Name must be at least ${NAME_MIN_LENGTH} characters.`,
     })
@@ -58,6 +62,7 @@ export const UserSchema = z.object({
   // TODO: Change from profilePictureUrl to just image, to match better-auth
   profilePictureUrl: z
     .url({ error: "User avatar is must be a URL pointing to an image" })
+    .trim()
     .optional(),
   get teams() {
     return z.array(TeamSummarySchema).optional();

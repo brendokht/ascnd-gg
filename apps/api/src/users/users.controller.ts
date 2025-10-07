@@ -1,5 +1,5 @@
 import { Controller, Get, NotFoundException, Param } from "@nestjs/common";
-import { type UserViewModel } from "@ascnd-gg/types";
+import { UserSearchParameterDto, type UserViewModel } from "@ascnd-gg/types";
 import { UsersService } from "./users.service";
 import { Public } from "../auth/auth.decorator";
 
@@ -10,9 +10,10 @@ export class UsersController {
   @Public()
   @Get(":username")
   async getUserByUsername(
-    @Param() params: { username: string },
+    @Param() params: UserSearchParameterDto,
   ): Promise<UserViewModel> {
-    const user = await this.userService.getUserByUsername(params.username);
+    const username: string = params.username;
+    const user = await this.userService.getUserByUsername(username);
 
     if (!user) {
       throw new NotFoundException();

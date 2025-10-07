@@ -9,9 +9,11 @@ import { UserSummarySchema } from "./user";
 import { TeamInviteForTeamViewModelSchema } from "./team-invites";
 
 export const TeamSchema = z.object({
-  id: z.uuidv7({ error: "ID is required." }),
+  id: z.uuidv7({ error: "ID is required." }).trim(),
   name: z
     .string({ error: "Team name is required." })
+    .trim()
+    .toLowerCase()
     .min(TEAM_NAME_MIN_LENGTH, {
       error: `Team name must be at least ${TEAM_NAME_MIN_LENGTH} characters.`,
     })
@@ -24,6 +26,7 @@ export const TeamSchema = z.object({
     }),
   displayName: z
     .string({ error: "Team display name is required" })
+    .trim()
     .min(TEAM_NAME_MIN_LENGTH)
     .max(TEAM_NAME_MAX_LENGTH)
     .regex(TEAM_DISPLAY_USERNAME_REGEX, {
@@ -32,11 +35,13 @@ export const TeamSchema = z.object({
     }),
   logo: z
     .url({ error: "Team logo is must be a URL pointing to an image" })
+    .trim()
     .optional(),
   banner: z
     .url({ error: "Team banner is must be a URL pointing to an image" })
+    .trim()
     .optional(),
-  teamOwnerId: z.uuidv7({ error: "Team owner ID is requied." }),
+  teamOwnerId: z.uuidv7({ error: "Team owner ID is requied." }).trim(),
   get members() {
     return z.array(UserSummarySchema).optional();
   },

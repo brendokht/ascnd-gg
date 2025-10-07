@@ -12,6 +12,7 @@ import {
   UploadedFiles,
   UseInterceptors,
   Query,
+  NotImplementedException,
 } from "@nestjs/common";
 import { TeamsService } from "./teams.service";
 import {
@@ -22,29 +23,33 @@ import {
   type TeamViewModel,
   UpdateTeamInviteDto,
   type InviteUserSearchViewModel,
+  TeamInviteSearchQueryDto,
+  TeamInviteSearchParameterDto,
+  TeamNameParameterDto,
+  TeamIdParameterDto,
+  TeamMemberDeleteParameterDto,
+  TeamInviteUpdateParameterDto,
 } from "@ascnd-gg/types";
 import { type Request } from "express";
 import type { User } from "@ascnd-gg/database";
 import { Optional } from "../auth/auth.decorator";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
-import { InvitesService } from "../invites/invites.service";
 
 @Controller("teams")
 export class TeamsController {
   private readonly logger = new Logger(TeamsController.name);
-  constructor(
-    private readonly teamService: TeamsService,
-    private readonly inviteService: InvitesService,
-  ) {}
+  constructor(private readonly teamService: TeamsService) {}
 
   @Get(":name")
   @Optional()
   async getTeamByName(
     @Req() req: Request,
-    @Param() parmas: { name: string },
+    @Param() params: TeamNameParameterDto,
   ): Promise<TeamViewModel> {
+    const teamName: string = params.name;
+
     const team = await this.teamService.getTeamByName(
-      parmas.name,
+      teamName,
       (req["user"] as User)?.id ?? undefined,
     );
 
@@ -53,30 +58,6 @@ export class TeamsController {
     }
 
     return team;
-  }
-
-  @Get(":teamId/invites/search")
-  async getUsersToInviteBy(
-    @Req() req: Request,
-    @Param() parmas: { teamId: string },
-    @Query("username") username: string,
-    @Query("page") page: string = "1",
-    @Query("limit") limit: string = "5",
-  ): Promise<{
-    users: Array<InviteUserSearchViewModel> | null;
-    totalCount: number;
-  }> {
-    const user = req["user"] as User;
-
-    const { users, totalCount } = await this.teamService.searchInvitableUsers(
-      user,
-      username,
-      parseInt(page),
-      parseInt(limit),
-      parmas.teamId,
-    );
-
-    return { users, totalCount };
   }
 
   @Post()
@@ -116,14 +97,15 @@ export class TeamsController {
   )
   async updateTeam(
     @Req() req: Request,
-    @Param() parmas: { teamId: string },
+    @Param() params: TeamIdParameterDto,
     @Body() editTeamDto: EditTeamDto,
     @UploadedFiles()
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ) {
+    const teamId: string = params.teamId;
     const { name: updatedTeamName } = await this.teamService.updateTeam(
       req["user"] as User,
-      parmas.teamId,
+      teamId,
       editTeamDto,
       files,
     );
@@ -131,51 +113,84 @@ export class TeamsController {
     return { name: updatedTeamName };
   }
 
+  @Delete(":teamId")
+  async deleteTeam() {
+    throw new NotImplementedException();
+  }
+
   // TODO: Create TeamRoles guard to ensure proper users can perform specfic actions
+
+  @Get(":teamId/invites/search")
+  async searchInvitableUsers(
+    @Req() req: Request,
+    @Param() parmas: TeamInviteSearchParameterDto,
+    @Query() searchQuery: TeamInviteSearchQueryDto,
+  ): Promise<{
+    users: Array<InviteUserSearchViewModel> | null;
+    totalCount: number;
+  }> {
+    const user = req["user"] as User;
+
+    const { users, totalCount } = await this.teamService.searchInvitableUsers(
+      user,
+      searchQuery,
+      parmas,
+    );
+
+    return { users, totalCount };
+  }
 
   @Post(":teamId/invites")
   async sendTeamInvite(
     @Req() req: Request,
-    @Param() parmas: { teamId: string },
+    @Param() parmas: TeamIdParameterDto,
     @Body() createTeamInviteDto: CreateTeamInviteDto,
   ): Promise<TeamInviteForTeamViewModel> {
-    const invite = await this.inviteService.createTeamInvite(
+    const teamId: string = parmas.teamId;
+
+    const invite = await this.teamService.createTeamInvite(
       req["user"] as User,
-      parmas.teamId,
+      teamId,
       createTeamInviteDto,
     );
 
     return invite;
   }
 
-  // TODO: Put teamId as param
   @Patch(":teamId/invites/:inviteId")
   async updateTeamInvite(
     @Req() req: Request,
-    @Param() parmas: { teamId: string; inviteId: string },
+    @Param() params: TeamInviteUpdateParameterDto,
     @Body() updateTeamInviteDto: UpdateTeamInviteDto,
   ): Promise<TeamInviteForTeamViewModel> {
-    await this.inviteService.updateTeamInvite(
+    const { teamId, inviteId }: { teamId: string; inviteId: string } = params;
+
+    await this.teamService.updateTeamInvite(
       req["user"] as User,
-      parmas.teamId,
-      parmas.inviteId,
+      teamId,
+      inviteId,
       updateTeamInviteDto,
     );
 
     return;
   }
 
-  // TODO: Put teamId as param
+  @Patch(":teamId/members/:userId")
+  async updateMember() {
+    throw new NotImplementedException();
+  }
+
   @Delete(":teamId/members/:userId")
-  async removeUserFromTeam(
+  async removeMemberFromTeam(
     @Req() req: Request,
-    @Param() parmas: { teamId: string; userId: string },
+    @Param() params: TeamMemberDeleteParameterDto,
   ) {
+    const { teamId, userId }: { teamId: string; userId: string } = params;
     // TODO: RBAC
     await this.teamService.removeMemberFromTeam(
       req["user"] as User,
-      parmas.teamId,
-      parmas.userId,
+      teamId,
+      userId,
     );
   }
 }
