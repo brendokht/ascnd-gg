@@ -11,15 +11,16 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { deleteApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { useRouter } from "next/navigation";
+import { TeamSummary } from "@ascnd-gg/types";
 
 export function LeaveTeamDialog({
   children,
-  teamName,
-  currentUser,
+  team,
+  userId,
 }: {
   children: ReactNode;
-  teamName: string;
-  currentUser: string;
+  team: TeamSummary;
+  userId: string;
 }) {
   const router = useRouter();
 
@@ -27,7 +28,7 @@ export function LeaveTeamDialog({
 
   const leaveTeam = async () => {
     const { error } = await deleteApi<void>(
-      `/team/${teamName}/member/${currentUser}`,
+      `/teams/${team.id}/members/${userId}`,
     );
 
     if (error) {
@@ -43,7 +44,7 @@ export function LeaveTeamDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogTitle>
-          Are you sure you would like to leave {teamName}?
+          Are you sure you would like to leave {team.displayName}?
         </DialogTitle>
         <div className="space-x-2">
           <Button onClick={leaveTeam} variant={"destructive"}>

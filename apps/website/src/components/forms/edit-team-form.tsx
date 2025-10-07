@@ -2,7 +2,7 @@
 
 import {
   editTeamSchema,
-  editTeamSchemaType,
+  type EditTeam,
   type TeamSummary,
 } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
@@ -26,32 +26,32 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 export default function EditTeamForm({
-  defaultValues,
+  team,
   callback,
 }: {
-  defaultValues: TeamSummary;
+  team: TeamSummary;
   callback?: () => void;
 }) {
   const router = useRouter();
 
-  const form = useForm<editTeamSchemaType>({
+  const form = useForm<EditTeam>({
     resolver: zodResolver(editTeamSchema),
     defaultValues: {
-      displayName: defaultValues?.displayName ?? "",
+      displayName: team?.displayName ?? "",
     },
     reValidateMode: "onChange",
   });
 
   useEffect(() => {
     async function getBlobs() {
-      if (defaultValues?.logo) {
-        const logoBlob = await fetch(defaultValues.logo).then(
+      if (team?.logo) {
+        const logoBlob = await fetch(team.logo).then(
           async (res) => await res.blob(),
         );
         form.setValue("logo", logoBlob);
       }
-      if (defaultValues?.banner) {
-        const bannerBlob = await fetch(defaultValues.banner).then(
+      if (team?.banner) {
+        const bannerBlob = await fetch(team.banner).then(
           async (res) => await res.blob(),
         );
         form.setValue("banner", bannerBlob);
@@ -59,19 +59,16 @@ export default function EditTeamForm({
     }
 
     getBlobs();
-  }, [defaultValues, form]);
+  }, [team, form]);
 
-  const [logoPreview, setLogoPreview] = useState<string>(
-    defaultValues?.logo ?? "",
-  );
+  const [logoPreview, setLogoPreview] = useState<string>(team?.logo ?? "");
   const [bannerPreview, setBannerPreview] = useState<string>(
-    defaultValues?.banner ?? "",
+    team?.banner ?? "",
   );
 
-  const onSubmit = async (values: editTeamSchemaType) => {
+  const onSubmit = async (values: EditTeam) => {
     const formData = new FormData();
 
-    formData.append("name", defaultValues.name);
     if (form.formState.dirtyFields.displayName)
       formData.append("displayName", values.displayName ?? "");
     if (form.formState.dirtyFields.logo)
@@ -79,7 +76,10 @@ export default function EditTeamForm({
     if (form.formState.dirtyFields.banner)
       formData.append("banner", values.banner ?? new Blob());
 
-    const { data, error } = await putApi<{ name: string }>("/team", formData);
+    const { data, error } = await putApi<{ name: string }>(
+      `/teams/${team.id}`,
+      formData,
+    );
 
     if (error) {
       if (error.statusCode === 409)

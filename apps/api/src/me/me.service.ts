@@ -1,14 +1,17 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { TeamInviteForUserViewModel, TeamSummary } from "@ascnd-gg/types";
-import { InviteService } from "../invite/invite.service";
+import {
+  type TeamInviteForUserViewModel,
+  type TeamSummary,
+} from "@ascnd-gg/types";
+import { InvitesService } from "../invites/invites.service";
 
 @Injectable()
 export class MeService {
   private readonly logger = new Logger(MeService.name);
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly inviteService: InviteService,
+    private readonly inviteService: InvitesService,
   ) {}
 
   async getCurrentUserTeams(userId: string): Promise<Array<TeamSummary>> {

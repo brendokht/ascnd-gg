@@ -48,7 +48,7 @@ export async function fetchApi<T>(
  * @param headers The headers for the request. Must be passed in when fetching from the server
  * @returns `{data, error}`, where data is either `T` or `null`, and error is either `null` or `ApiErrorType`
    @example 
-   const { data, error } = await postApi<{ name: string }>("/team", values);
+   const { data, error } = await postApi<{ name: string }>("/teams", values);
 
    if (error) {
      if (error.statusCode === 409)
@@ -66,7 +66,7 @@ export async function fetchApi<T>(
 */
 export async function postApi<T>(
   route: string,
-  body: BodyInit,
+  body: BodyInit | undefined,
   contentType?: string,
   headers?: Headers,
 ): Promise<
@@ -110,7 +110,7 @@ export async function postApi<T>(
  * @param headers The headers for the request. Must be passed in when fetching from the server
  * @returns `{data, error}`, where data is either `T` or `null`, and error is either `null` or `ApiErrorType`
    @example 
-   const { data, error } = await putApi<{ name: string }>("/team", values);
+   const { data, error } = await putApi<{ name: string }>("/teams", values);
 
    if (error) {
      if (error.statusCode === 409)
@@ -172,7 +172,7 @@ export async function putApi<T>(
  * @param headers The headers for the request. Must be passed in when fetching from the server
  * @returns `{data, error}`, where data is either `T` or `null`, and error is either `null` or `ApiErrorType`
    @example 
-   const { data, error } = await putApi<{ name: string }>("/team", values);
+   const { data, error } = await putApi<{ name: string }>("/teams", values);
 
    if (error) {
      if (error.statusCode === 409)

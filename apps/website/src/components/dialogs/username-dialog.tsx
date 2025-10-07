@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  updateUsernameSchema,
-  updateUsernameSchemaType,
-} from "@ascnd-gg/types";
+import { updateUsernameSchema, UpdateUsername } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
   Dialog,
@@ -32,7 +29,7 @@ export function UsernameDialog() {
   const router = useRouter();
   const { requiresUsername, setRequiresUsername } = useAuth();
 
-  const form = useForm<updateUsernameSchemaType>({
+  const form = useForm<UpdateUsername>({
     resolver: zodResolver(updateUsernameSchema),
     defaultValues: {
       displayUsername: "",
@@ -40,7 +37,7 @@ export function UsernameDialog() {
     mode: "onChange",
   });
 
-  const onSubmit = async (values: updateUsernameSchemaType) => {
+  const onSubmit = async (values: UpdateUsername) => {
     const availableRes = await authClient.isUsernameAvailable({
       username: values.displayUsername,
     });

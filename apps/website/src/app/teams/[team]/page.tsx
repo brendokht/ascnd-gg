@@ -1,4 +1,4 @@
-import { TeamViewModel } from "@ascnd-gg/types";
+import { type TeamViewModel } from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -8,11 +8,11 @@ import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
 import Image from "next/image";
 
-export default async function TeamProfile(props: PageProps<"/team/[team]">) {
+export default async function TeamProfile(props: PageProps<"/teams/[team]">) {
   const { team } = await props.params;
 
   const { data: teamData, error } = await fetchApi<TeamViewModel>(
-    `/team/${team}`,
+    `/teams/${team}`,
     await headers(),
   );
 

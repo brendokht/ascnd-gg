@@ -12,8 +12,8 @@ export const updateUsernameSchema = UserSchema.pick({
   displayUsername: true,
 });
 
-export type updateNameSchemaType = z.infer<typeof updateNameSchema>;
-export type updateUsernameSchemaType = z.infer<typeof updateUsernameSchema>;
+export type UpdateName = z.infer<typeof updateNameSchema>;
+export type UpdateUsername = z.infer<typeof updateUsernameSchema>;
 
 export class UpdateNameDto extends createZodDto(updateNameSchema) {}
 export class UpdateUsernameDto extends createZodDto(updateUsernameSchema) {}

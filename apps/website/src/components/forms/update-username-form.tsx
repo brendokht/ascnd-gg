@@ -1,6 +1,6 @@
 "use client";
 
-import { updateUsernameSchema } from "@ascnd-gg/types";
+import { updateUsernameSchema, type UpdateUsername } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
   Form,
@@ -16,21 +16,20 @@ import { authClient } from "@ascnd-gg/website/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
 
 export default function UpdateUsernameForm({
   currentUsername,
 }: {
   currentUsername: string | undefined;
 }) {
-  const form = useForm<z.infer<typeof updateUsernameSchema>>({
+  const form = useForm<UpdateUsername>({
     resolver: zodResolver(updateUsernameSchema),
     defaultValues: {
       displayUsername: currentUsername,
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof updateUsernameSchema>) => {
+  const onSubmit = async (values: UpdateUsername) => {
     const newUsername = values.displayUsername.trim();
 
     const availableRes = await authClient.isUsernameAvailable({

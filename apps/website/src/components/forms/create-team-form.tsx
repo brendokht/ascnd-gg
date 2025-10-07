@@ -1,6 +1,6 @@
 "use client";
 
-import { createTeamSchema, createTeamSchemaType } from "@ascnd-gg/types";
+import { createTeamSchema, type CreateTeam } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
   Form,
@@ -24,7 +24,7 @@ import Image from "next/image";
 export default function CreateTeamForm() {
   const router = useRouter();
 
-  const form = useForm<createTeamSchemaType>({
+  const form = useForm<CreateTeam>({
     resolver: zodResolver(createTeamSchema),
     defaultValues: {
       displayName: "",
@@ -34,14 +34,14 @@ export default function CreateTeamForm() {
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [bannerPreview, setBannerPreview] = useState<string>("");
 
-  const onSubmit = async (values: createTeamSchemaType) => {
+  const onSubmit = async (values: CreateTeam) => {
     const formData = new FormData();
 
-    formData.append("displayName", values.displayName);
-    formData.append("logo", values.logo ?? "");
-    formData.append("banner", values.banner ?? "");
+    if (values.displayName) formData.append("displayName", values.displayName);
+    if (values.logo) formData.append("logo", values.logo ?? new Blob());
+    if (values.banner) formData.append("banner", values.banner ?? new Blob());
 
-    const { data, error } = await postApi<{ name: string }>("/team", formData);
+    const { data, error } = await postApi<{ name: string }>(`/teams`, formData);
 
     if (error) {
       if (error.statusCode === 409)
@@ -61,7 +61,7 @@ export default function CreateTeamForm() {
       description: "Your team has been successfully created.",
     });
 
-    router.push(`/team/${data.name}`);
+    router.push(`/teams/${data.name}`);
   };
 
   return (

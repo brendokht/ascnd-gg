@@ -2,14 +2,13 @@ import { createZodDto } from "nestjs-zod";
 import * as z from "zod";
 import { TeamInviteSchema } from "../types";
 
-export const createTeamInviteSchema = TeamInviteSchema.pick({
-  status: true,
-}).extend({
+export const createTeamInviteSchema = z.object({
   userId: z.uuidv7({ error: "User ID is required." }),
-  teamId: z.uuidv7({ error: "Team ID is required." }),
 });
 
-export const updateTeamInviteSchema = createTeamInviteSchema;
+export const updateTeamInviteSchema = TeamInviteSchema.pick({
+  status: true,
+}).extend(createTeamInviteSchema.shape);
 
 export type CreateTeamInvite = z.infer<typeof createTeamInviteSchema>;
 export type UpdateTeamInvite = z.infer<typeof updateTeamInviteSchema>;

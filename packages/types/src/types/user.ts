@@ -9,6 +9,7 @@ import {
 } from "@ascnd-gg/constants";
 import * as z from "zod";
 import { TeamSummarySchema } from "./team";
+import { TeamInviteForUserViewModelSchema } from "./team-invites";
 
 // TODO: Support descriptions and banners
 
@@ -61,6 +62,9 @@ export const UserSchema = z.object({
   get teams() {
     return z.array(TeamSummarySchema).optional();
   },
+  get invites() {
+    return z.array(TeamInviteForUserViewModelSchema).optional();
+  },
   createdAt: z.iso
     .datetime({ error: "User creation date is required." })
     .optional(),
@@ -73,10 +77,18 @@ export const UserSummarySchema = UserSchema.pick({
   profilePictureUrl: true,
 });
 
-export const UserViewModelSchema = UserSchema.omit({ email: true, name: true });
+export const UserViewModelSchema = UserSchema.pick({
+  id: true,
+  username: true,
+  displayUsername: true,
+  profilePictureUrl: true,
+  teams: true,
+  createdAt: true,
+});
 
-export const UserSearchViewModelSchema = UserViewModelSchema.extend({
+export const UserSearchViewModelSchema = UserSummarySchema.extend({
   isInvited: z.boolean().default(false),
+  inviteId: z.uuidv7().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;

@@ -6,15 +6,15 @@ import {
   Query,
   Req,
 } from "@nestjs/common";
-import { UserSearchViewModel, UserViewModel } from "@ascnd-gg/types";
-import { UserService } from "./user.service";
+import { type UserSearchViewModel, type UserViewModel } from "@ascnd-gg/types";
+import { UsersService } from "./users.service";
 import { Public } from "../auth/auth.decorator";
-import { User } from "@ascnd-gg/database";
-import { Request } from "express";
+import type { User } from "@ascnd-gg/database";
+import { type Request } from "express";
 
-@Controller("user")
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+@Controller("users")
+export class UsersController {
+  constructor(private readonly userService: UsersService) {}
 
   @Public()
   @Get(":username")
@@ -36,7 +36,7 @@ export class UserController {
     @Query("username") username: string,
     @Query("page") page: string = "1",
     @Query("limit") limit: string = "5",
-    @Query("teamName") teamName?: string | undefined,
+    @Query("teamId") teamId?: string | undefined,
   ): Promise<{
     users: Array<UserSearchViewModel> | null;
     totalCount: number;
@@ -48,7 +48,7 @@ export class UserController {
       username,
       parseInt(page),
       parseInt(limit),
-      teamName,
+      teamId,
     );
 
     return { users, totalCount };

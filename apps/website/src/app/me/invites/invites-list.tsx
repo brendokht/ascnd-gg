@@ -47,7 +47,7 @@ export default function InvitesList({
     });
 
     const { error } = await putApi<void>(
-      "/team/invite",
+      "/teams/invite",
       updatedInviteBody,
       "application/json",
     );
