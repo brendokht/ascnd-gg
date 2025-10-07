@@ -11,7 +11,7 @@ export default async function Invites() {
 
   const { data: teamInvites, error } = await fetchApi<
     Array<TeamInviteForUserViewModel>
-  >("/me/team/invite", await headers());
+  >("/me/teams/invites", await headers());
 
   if (error) {
     return <>Something went wrong</>;

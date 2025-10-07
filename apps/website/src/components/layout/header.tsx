@@ -2,7 +2,7 @@ import Link from "next/link";
 import UserMenu from "./user-menu";
 import { auth } from "@ascnd-gg/auth";
 import { headers } from "next/headers";
-import { UserViewModel } from "@ascnd-gg/types";
+import { type UserViewModel } from "@ascnd-gg/types";
 
 export default async function Header() {
   const session = await auth.api.getSession({ headers: await headers() });

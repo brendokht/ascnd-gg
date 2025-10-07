@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  CreateTeamInvite,
-  TeamInviteForTeamViewModel,
-  TeamSummary,
-  UpdateTeamInvite,
-  UserSearchViewModel,
+  type CreateTeamInvite,
+  type TeamInviteForTeamViewModel,
+  type TeamSummary,
+  type UpdateTeamInvite,
+  type UserSearchViewModel,
 } from "@ascnd-gg/types";
 import {
   Avatar,
@@ -38,12 +38,6 @@ import { useState, type ReactNode } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
 const MAX_USERS_PER_PAGE = 5;
-
-// type UserType = Omit<UserViewModel, "teams" | "createdAt"> & {
-//   isInvited?: boolean;
-// };
-
-// type TeamInvitationUserType = Array<UserType>;
 
 export function TeamInvitationDialog({
   team,
@@ -84,7 +78,6 @@ export function TeamInvitationDialog({
     invited: boolean,
   ) => {
     // Optimistically update invite state for both user array states
-    console.log("updating invite state optimistically");
     const updatedCurrentUsers = currentUsers?.map((user) => {
       if (invitedUser.username === user.username) {
         return {
@@ -111,27 +104,23 @@ export function TeamInvitationDialog({
 
     if (invited) {
       const createTeamInviteBody: CreateTeamInvite = {
-        teamId: team.id,
         userId: invitedUser.id,
-        status: "PENDING",
       };
-
-      console.log("createdInviteBody", createTeamInviteBody);
 
       const { data: inviteData, error } =
         await postApi<TeamInviteForTeamViewModel>(
-          "/team/invite",
+          `/teams/${team.id}/invites`,
           JSON.stringify(createTeamInviteBody),
           "application/json",
         );
 
       if (error || !inviteData) {
         // Revert optimistically updated invite state
-        console.log(`Reverting optimistically updated invite`);
         const updatedCurrentUsers = currentUsers?.map((user) => {
           if (invitedUser.username === user.username) {
             return {
               ...user,
+              inviteId: undefined,
               isInvited: !invited,
             };
           } else {
@@ -155,24 +144,44 @@ export function TeamInvitationDialog({
         return;
       }
 
-      console.log(`user ${invitedUser.displayUsername} was invited`);
+      const updatedCurrentUsers = currentUsers?.map((user) => {
+        if (invitedUser.username === user.username) {
+          return {
+            ...user,
+            isInvited: true,
+            inviteId: inviteData.id,
+          };
+        } else {
+          return user;
+        }
+      });
+      setCurrentUsers(updatedCurrentUsers);
+
+      const updatedUsers = users?.map((user) => {
+        if (invitedUser.username === user.username) {
+          return {
+            ...user,
+            isInvited: true,
+            inviteId: inviteData.id,
+          };
+        } else {
+          return user;
+        }
+      });
+      setUsers(updatedUsers);
     } else {
       const updateTeamInviteBody: UpdateTeamInvite = {
-        teamId: team.id,
         userId: invitedUser.id,
-        status: "PENDING",
+        status: "CANCELLED",
       };
-      console.log("updatedInviteBody", updateTeamInviteBody);
-
       const { error } = await putApi<never>(
-        "/team/invite",
+        `/teams/${team.id}/invites/${invitedUser.inviteId}`,
         JSON.stringify(updateTeamInviteBody),
         "application/json",
       );
 
       if (error) {
         // Revert optimistically updated invite state
-        console.log(`Reverting optimistically updated invite`);
         const updatedCurrentUsers = currentUsers?.map((user) => {
           if (invitedUser.username === user.username) {
             return {
@@ -199,8 +208,6 @@ export function TeamInvitationDialog({
         console.error(error ?? "missing invite data.");
         return;
       }
-
-      console.log(`user ${invitedUser.displayUsername}'s invite was cancelled`);
     }
   };
 
@@ -226,7 +233,7 @@ export function TeamInvitationDialog({
       users: Array<UserSearchViewModel> | null;
       totalCount: number;
     }>(
-      `/user?username=${input}&page=${page}&limit=${MAX_USERS_PER_PAGE}&teamName=${team.name}`,
+      `/users?username=${input}&page=${page}&limit=${MAX_USERS_PER_PAGE}&teamId=${team.id}`,
     );
 
     setLoading(false);
@@ -262,7 +269,7 @@ export function TeamInvitationDialog({
       users: Array<UserSearchViewModel> | null;
       totalCount: number;
     }>(
-      `/user?username=${input}&page=1&limit=${MAX_USERS_PER_PAGE}&teamName=${team.name}`,
+      `/users?username=${input}&page=1&limit=${MAX_USERS_PER_PAGE}&teamId=${team.id}`,
     );
 
     setLoading(false);
@@ -336,7 +343,6 @@ export function TeamInvitationDialog({
                       <Button
                         size={"sm"}
                         onClick={async () => {
-                          console.log("Invited user '%s'", user.username);
                           await updateInviteState(user, true);
                         }}
                       >
@@ -347,10 +353,6 @@ export function TeamInvitationDialog({
                         size={"sm"}
                         variant={"destructive"}
                         onClick={async () => {
-                          console.log(
-                            "Cancelled invite for user '%s'",
-                            user.username,
-                          );
                           await updateInviteState(user, false);
                         }}
                       >

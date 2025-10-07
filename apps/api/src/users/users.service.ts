@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { UserSearchViewModel, UserViewModel } from "@ascnd-gg/types";
-import { User } from "@ascnd-gg/database";
+import { type UserSearchViewModel, type UserViewModel } from "@ascnd-gg/types";
+import type { User } from "@ascnd-gg/database";
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getUserByUsername(username: string): Promise<UserViewModel | null> {
@@ -51,7 +51,7 @@ export class UserService {
     username: string,
     page?: number,
     limit?: number,
-    teamName?: string,
+    teamId?: string,
   ): Promise<{
     users: Array<UserSearchViewModel> | null;
     totalCount: number;
@@ -65,8 +65,8 @@ export class UserService {
           teams: {
             none: {
               team: {
-                name: {
-                  equals: teamName.toLowerCase(),
+                id: {
+                  equals: teamId,
                 },
               },
             },
@@ -83,8 +83,8 @@ export class UserService {
           teams: {
             none: {
               team: {
-                name: {
-                  equals: teamName.toLowerCase(),
+                id: {
+                  equals: teamId,
                 },
               },
             },
@@ -97,27 +97,16 @@ export class UserService {
         displayUsername: true,
         image: true,
         createdAt: true,
-        teams: {
-          select: {
-            team: true,
-          },
-        },
         invitations: {
           select: {
-            team: {
-              select: {
-                id: true,
-                name: true,
-                displayName: true,
-                logo: true,
-              },
-            },
+            id: true,
             status: true,
             createdAt: true,
             updatedAt: true,
           },
           where: {
-            ...(teamName ? { team: { name: teamName.toLowerCase() } } : {}),
+            ...(teamId ? { team: { id: teamId } } : {}),
+            AND: { status: "PENDING" },
           },
         },
       },
@@ -129,6 +118,13 @@ export class UserService {
       return { users: [], totalCount: count };
     }
 
+    usersSelect.forEach((user) => {
+      console.log(
+        `"user ${user.displayUsername}'s invites: `,
+        user.invitations,
+      );
+    });
+
     const users: Array<UserSearchViewModel> = usersSelect.map((user) => {
       return {
         id: user.id,
@@ -136,11 +132,9 @@ export class UserService {
         displayUsername: user.displayUsername,
         profilePictureUrl: user.image,
         createdAt: user.createdAt.toISOString(),
-        isInvited: !!user.invitations.find(
-          (invite) =>
-            invite.status === "PENDING" &&
-            invite.team.displayName.toLowerCase() === teamName.toLowerCase(),
-        ),
+        isInvited: user.invitations.length > 0,
+        inviteId:
+          user.invitations.length > 0 ? user.invitations.at(0).id : undefined,
       };
     });
 

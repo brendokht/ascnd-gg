@@ -65,7 +65,7 @@ export default function UserMenu({ user }: { user: UserViewModel | null }) {
             <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <Link href={`/user/${user.username}`}>
+                <Link href={`/users/${user.username}`}>
                   <DropdownMenuItem>
                     Profile <UserIcon />
                   </DropdownMenuItem>

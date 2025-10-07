@@ -11,7 +11,7 @@ export default async function Teams() {
   const user = session.user;
 
   const { data: teams, error } = await fetchApi<Array<TeamSummary>>(
-    "/me/team",
+    "/me/teams",
     await headers(),
   );
 
@@ -45,7 +45,7 @@ export default async function Teams() {
           details or edit teams you own.
         </p>
       </div>
-      <TeamsList currentUser={user.username!} teams={teams} />
+      <TeamsList userId={user.id} teams={teams} />
     </>
   );
 }

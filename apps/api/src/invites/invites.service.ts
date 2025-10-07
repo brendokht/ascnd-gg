@@ -1,15 +1,15 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   CreateTeamInviteDto,
-  TeamInviteForTeamViewModel,
-  TeamInviteForUserViewModel,
+  type TeamInviteForTeamViewModel,
+  type TeamInviteForUserViewModel,
   UpdateTeamInviteDto,
 } from "@ascnd-gg/types";
-import { TeamInviteStatus } from "@ascnd-gg/database";
+import type { TeamInviteStatus, User } from "@ascnd-gg/database";
 
 @Injectable()
-export class InviteService {
+export class InvitesService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getTeamInvitesForUser(
@@ -24,6 +24,7 @@ export class InviteService {
         },
       },
       select: {
+        id: true,
         status: true,
         createdAt: true,
         team: {
@@ -41,6 +42,7 @@ export class InviteService {
     const teamInvites: Array<TeamInviteForUserViewModel> = invitesSelect.map(
       (teamInvite) => {
         return {
+          id: teamInvite.id,
           team: {
             id: teamInvite.team.id,
             name: teamInvite.team.name,
@@ -70,6 +72,7 @@ export class InviteService {
         },
       },
       select: {
+        id: true,
         status: true,
         createdAt: true,
         user: {
@@ -86,6 +89,7 @@ export class InviteService {
     const teamInvites: Array<TeamInviteForTeamViewModel> = invitesSelect.map(
       (teamInvite) => {
         return {
+          id: teamInvite.id,
           user: {
             id: teamInvite.user.id,
             username: teamInvite.user.username,
@@ -102,23 +106,37 @@ export class InviteService {
   }
 
   async createTeamInvite(
-    createTeamInviteDto: CreateTeamInviteDto,
+    currentUser: User,
+    teamId: string,
+    teamInviteBody: CreateTeamInviteDto,
   ): Promise<TeamInviteForTeamViewModel> {
+    const { teamOwnerId } = await this.prismaService.team.findFirst({
+      where: { id: teamId },
+      select: { teamOwnerId: true },
+    });
+
+    if (teamOwnerId !== currentUser.id) {
+      throw new UnauthorizedException(
+        "You are not authorized to perform this action.",
+      );
+    }
+
     const inviteCreation = await this.prismaService.teamInvite.create({
       data: {
         status: "PENDING",
         team: {
           connect: {
-            id: createTeamInviteDto.teamId,
+            id: teamId,
           },
         },
         user: {
           connect: {
-            id: createTeamInviteDto.userId,
+            id: teamInviteBody.userId,
           },
         },
       },
       select: {
+        id: true,
         createdAt: true,
         user: {
           select: {
@@ -132,6 +150,7 @@ export class InviteService {
     });
 
     const invite: TeamInviteForTeamViewModel = {
+      id: inviteCreation.id,
       user: inviteCreation.user,
       status: "PENDING",
       createdAt: inviteCreation.createdAt.toISOString(),
@@ -140,16 +159,33 @@ export class InviteService {
     return invite;
   }
 
-  async updateTeamInvite(updateTeamInviteDto: UpdateTeamInviteDto) {
+  async updateTeamInvite(
+    currentUser: User,
+    teamId: string,
+    inviteId: string,
+    updateTeamInviteDto: UpdateTeamInviteDto,
+  ) {
+    const { teamOwnerId } = await this.prismaService.team.findFirst({
+      where: { id: teamId },
+      select: { teamOwnerId: true },
+    });
+
+    // Only current users and (for now) team owners can update invitations
+    if (
+      currentUser.id !== updateTeamInviteDto.userId &&
+      currentUser.id !== teamOwnerId
+    ) {
+      throw new UnauthorizedException(
+        "You are not authorized to perform this action.",
+      );
+    }
+
     await this.prismaService.teamInvite.update({
       data: {
         status: updateTeamInviteDto.status,
       },
       where: {
-        teamId_userId: {
-          teamId: updateTeamInviteDto.teamId,
-          userId: updateTeamInviteDto.userId,
-        },
+        id: inviteId,
       },
     });
 
@@ -157,7 +193,7 @@ export class InviteService {
       await this.prismaService.userTeam.create({
         data: {
           userId: updateTeamInviteDto.userId,
-          teamId: updateTeamInviteDto.teamId,
+          teamId: teamId,
         },
       });
     }

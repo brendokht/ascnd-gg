@@ -13,11 +13,11 @@ import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { RedisModule } from "./redis/redis.module";
-import { UserService } from "./user/user.service";
-import { UserController } from "./user/user.controller";
-import { UserModule } from "./user/user.module";
+import { UsersService } from "./users/users.service";
+import { UsersController } from "./users/users.controller";
+import { UsersModule } from "./users/users.module";
 import { StorageModule } from "./storage/storage.module";
-import { TeamModule } from "./team/team.module";
+import { TeamModule } from "./teams/teams.module";
 import {
   ZodSerializationException,
   ZodSerializerInterceptor,
@@ -32,8 +32,8 @@ import {
 import { ZodError } from "@ascnd-gg/types";
 import { MeModule } from "./me/me.module";
 import { AuthGuard } from "./auth/auth.guard";
-import { InviteService } from './invite/invite.service';
-import { InviteModule } from './invite/invite.module';
+import { InvitesService } from "./invites/invites.service";
+import { InvitesModule } from "./invites/invites.module";
 
 @Module({
   imports: [
@@ -41,21 +41,21 @@ import { InviteModule } from './invite/invite.module';
     AuthModule,
     PrismaModule,
     RedisModule,
-    UserModule,
+    UsersModule,
     StorageModule,
     TeamModule,
     MeModule,
-    InviteModule,
+    InvitesModule,
   ],
-  controllers: [AppController, AuthController, UserController],
+  controllers: [AppController, AuthController, UsersController],
   providers: [
     AppService,
     AuthService,
-    UserService,
+    UsersService,
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
     { provide: APP_GUARD, useClass: AuthGuard },
-    InviteService,
+    InvitesService,
   ],
 })
 export class AppModule {}

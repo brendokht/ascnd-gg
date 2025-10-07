@@ -22,10 +22,6 @@ export function EditTeamDialog({
 }) {
   const [open, setOpen] = useState<boolean>(false);
 
-  const callback = () => {
-    setOpen(false);
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -37,7 +33,7 @@ export function EditTeamDialog({
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[75vh]">
-          <EditTeamForm defaultValues={defaultValues} callback={callback} />
+          <EditTeamForm team={defaultValues} callback={() => setOpen(false)} />
         </ScrollArea>
       </DialogContent>
     </Dialog>

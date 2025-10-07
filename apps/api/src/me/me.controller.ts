@@ -1,14 +1,17 @@
 import { Controller, Get, Req } from "@nestjs/common";
 import { Request } from "express";
-import { User } from "@ascnd-gg/database";
+import type { User } from "@ascnd-gg/database";
 import { MeService } from "./me.service";
-import { TeamInviteForUserViewModel, TeamSummary } from "@ascnd-gg/types";
+import {
+  type TeamInviteForUserViewModel,
+  type TeamSummary,
+} from "@ascnd-gg/types";
 
 @Controller("me")
 export class MeController {
   constructor(private readonly meService: MeService) {}
 
-  @Get("team")
+  @Get("teams")
   async getCurrentUserTeams(@Req() req: Request): Promise<Array<TeamSummary>> {
     const user: User = req["user"];
 
@@ -17,7 +20,7 @@ export class MeController {
     return teams;
   }
 
-  @Get("team/invite")
+  @Get("teams/invites")
   async getCurrentUserTeamInvites(
     @Req() req: Request,
   ): Promise<Array<TeamInviteForUserViewModel>> {

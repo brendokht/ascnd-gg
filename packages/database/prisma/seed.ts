@@ -528,9 +528,10 @@ async function main() {
 
   // #region Team Invites
   await prisma.teamInvite.upsert({
-    where: { teamId_userId: { teamId: team.id, userId: member.id } },
+    where: { id: "0199bcb0-654b-7d43-a291-b8a1e92878b2" },
     update: { updatedAt: new Date() },
     create: {
+      id: "0199bcb0-654b-7d43-a291-b8a1e92878b2",
       teamId: team.id,
       userId: member.id,
       status: TeamInviteStatus.ACCEPTED,
@@ -573,9 +574,10 @@ async function main() {
 
   // #region Team Invites
   await prisma.teamInvite.upsert({
-    where: { teamId_userId: { teamId: team2.id, userId: userB.id } },
+    where: { id: "0199bcb0-9cd9-7dbd-9f98-e70c01c9f1bb" },
     update: { status: TeamInviteStatus.ACCEPTED, updatedAt: new Date() },
     create: {
+      id: "0199bcb0-9cd9-7dbd-9f98-e70c01c9f1bb",
       teamId: team2.id,
       userId: userB.id,
       status: TeamInviteStatus.ACCEPTED,
@@ -583,9 +585,10 @@ async function main() {
   });
 
   await prisma.teamInvite.upsert({
-    where: { teamId_userId: { teamId: team2.id, userId: owner.id } },
+    where: { id: "0199bcb0-cd16-7312-82b5-b4da3d8e7704" },
     update: { status: TeamInviteStatus.ACCEPTED, updatedAt: new Date() },
     create: {
+      id: "0199bcb0-cd16-7312-82b5-b4da3d8e7704",
       teamId: team2.id,
       userId: owner.id,
       status: TeamInviteStatus.ACCEPTED,
@@ -593,9 +596,10 @@ async function main() {
   });
 
   await prisma.teamInvite.upsert({
-    where: { teamId_userId: { teamId: team2.id, userId: userC.id } },
+    where: { id: "0199bcb0-cd16-7312-82b5-b4da3d8e7704" },
     update: { status: TeamInviteStatus.DECLINED, updatedAt: new Date() },
     create: {
+      id: "0199bcb0-cd16-7312-82b5-b4da3d8e7704",
       teamId: team2.id,
       userId: userC.id,
       status: TeamInviteStatus.DECLINED,
@@ -603,9 +607,10 @@ async function main() {
   });
 
   await prisma.teamInvite.upsert({
-    where: { teamId_userId: { teamId: team2.id, userId: userA.id } },
+    where: { id: "0199bcb0-fa7b-7701-95bb-c4f2c2a79977" },
     update: { status: TeamInviteStatus.PENDING, updatedAt: new Date() },
     create: {
+      id: "0199bcb0-fa7b-7701-95bb-c4f2c2a79977",
       teamId: team2.id,
       userId: userA.id,
       status: TeamInviteStatus.PENDING,
@@ -642,9 +647,10 @@ async function main() {
 
   // #region Team Invites
   await prisma.teamInvite.upsert({
-    where: { teamId_userId: { teamId: team3.id, userId: userA.id } },
+    where: { id: "0199bcb1-1916-789d-a53f-6947c9163a83" },
     update: { status: TeamInviteStatus.ACCEPTED, updatedAt: new Date() },
     create: {
+      id: "0199bcb1-1916-789d-a53f-6947c9163a83",
       teamId: team3.id,
       userId: userA.id,
       status: TeamInviteStatus.ACCEPTED,
@@ -652,9 +658,10 @@ async function main() {
   });
 
   await prisma.teamInvite.upsert({
-    where: { teamId_userId: { teamId: team3.id, userId: member.id } },
+    where: { id: "0199bcb1-3854-777a-bd27-7986a1ba85c0" },
     update: { status: TeamInviteStatus.CANCELLED, updatedAt: new Date() },
     create: {
+      id: "0199bcb1-3854-777a-bd27-7986a1ba85c0",
       teamId: team3.id,
       userId: member.id,
       status: TeamInviteStatus.CANCELLED,

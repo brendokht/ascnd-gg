@@ -1,4 +1,8 @@
-import { CreateTeamDto, EditTeamDto, TeamViewModel } from "@ascnd-gg/types";
+import {
+  CreateTeamDto,
+  EditTeamDto,
+  type TeamViewModel,
+} from "@ascnd-gg/types";
 import {
   ConflictException,
   Injectable,
@@ -6,15 +10,15 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { User } from "@ascnd-gg/database";
+import type { User } from "@ascnd-gg/database";
 import { Prisma } from "@ascnd-gg/database";
 import { StorageService } from "../storage/storage.service";
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { parseKey, getPublicUrl } from "../utils";
 
 @Injectable()
-export class TeamService {
-  private readonly logger = new Logger(TeamService.name);
+export class TeamsService {
+  private readonly logger = new Logger(TeamsService.name);
   constructor(
     private readonly prismaService: PrismaService,
     private readonly storageService: StorageService,
@@ -96,19 +100,19 @@ export class TeamService {
   }
 
   async updateTeam(
-    user: User,
+    currentUser: User,
+    teamId: string,
     editTeamDto: EditTeamDto,
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ) {
     const { teamOwnerId } = await this.prismaService.team.findFirst({
-      where: { id: editTeamDto.id },
+      where: { id: teamId },
       select: { teamOwnerId: true },
     });
 
-    // TODO: Eventually have more complex authorization rules
-    if (user.id !== teamOwnerId) {
+    if (currentUser.id !== teamOwnerId) {
       throw new UnauthorizedException(
-        "You are not permitted to update this team.",
+        "You are not permitted to perform this action.",
       );
     }
 
@@ -116,24 +120,36 @@ export class TeamService {
       async (tx) => {
         try {
           const {
-            id: updatedTeamId,
             name: updatedTeamName,
             logo: oldLogoUrl,
             banner: oldBannerUrl,
           } = await tx.team.update({
             data: {
-              displayName: editTeamDto.displayName,
-              name: editTeamDto.displayName.toLowerCase(),
+              displayName: editTeamDto.displayName && undefined,
+              name: editTeamDto.displayName
+                ? editTeamDto.displayName.toLowerCase()
+                : undefined,
             },
-            where: { id: editTeamDto.id },
-            select: { id: true, name: true, logo: true, banner: true },
+            where: { id: teamId },
+            select: { name: true, logo: true, banner: true },
           });
+
+          console.log("old logo", oldLogoUrl);
+          console.log("old banner", oldBannerUrl);
 
           let logoKey: string | undefined | null = undefined;
           if (files.logo) {
             if (files.logo.at(0).size > 0) {
-              logoKey = `teams/${updatedTeamId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
+              if (oldLogoUrl) {
+                await this.storageService.client.send(
+                  new DeleteObjectCommand({
+                    Bucket: process.env.S3_BUCKET,
+                    Key: parseKey(oldLogoUrl),
+                  }),
+                );
+              }
 
+              logoKey = `teams/${teamId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
               await this.storageService.client.send(
                 new PutObjectCommand({
                   Bucket: process.env.S3_BUCKET,
@@ -157,8 +173,16 @@ export class TeamService {
 
           if (files.banner) {
             if (files.banner[0].size > 0) {
-              bannerKey = `teams/${updatedTeamId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
+              if (oldBannerUrl) {
+                await this.storageService.client.send(
+                  new DeleteObjectCommand({
+                    Bucket: process.env.S3_BUCKET,
+                    Key: parseKey(oldBannerUrl),
+                  }),
+                );
+              }
 
+              bannerKey = `teams/${teamId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
               await this.storageService.client.send(
                 new PutObjectCommand({
                   Bucket: process.env.S3_BUCKET,
@@ -183,7 +207,7 @@ export class TeamService {
               logo: logoKey ? getPublicUrl(logoKey) : logoKey,
               banner: bannerKey ? getPublicUrl(bannerKey) : bannerKey,
             },
-            where: { id: updatedTeamId },
+            where: { id: teamId },
           });
 
           return updatedTeamName;
@@ -250,20 +274,17 @@ export class TeamService {
     return team;
   }
 
-  async removeMemberFromTeam(teamName: string, username: string) {
-    const { id: teamId, teamOwnerId } = await this.prismaService.team.findFirst(
-      {
-        where: { name: teamName.toLowerCase() },
-        select: { id: true, teamOwnerId: true },
-      },
-    );
-
-    const { id: userId } = await this.prismaService.user.findFirst({
-      where: { username: username.toLowerCase() },
-      select: { id: true },
+  async removeMemberFromTeam(
+    currentUser: User,
+    teamId: string,
+    userId: string,
+  ) {
+    const { teamOwnerId } = await this.prismaService.team.findFirst({
+      where: { id: teamId },
+      select: { teamOwnerId: true },
     });
 
-    if (teamOwnerId === userId) {
+    if (teamOwnerId === currentUser.id) {
       throw new ConflictException(
         "Owner cannot remove themselves from the team. Please delete the team to perform this action.",
       );

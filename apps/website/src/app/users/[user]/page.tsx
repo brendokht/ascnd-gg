@@ -1,4 +1,4 @@
-import { UserViewModel } from "@ascnd-gg/types";
+import { type UserViewModel } from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -7,11 +7,11 @@ import {
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import Image from "next/image";
 
-export default async function UserProfile(props: PageProps<"/user/[user]">) {
+export default async function UserProfile(props: PageProps<"/users/[user]">) {
   const { user } = await props.params;
 
   const { data: userData, error } = await fetchApi<UserViewModel>(
-    `/user/${user}`,
+    `/users/${user}`,
   );
 
   if (error) {

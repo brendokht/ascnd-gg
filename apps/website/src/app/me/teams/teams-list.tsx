@@ -17,10 +17,10 @@ import { useRouter } from "next/navigation";
 
 export default function TeamsList({
   teams,
-  currentUser,
+  userId,
 }: {
   teams: Array<TeamSummary>;
-  currentUser: string;
+  userId: string;
 }) {
   const router = useRouter();
 
@@ -59,7 +59,7 @@ export default function TeamsList({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => router.push(`/team/${team.name}`)}
+                  onClick={() => router.push(`/teams/${team.name}`)}
                 >
                   <Eye />
                 </Button>
@@ -77,10 +77,7 @@ export default function TeamsList({
                     </EditTeamDialog>
                   </>
                 ) : (
-                  <LeaveTeamDialog
-                    currentUser={currentUser}
-                    teamName={team.displayName}
-                  >
+                  <LeaveTeamDialog userId={userId} team={team}>
                     <Button variant={"destructive"} size={"icon"}>
                       <LogOut />
                     </Button>

@@ -6,6 +6,7 @@ import {
 } from "@ascnd-gg/constants";
 import * as z from "zod";
 import { UserSummarySchema } from "./user";
+import { TeamInviteForTeamViewModelSchema } from "./team-invites";
 
 export const TeamSchema = z.object({
   id: z.uuidv7({ error: "ID is required." }),
@@ -39,6 +40,9 @@ export const TeamSchema = z.object({
   get members() {
     return z.array(UserSummarySchema).optional();
   },
+  get invites() {
+    return z.array(TeamInviteForTeamViewModelSchema).optional();
+  },
   createdAt: z.iso
     .datetime({ error: "Team creation date is required." })
     .optional(),
@@ -54,8 +58,14 @@ export const TeamSummarySchema = TeamSchema.pick({
   isTeamOwner: z.boolean().optional(),
 });
 
-export const TeamViewModelSchema = TeamSchema.omit({
-  teamOwnerId: true,
+export const TeamViewModelSchema = TeamSchema.pick({
+  id: true,
+  name: true,
+  displayName: true,
+  members: true,
+  logo: true,
+  banner: true,
+  createdAt: true,
 }).extend({
   isTeamOwner: z.boolean().optional(),
 });

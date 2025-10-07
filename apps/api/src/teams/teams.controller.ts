@@ -12,27 +12,27 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from "@nestjs/common";
-import { TeamService } from "./team.service";
+import { TeamsService } from "./teams.service";
 import {
   CreateTeamDto,
   CreateTeamInviteDto,
   EditTeamDto,
-  TeamInviteForTeamViewModel,
-  TeamViewModel,
+  type TeamInviteForTeamViewModel,
+  type TeamViewModel,
   UpdateTeamInviteDto,
 } from "@ascnd-gg/types";
-import { Request } from "express";
-import { User } from "@ascnd-gg/database";
+import { type Request } from "express";
+import type { User } from "@ascnd-gg/database";
 import { Optional } from "../auth/auth.decorator";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
-import { InviteService } from "../invite/invite.service";
+import { InvitesService } from "../invites/invites.service";
 
-@Controller("team")
-export class TeamController {
-  private readonly logger = new Logger(TeamController.name);
+@Controller("teams")
+export class TeamsController {
+  private readonly logger = new Logger(TeamsController.name);
   constructor(
-    private readonly teamService: TeamService,
-    private readonly inviteService: InviteService,
+    private readonly teamService: TeamsService,
+    private readonly inviteService: InvitesService,
   ) {}
 
   @Get(":name")
@@ -78,7 +78,7 @@ export class TeamController {
     return { name: createdTeamName };
   }
 
-  @Put()
+  @Put(":teamId")
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -90,12 +90,14 @@ export class TeamController {
   )
   async updateTeam(
     @Req() req: Request,
+    @Param() parmas: { teamId: string },
     @Body() editTeamDto: EditTeamDto,
     @UploadedFiles()
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ) {
     const updatedTeamName = await this.teamService.updateTeam(
       req["user"] as User,
+      parmas.teamId,
       editTeamDto,
       files,
     );
@@ -105,47 +107,49 @@ export class TeamController {
 
   // TODO: Create TeamRoles guard to ensure proper users can perform specfic actions
 
-  // TODO: Allow input for invite status
-  @Get("invite:name")
-  async getTeamInvites(
-    @Param() params: { name: string },
-  ): Promise<Array<TeamInviteForTeamViewModel>> {
-    const invites = await this.inviteService.getTeamInvitesForTeam(
-      "PENDING",
-      params.name,
-    );
-
-    return invites;
-  }
-
-  @Post("invite")
+  @Post(":teamId/invites")
   async sendTeamInvite(
     @Req() req: Request,
+    @Param() parmas: { teamId: string },
     @Body() createTeamInviteDto: CreateTeamInviteDto,
   ): Promise<TeamInviteForTeamViewModel> {
-    const invite =
-      await this.inviteService.createTeamInvite(createTeamInviteDto);
+    const invite = await this.inviteService.createTeamInvite(
+      req["user"] as User,
+      parmas.teamId,
+      createTeamInviteDto,
+    );
 
     return invite;
   }
 
-  @Put("invite")
+  // TODO: Put teamId as param
+  @Put(":teamId/invites/:inviteId")
   async updateTeamInvite(
+    @Req() req: Request,
+    @Param() parmas: { teamId: string; inviteId: string },
     @Body() updateTeamInviteDto: UpdateTeamInviteDto,
   ): Promise<TeamInviteForTeamViewModel> {
-    await this.inviteService.updateTeamInvite(updateTeamInviteDto);
+    await this.inviteService.updateTeamInvite(
+      req["user"] as User,
+      parmas.teamId,
+      parmas.inviteId,
+      updateTeamInviteDto,
+    );
 
     return;
   }
 
-  @Delete(":teamName/member/:username")
+  // TODO: Put teamId as param
+  @Delete(":teamId/members/:userId")
   async removeUserFromTeam(
-    @Param() parmas: { teamName: string; username: string },
+    @Req() req: Request,
+    @Param() parmas: { teamId: string; userId: string },
   ) {
     // TODO: RBAC
     await this.teamService.removeMemberFromTeam(
-      parmas.teamName,
-      parmas.username,
+      req["user"] as User,
+      parmas.teamId,
+      parmas.userId,
     );
   }
 }
