@@ -7,7 +7,7 @@ import {
   NotFoundException,
   Param,
   Post,
-  Put,
+  Patch,
   Req,
   UploadedFiles,
   UseInterceptors,
@@ -78,7 +78,7 @@ export class TeamsController {
     return { name: createdTeamName };
   }
 
-  @Put(":teamId")
+  @Patch(":teamId")
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -95,7 +95,7 @@ export class TeamsController {
     @UploadedFiles()
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ) {
-    const updatedTeamName = await this.teamService.updateTeam(
+    const { name: updatedTeamName } = await this.teamService.updateTeam(
       req["user"] as User,
       parmas.teamId,
       editTeamDto,
@@ -123,7 +123,7 @@ export class TeamsController {
   }
 
   // TODO: Put teamId as param
-  @Put(":teamId/invites/:inviteId")
+  @Patch(":teamId/invites/:inviteId")
   async updateTeamInvite(
     @Req() req: Request,
     @Param() parmas: { teamId: string; inviteId: string },

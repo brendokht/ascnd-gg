@@ -32,7 +32,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@ascnd-gg/ui/components/ui/pagination";
-import { fetchApi, postApi, putApi } from "@ascnd-gg/website/lib/fetch-utils";
+import { fetchApi, postApi, patchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { ChevronsLeft, ChevronsRight, LoaderCircle } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useDebouncedCallback } from "use-debounce";
@@ -174,7 +174,7 @@ export function TeamInvitationDialog({
         userId: invitedUser.id,
         status: "CANCELLED",
       };
-      const { error } = await putApi<never>(
+      const { error } = await patchApi<never>(
         `/teams/${team.id}/invites/${invitedUser.inviteId}`,
         JSON.stringify(updateTeamInviteBody),
         "application/json",

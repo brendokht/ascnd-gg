@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@ascnd-gg/ui/components/ui/form";
 import { Input } from "@ascnd-gg/ui/components/ui/input";
-import { putApi } from "@ascnd-gg/website/lib/fetch-utils";
+import { patchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -76,7 +76,7 @@ export default function EditTeamForm({
     if (form.formState.dirtyFields.banner)
       formData.append("banner", values.banner ?? new Blob());
 
-    const { data, error } = await putApi<{ name: string }>(
+    const { data, error } = await patchApi<{ name: string }>(
       `/teams/${team.id}`,
       formData,
     );

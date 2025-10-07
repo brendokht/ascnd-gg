@@ -104,13 +104,13 @@ export async function postApi<T>(
 
 /**
  *
- * @param route The route of the API to put. Must include a slash ("/") at the start
+ * @param route The route of the API to patch. Must include a slash ("/") at the start
  * @param body The object/values to be passed into the body of the request
  * @param contentType The content-type to be added to the headers
  * @param headers The headers for the request. Must be passed in when fetching from the server
  * @returns `{data, error}`, where data is either `T` or `null`, and error is either `null` or `ApiErrorType`
    @example 
-   const { data, error } = await putApi<{ name: string }>("/teams", values);
+   const { data, error } = await patchApi<{ name: string }>("/teams", values);
 
    if (error) {
      if (error.statusCode === 409)
@@ -126,7 +126,7 @@ export async function postApi<T>(
      return;
    }
 */
-export async function putApi<T>(
+export async function patchApi<T>(
   route: string,
   body: BodyInit,
   contentType?: string,
@@ -141,7 +141,7 @@ export async function putApi<T>(
   if (contentType) headers.append("Content-Type", contentType);
 
   const response = await fetch(`http://localhost:8080/v1${route}`, {
-    method: "PUT",
+    method: "PATCH",
     body: body,
     credentials: "include",
     headers: headers,
@@ -172,7 +172,7 @@ export async function putApi<T>(
  * @param headers The headers for the request. Must be passed in when fetching from the server
  * @returns `{data, error}`, where data is either `T` or `null`, and error is either `null` or `ApiErrorType`
    @example 
-   const { data, error } = await putApi<{ name: string }>("/teams", values);
+   const { data, error } = await patchApi<{ name: string }>("/teams", values);
 
    if (error) {
      if (error.statusCode === 409)

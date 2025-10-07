@@ -125,7 +125,7 @@ export class TeamsService {
             banner: oldBannerUrl,
           } = await tx.team.update({
             data: {
-              displayName: editTeamDto.displayName && undefined,
+              displayName: editTeamDto.displayName ?? undefined,
               name: editTeamDto.displayName
                 ? editTeamDto.displayName.toLowerCase()
                 : undefined,
@@ -133,9 +133,6 @@ export class TeamsService {
             where: { id: teamId },
             select: { name: true, logo: true, banner: true },
           });
-
-          console.log("old logo", oldLogoUrl);
-          console.log("old banner", oldBannerUrl);
 
           let logoKey: string | undefined | null = undefined;
           if (files.logo) {
@@ -224,7 +221,7 @@ export class TeamsService {
       },
     );
 
-    return updatedTeamName;
+    return { name: updatedTeamName };
   }
 
   async getTeamByName(

@@ -14,7 +14,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@ascnd-gg/ui/components/ui/tabs";
-import { putApi } from "@ascnd-gg/website/lib/fetch-utils";
+import { patchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -46,7 +46,7 @@ export default function InvitesList({
       accepted: accepted,
     });
 
-    const { error } = await putApi<void>(
+    const { error } = await patchApi<void>(
       "/teams/invite",
       updatedInviteBody,
       "application/json",
