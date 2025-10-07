@@ -12,8 +12,7 @@ export class UsersController {
   async getUserByUsername(
     @Param() params: UserSearchParameterDto,
   ): Promise<UserViewModel> {
-    const username: string = params.username;
-    const user = await this.userService.getUserByUsername(username);
+    const user = await this.userService.getUserByUsername(params);
 
     if (!user) {
       throw new NotFoundException();

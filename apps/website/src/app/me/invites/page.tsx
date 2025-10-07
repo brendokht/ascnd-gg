@@ -40,7 +40,7 @@ export default async function Invites() {
           hubs. You can accept or decline the invites you have received.
         </p>
       </div>
-      <InvitesList currentUser={user.username!} teamInvites={teamInvites} />
+      <InvitesList currentUserId={user.id} teamInvites={teamInvites} />
     </>
   );
 }

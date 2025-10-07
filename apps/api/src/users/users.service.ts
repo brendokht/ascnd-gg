@@ -1,14 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { type UserViewModel } from "@ascnd-gg/types";
+import { UserSearchParameterDto, type UserViewModel } from "@ascnd-gg/types";
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getUserByUsername(username: string): Promise<UserViewModel | null> {
+  async getUserByUsername(
+    params: UserSearchParameterDto,
+  ): Promise<UserViewModel | null> {
     const userSelect = await this.prismaService.user.findFirst({
-      where: { username: username },
+      where: { username: params.username },
       select: {
         id: true,
         username: true,

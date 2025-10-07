@@ -1,6 +1,9 @@
 "use client";
 
-import { type TeamInviteForUserViewModel } from "@ascnd-gg/types";
+import {
+  type UpdateTeamInvite,
+  type TeamInviteForUserViewModel,
+} from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -20,10 +23,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function InvitesList({
-  currentUser,
+  currentUserId,
   teamInvites,
 }: {
-  currentUser: string;
+  currentUserId: string;
   teamInvites: Array<TeamInviteForUserViewModel>;
 }) {
   const router = useRouter();
@@ -37,18 +40,17 @@ export default function InvitesList({
   ) => {
     // Optimistically remove invite
     const prevInvites = invites;
-    const updatedInvites = invites.filter((i) => i !== invite);
+    const updatedInvites = prevInvites.filter((i) => i !== invite);
     setInvites(updatedInvites);
 
-    const updatedInviteBody = JSON.stringify({
-      teamName: invite.team?.displayName,
-      username: currentUser,
-      accepted: accepted,
-    });
+    const updatedInviteBody: UpdateTeamInvite = {
+      status: accepted ? "ACCEPTED" : "DECLINED",
+      userId: currentUserId,
+    };
 
     const { error } = await patchApi<void>(
-      "/teams/invite",
-      updatedInviteBody,
+      `/teams/${invite.team.id}/invites/${invite.id}`,
+      JSON.stringify(updatedInviteBody),
       "application/json",
     );
 
