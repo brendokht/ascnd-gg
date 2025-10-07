@@ -45,11 +45,11 @@ export class MeService {
     return teams;
   }
 
-  // TODO: Insert parameter to allow user to pass the correct status as a query parameter
   async getCurrentUserTeamInvites(
     userId: string,
   ): Promise<Array<TeamInviteForUserViewModel>> {
     const teamInvites = await this.teamService.getTeamInvitesForUser(
+      // TODO: Allow user to pass status as query parameter
       "PENDING",
       userId,
     );

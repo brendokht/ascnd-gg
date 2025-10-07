@@ -9,6 +9,10 @@ import {
   type TeamViewModel,
   TeamInviteSearchQueryDto,
   TeamInviteSearchParameterDto,
+  TeamInviteUpdateParameterDto,
+  TeamIdParameterDto,
+  TeamNameParameterDto,
+  TeamMemberDeleteParameterDto,
 } from "@ascnd-gg/types";
 import {
   ConflictException,
@@ -108,12 +112,12 @@ export class TeamsService {
 
   async updateTeam(
     currentUser: User,
-    teamId: string,
+    params: TeamIdParameterDto,
     editTeamDto: EditTeamDto,
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ) {
     const { teamOwnerId } = await this.prismaService.team.findFirst({
-      where: { id: teamId },
+      where: { id: params.teamId },
       select: { teamOwnerId: true },
     });
 
@@ -137,7 +141,7 @@ export class TeamsService {
                 ? editTeamDto.displayName.toLowerCase()
                 : undefined,
             },
-            where: { id: teamId },
+            where: { id: params.teamId },
             select: { name: true, logo: true, banner: true },
           });
 
@@ -153,7 +157,7 @@ export class TeamsService {
                 );
               }
 
-              logoKey = `teams/${teamId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
+              logoKey = `teams/${params.teamId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
               await this.storageService.client.send(
                 new PutObjectCommand({
                   Bucket: process.env.S3_BUCKET,
@@ -186,7 +190,7 @@ export class TeamsService {
                 );
               }
 
-              bannerKey = `teams/${teamId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
+              bannerKey = `teams/${params.teamId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
               await this.storageService.client.send(
                 new PutObjectCommand({
                   Bucket: process.env.S3_BUCKET,
@@ -211,7 +215,7 @@ export class TeamsService {
               logo: logoKey ? getPublicUrl(logoKey) : logoKey,
               banner: bannerKey ? getPublicUrl(bannerKey) : bannerKey,
             },
-            where: { id: teamId },
+            where: { id: params.teamId },
           });
 
           return updatedTeamName;
@@ -232,11 +236,11 @@ export class TeamsService {
   }
 
   async getTeamByName(
-    name: string,
+    params: TeamNameParameterDto,
     userId: string | undefined,
   ): Promise<TeamViewModel | null> {
     const teamSelect = await this.prismaService.team.findFirst({
-      where: { name: name },
+      where: { name: params.name },
       select: {
         id: true,
         name: true,
@@ -280,23 +284,29 @@ export class TeamsService {
 
   async removeMemberFromTeam(
     currentUser: User,
-    teamId: string,
-    userId: string,
+    params: TeamMemberDeleteParameterDto,
   ) {
     const { teamOwnerId } = await this.prismaService.team.findFirst({
-      where: { id: teamId },
+      where: { id: params.teamId },
       select: { teamOwnerId: true },
     });
 
-    if (teamOwnerId === currentUser.id) {
+    if (teamOwnerId === params.userId) {
       throw new ConflictException(
         "Owner cannot remove themselves from the team. Please delete the team to perform this action.",
+      );
+    } else if (
+      teamOwnerId !== currentUser.id &&
+      currentUser.id !== params.userId
+    ) {
+      throw new UnauthorizedException(
+        "You are not permitted to perform this action.",
       );
     }
 
     await this.prismaService.userTeam.delete({
       where: {
-        teamId_userId: { teamId, userId },
+        teamId_userId: { teamId: params.teamId, userId: params.userId },
       },
     });
 
@@ -373,13 +383,6 @@ export class TeamsService {
       return { users: [], totalCount: count };
     }
 
-    usersSelect.forEach((user) => {
-      console.log(
-        `"user ${user.displayUsername}'s invites: `,
-        user.invitations,
-      );
-    });
-
     const users: Array<InviteUserSearchViewModel> = usersSelect.map((user) => {
       return {
         id: user.id,
@@ -442,60 +445,13 @@ export class TeamsService {
     return teamInvites;
   }
 
-  async getTeamInvitesForTeam(
-    status: TeamInviteStatus,
-    teamName: string,
-  ): Promise<Array<TeamInviteForTeamViewModel>> {
-    const invitesSelect = await this.prismaService.teamInvite.findMany({
-      where: {
-        team: {
-          name: teamName,
-        },
-        status: {
-          equals: status,
-        },
-      },
-      select: {
-        id: true,
-        status: true,
-        createdAt: true,
-        user: {
-          select: {
-            id: true,
-            username: true,
-            displayUsername: true,
-            image: true,
-          },
-        },
-      },
-    });
-
-    const teamInvites: Array<TeamInviteForTeamViewModel> = invitesSelect.map(
-      (teamInvite) => {
-        return {
-          id: teamInvite.id,
-          user: {
-            id: teamInvite.user.id,
-            username: teamInvite.user.username,
-            displayUsername: teamInvite.user.displayUsername,
-            logo: teamInvite.user.image,
-          },
-          status: teamInvite.status,
-          createdAt: teamInvite.createdAt.toISOString(),
-        };
-      },
-    );
-
-    return teamInvites;
-  }
-
   async createTeamInvite(
     currentUser: User,
-    teamId: string,
+    params: TeamIdParameterDto,
     teamInviteBody: CreateTeamInviteDto,
   ): Promise<TeamInviteForTeamViewModel> {
     const { teamOwnerId } = await this.prismaService.team.findFirst({
-      where: { id: teamId },
+      where: { id: params.teamId },
       select: { teamOwnerId: true },
     });
 
@@ -510,7 +466,7 @@ export class TeamsService {
         status: "PENDING",
         team: {
           connect: {
-            id: teamId,
+            id: params.teamId,
           },
         },
         user: {
@@ -545,12 +501,11 @@ export class TeamsService {
 
   async updateTeamInvite(
     currentUser: User,
-    teamId: string,
-    inviteId: string,
+    params: TeamInviteUpdateParameterDto,
     updateTeamInviteDto: UpdateTeamInviteDto,
   ) {
     const { teamOwnerId } = await this.prismaService.team.findFirst({
-      where: { id: teamId },
+      where: { id: params.teamId },
       select: { teamOwnerId: true },
     });
 
@@ -569,7 +524,7 @@ export class TeamsService {
         status: updateTeamInviteDto.status,
       },
       where: {
-        id: inviteId,
+        id: params.inviteId,
       },
     });
 
@@ -577,7 +532,7 @@ export class TeamsService {
       await this.prismaService.userTeam.create({
         data: {
           userId: updateTeamInviteDto.userId,
-          teamId: teamId,
+          teamId: params.teamId,
         },
       });
     }

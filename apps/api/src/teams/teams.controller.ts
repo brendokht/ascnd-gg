@@ -46,10 +46,8 @@ export class TeamsController {
     @Req() req: Request,
     @Param() params: TeamNameParameterDto,
   ): Promise<TeamViewModel> {
-    const teamName: string = params.name;
-
     const team = await this.teamService.getTeamByName(
-      teamName,
+      params,
       (req["user"] as User)?.id ?? undefined,
     );
 
@@ -102,10 +100,9 @@ export class TeamsController {
     @UploadedFiles()
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ) {
-    const teamId: string = params.teamId;
     const { name: updatedTeamName } = await this.teamService.updateTeam(
       req["user"] as User,
-      teamId,
+      params,
       editTeamDto,
       files,
     );
@@ -146,11 +143,9 @@ export class TeamsController {
     @Param() parmas: TeamIdParameterDto,
     @Body() createTeamInviteDto: CreateTeamInviteDto,
   ): Promise<TeamInviteForTeamViewModel> {
-    const teamId: string = parmas.teamId;
-
     const invite = await this.teamService.createTeamInvite(
       req["user"] as User,
-      teamId,
+      parmas,
       createTeamInviteDto,
     );
 
@@ -163,12 +158,9 @@ export class TeamsController {
     @Param() params: TeamInviteUpdateParameterDto,
     @Body() updateTeamInviteDto: UpdateTeamInviteDto,
   ): Promise<TeamInviteForTeamViewModel> {
-    const { teamId, inviteId }: { teamId: string; inviteId: string } = params;
-
     await this.teamService.updateTeamInvite(
       req["user"] as User,
-      teamId,
-      inviteId,
+      params,
       updateTeamInviteDto,
     );
 
@@ -185,12 +177,7 @@ export class TeamsController {
     @Req() req: Request,
     @Param() params: TeamMemberDeleteParameterDto,
   ) {
-    const { teamId, userId }: { teamId: string; userId: string } = params;
     // TODO: RBAC
-    await this.teamService.removeMemberFromTeam(
-      req["user"] as User,
-      teamId,
-      userId,
-    );
+    await this.teamService.removeMemberFromTeam(req["user"] as User, params);
   }
 }
