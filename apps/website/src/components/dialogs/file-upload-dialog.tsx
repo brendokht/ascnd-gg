@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Button } from "@ascnd-gg/ui/components/ui/button";
@@ -10,10 +11,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@ascnd-gg/ui/components/ui/dialog";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@ascnd-gg/ui/components/ui/empty";
 import { Input } from "@ascnd-gg/ui/components/ui/input";
 import { cn } from "@ascnd-gg/ui/lib/utils";
 import { Check, ImageIcon, Upload, X } from "lucide-react";
-import Image from "next/image";
 import { useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
@@ -154,14 +162,15 @@ export function FileUploadDialog({
                     )}
                   >
                     {/* TODO: Fix slow loading of larger images */}
-                    <Image
+                    <img
                       src={fileUrl}
-                      alt="Image Preview"
+                      alt="Preview"
+                      className={cn(
+                        "h-full w-full object-cover",
+                        shape === "circle" && "rounded-full",
+                      )}
                       loading="eager"
-                      fill
-                      quality={25}
-                      placeholder="empty"
-                      className={cn(shape === "circle" && "rounded-full")}
+                      decoding="async"
                     />
                   </div>
                 </div>
@@ -180,9 +189,9 @@ export function FileUploadDialog({
               </div>
             </div>
           ) : (
-            <div
+            <Empty
               className={cn(
-                "bg-background hover:bg-muted/50 relative flex cursor-pointer flex-col items-center justify-center rounded-sm border py-8 transition-all duration-200",
+                "hover:bg-muted/35 relative border transition-all duration-200 hover:cursor-pointer",
                 dragActive ? "border-primary bg-primary/5" : "border-border",
               )}
               onDragOver={(e) => {
@@ -200,30 +209,25 @@ export function FileUploadDialog({
               onDrop={handleFileDrop}
               onClick={() => fileInputRef.current?.click()}
             >
-              <div className="flex size-full flex-col items-center justify-center gap-2">
-                <div
-                  className={cn(
-                    "rounded-full p-4",
-                    dragActive ? "bg-primary/20" : "bg-muted",
-                  )}
-                >
-                  <Upload size={48} />
-                </div>
-                <div>
-                  <p>Drag & drop your {item} here</p>
-                  <p className="text-center text-sm">
-                    or click to browse your files
+              <EmptyHeader>
+                <EmptyMedia variant={"icon"}>
+                  <Upload />
+                </EmptyMedia>
+                <EmptyTitle>Drag & Drop your Items Here</EmptyTitle>
+                <EmptyDescription>
+                  or click to browse your files.
+                </EmptyDescription>
+                <EmptyContent>
+                  <p className="text-muted-foreground text-xs">
+                    {acceptedFileTypes.map((t, idx) => {
+                      if (idx === acceptedFileTypes.length - 1)
+                        return " and .".concat(t.split("/")[1]!).concat(" ");
+                      else return " .".concat(t.split("/")[1]!);
+                    })}{" "}
+                    files up to 4 MB in size
                   </p>
-                </div>
-                <p className="text-muted-foreground text-xs">
-                  {acceptedFileTypes.map((t, idx) => {
-                    if (idx === acceptedFileTypes.length - 1)
-                      return " and .".concat(t.split("/")[1]!).concat(" ");
-                    else return " .".concat(t.split("/")[1]!);
-                  })}{" "}
-                  files up to 4 MB in size
-                </p>
-              </div>
+                </EmptyContent>
+              </EmptyHeader>
               <Input
                 ref={fileInputRef}
                 type="file"
@@ -235,7 +239,7 @@ export function FileUploadDialog({
                 onChange={handleFileChange}
                 className="sr-only h-0"
               />
-            </div>
+            </Empty>
           )}
         </div>
         <DialogFooter>
