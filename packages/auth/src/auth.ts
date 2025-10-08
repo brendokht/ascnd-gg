@@ -85,10 +85,8 @@ const authConfig = {
   },
 } satisfies BetterAuthOptions;
 
-export const auth = betterAuth(authConfig) as ReturnType<
-  typeof betterAuth<typeof authConfig>
->;
+export const auth = betterAuth(authConfig);
 
-type Session = typeof auth.$Infer.Session;
+export type Session = typeof auth.$Infer.Session;
 
-export { toNodeHandler, fromNodeHeaders, type Session };
+export { toNodeHandler, fromNodeHeaders };

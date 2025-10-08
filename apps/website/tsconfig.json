@@ -6,7 +6,7 @@
       "@ascnd-gg/website/*": ["./src/*"],
       "@ascnd-gg/ui/*": ["../../packages/ui/src/*"],
       "@ascnd-gg/types": ["../../packages/types/src/index.ts"],
-      "@ascnd-gg/types/*": ["../../packages/types/src/*"]
+      "@ascnd-gg/auth": ["../../packages/auth/src/auth.ts"]
     },
     "plugins": [
       {
