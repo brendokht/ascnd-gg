@@ -1,3 +1,12 @@
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemTitle,
+} from "@ascnd-gg/ui/components/ui/item";
 import { validateSession } from "@ascnd-gg/website/lib/validate-session";
 import { Bell, CreditCard, Eye, User } from "lucide-react";
 import Link from "next/link";
@@ -12,7 +21,7 @@ export default async function Settings() {
           Manage your acccount settings, notifications, billing, and privacy
         </p>
       </div>
-      <div className="*:bg-primary *:hover:scale-98 grid grid-cols-2 gap-4 *:flex *:aspect-square *:min-w-36 *:items-center *:justify-center *:gap-4 *:rounded-md *:p-4 *:text-lg *:font-semibold *:duration-150 lg:grid-cols-4">
+      {/* <div className="*:bg-primary *:hover:scale-99 grid grid-cols-2 gap-4 *:flex *:aspect-square *:min-w-36 *:items-center *:justify-center *:gap-4 *:rounded-md *:p-4 *:text-lg *:font-semibold *:duration-150 lg:grid-cols-4">
         <Link href="/me/settings/account">
           <User />
           Account
@@ -26,7 +35,71 @@ export default async function Settings() {
         <Link href="/me/settings/privacy">
           <Eye /> Privacy
         </Link>
-      </div>
+      </div> */}
+      <ItemGroup className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <Item asChild variant={"muted"}>
+          <Link href={"/me/settings/account"}>
+            <ItemHeader>
+              <ItemMedia variant={"icon"}>
+                <User />
+              </ItemMedia>
+            </ItemHeader>
+            <ItemContent>
+              <ItemTitle>Account</ItemTitle>
+              <ItemDescription>
+                Your account details, including username, email, etc.
+              </ItemDescription>
+            </ItemContent>
+          </Link>
+        </Item>
+        <Item asChild variant={"muted"}>
+          <Link href={"/me/settings/notifications"}>
+            <ItemHeader>
+              <ItemMedia variant={"icon"}>
+                <Bell />
+              </ItemMedia>
+            </ItemHeader>
+            <ItemContent>
+              <ItemTitle>Notifications</ItemTitle>
+              <ItemDescription>
+                Your notifications settings for where you recieve notifications,
+                what notifications you recieve, etc.
+              </ItemDescription>
+            </ItemContent>
+          </Link>
+        </Item>
+        <Item asChild variant={"muted"}>
+          <Link href={"/me/settings/billing"}>
+            <ItemHeader>
+              <ItemMedia variant={"icon"}>
+                <CreditCard />
+              </ItemMedia>
+            </ItemHeader>
+            <ItemContent>
+              <ItemTitle>Billing</ItemTitle>
+              <ItemDescription>
+                Your billing details, managing subscriptions and purchases, etc.
+              </ItemDescription>
+            </ItemContent>
+          </Link>
+        </Item>
+        <Item asChild variant={"muted"}>
+          <Link href={"/me/settings/privacy"}>
+            <ItemHeader>
+              <ItemMedia variant={"icon"}>
+                <Eye />
+              </ItemMedia>
+            </ItemHeader>
+            <ItemContent>
+              <ItemTitle>Privacy</ItemTitle>
+              <ItemDescription>
+                Your privacy settings, such as cookie settings, anonymous
+                tracking, etc.
+              </ItemDescription>
+            </ItemContent>
+          </Link>
+        </Item>
+      </ItemGroup>
     </>
   );
 }

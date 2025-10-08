@@ -19,15 +19,25 @@ import {
   EmptyTitle,
 } from "@ascnd-gg/ui/components/ui/empty";
 import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@ascnd-gg/ui/components/ui/item";
+import { ScrollArea } from "@ascnd-gg/ui/components/ui/scroll-area";
+import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@ascnd-gg/ui/components/ui/tabs";
+import { useIsMobile } from "@ascnd-gg/ui/hooks/use-mobile";
 import { patchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { Check, Share2, ShieldHalf, Trophy, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 export default function InvitesList({
   currentUserId,
@@ -36,6 +46,7 @@ export default function InvitesList({
   currentUserId: string;
   teamInvites: Array<TeamInviteForUserViewModel>;
 }) {
+  const isMobile = useIsMobile();
   const router = useRouter();
 
   const [invites, setInvites] =
@@ -79,51 +90,80 @@ export default function InvitesList({
       </TabsList>
       <TabsContent value="team">
         {teamInvites && teamInvites.length > 0 ? (
-          teamInvites.map((teamInvite) => {
-            return (
-              <Card key={teamInvite.team?.displayName}>
-                <CardContent className="space-y-2">
-                  <h3 className="text-foreground text-balance font-semibold">
-                    {teamInvite.team?.displayName}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="size-9">
-                        <AvatarImage
-                          src={teamInvite.team?.logo ?? undefined}
-                          alt={`${teamInvite.team?.displayName}'s logo`}
-                          className="object-fill"
-                        />
-                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                          {teamInvite.team?.displayName.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateInvite(teamInvite, true)}
-                        className="gap-2"
-                      >
-                        <Check /> Accept
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => updateInvite(teamInvite, false)}
-                        className="gap-2"
-                      >
-                        <X /> Decline
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })
+          <ScrollArea className="bg-muted/50 h-82 flex w-full flex-col gap-4 rounded-md px-4 py-2">
+            <ItemGroup className="gap-4">
+              {teamInvites.map((teamInvite) => {
+                return (
+                  <Fragment key={teamInvite.id}>
+                    <Item variant="outline" role="listitem">
+                      <ItemMedia>
+                        <Avatar>
+                          <AvatarImage
+                            src={teamInvite.team.logo ?? undefined}
+                            alt={`${teamInvite.team.displayName}'s logo`}
+                            className="object-fill"
+                          />
+                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                            {teamInvite.team.displayName
+                              .charAt(0)
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle className="break-all">
+                          {teamInvite.team.displayName}
+                        </ItemTitle>
+                      </ItemContent>
+                      <ItemActions>
+                        {isMobile ? (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateInvite(teamInvite, true)}
+                              className="gap-2"
+                            >
+                              <Check />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => updateInvite(teamInvite, false)}
+                              className="gap-2"
+                            >
+                              <X />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateInvite(teamInvite, true)}
+                              className="gap-2"
+                            >
+                              <Check /> Accept
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => updateInvite(teamInvite, false)}
+                              className="gap-2"
+                            >
+                              <X /> Decline
+                            </Button>
+                          </>
+                        )}
+                      </ItemActions>
+                    </Item>
+                  </Fragment>
+                );
+              })}
+            </ItemGroup>
+          </ScrollArea>
         ) : (
-          <Card>
+          <Item className="min-h-82" variant={"muted"}>
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant={"icon"}>
@@ -135,7 +175,7 @@ export default function InvitesList({
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
-          </Card>
+          </Item>
         )}
       </TabsContent>
       <TabsContent value="event">
@@ -144,7 +184,7 @@ export default function InvitesList({
             <CardContent>Event Invites</CardContent>
           </Card>
         ) : (
-          <Card>
+          <Item className="min-h-82" variant={"muted"}>
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant={"icon"}>
@@ -156,7 +196,7 @@ export default function InvitesList({
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
-          </Card>
+          </Item>
         )}
       </TabsContent>
       <TabsContent value="hub">
@@ -165,7 +205,7 @@ export default function InvitesList({
             <CardContent>Hub Invites</CardContent>
           </Card>
         ) : (
-          <Card>
+          <Item className="min-h-82" variant={"muted"}>
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant={"icon"}>
@@ -177,7 +217,7 @@ export default function InvitesList({
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
-          </Card>
+          </Item>
         )}
       </TabsContent>
     </Tabs>
