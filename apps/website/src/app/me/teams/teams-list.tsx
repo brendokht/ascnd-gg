@@ -8,12 +8,22 @@ import {
 } from "@ascnd-gg/ui/components/ui/avatar";
 import { Badge } from "@ascnd-gg/ui/components/ui/badge";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
-import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@ascnd-gg/ui/components/ui/item";
+import { useIsMobile } from "@ascnd-gg/ui/hooks/use-mobile";
 import { EditTeamDialog } from "@ascnd-gg/website/components/dialogs/edit-team-dialog";
 import { LeaveTeamDialog } from "@ascnd-gg/website/components/dialogs/leave-team-dialog";
 import { TeamInvitationDialog } from "@ascnd-gg/website/components/dialogs/team-invitation-dialog";
-import { Crown, Edit, Eye, LogOut, MailPlus } from "lucide-react";
+import { Crown, Edit, Eye, LogOut, MailPlus, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Fragment } from "react";
 
 export default function TeamsList({
   teams,
@@ -22,19 +32,17 @@ export default function TeamsList({
   teams: Array<TeamSummary>;
   userId: string;
 }) {
+  const isMobile = useIsMobile();
   const router = useRouter();
 
   return (
-    <div className="space-y-4">
-      {teams.map((team) => (
-        <Card key={team.name}>
-          <CardContent>
-            <h3 className="text-foreground text-balance font-semibold">
-              {team.displayName}
-            </h3>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Avatar className="size-9">
+    <div className="flex w-full flex-col gap-4">
+      <ItemGroup className="gap-4">
+        {teams.map((team) => (
+          <Fragment key={team.id}>
+            <Item variant="muted" role="listitem">
+              <ItemMedia>
+                <Avatar>
                   <AvatarImage
                     src={team.logo ?? undefined}
                     alt={`${team.displayName}'s logo`}
@@ -44,50 +52,86 @@ export default function TeamsList({
                     {team.displayName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="min-w-0 flex-1">
-                  <div className="mt-1 flex items-center gap-4">
-                    {team.isTeamOwner && (
-                      <Badge>
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>{team.displayName}</ItemTitle>
+                <ItemDescription>
+                  <Badge>
+                    {team.isTeamOwner ? (
+                      <>
                         <Crown />
                         Owner
-                      </Badge>
+                      </>
+                    ) : (
+                      <>
+                        <User />
+                        Member
+                      </>
                     )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => router.push(`/teams/${team.name}`)}
-                >
-                  <Eye />
-                </Button>
+                  </Badge>
+                </ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                {isMobile ? (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => router.push(`/teams/${team.name}`)}
+                  >
+                    <Eye />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push(`/teams/${team.name}`)}
+                  >
+                    <Eye /> View
+                  </Button>
+                )}
                 {team.isTeamOwner ? (
                   <>
                     <TeamInvitationDialog team={team}>
-                      <Button size={"icon"}>
-                        <MailPlus />
-                      </Button>
+                      {isMobile ? (
+                        <Button size="icon">
+                          <MailPlus />
+                        </Button>
+                      ) : (
+                        <Button size="sm">
+                          <MailPlus /> Invite
+                        </Button>
+                      )}
                     </TeamInvitationDialog>
                     <EditTeamDialog defaultValues={team}>
-                      <Button size="icon">
-                        <Edit />
-                      </Button>
+                      {isMobile ? (
+                        <Button size="icon">
+                          <Edit />
+                        </Button>
+                      ) : (
+                        <Button size="sm">
+                          <Edit /> Edit
+                        </Button>
+                      )}
                     </EditTeamDialog>
                   </>
                 ) : (
                   <LeaveTeamDialog userId={userId} team={team}>
-                    <Button variant={"destructive"} size={"icon"}>
-                      <LogOut />
-                    </Button>
+                    {isMobile ? (
+                      <Button variant="destructive" size="icon">
+                        <LogOut />
+                      </Button>
+                    ) : (
+                      <Button variant="destructive" size="sm">
+                        <LogOut /> Leave
+                      </Button>
+                    )}
                   </LeaveTeamDialog>
                 )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+              </ItemActions>
+            </Item>
+          </Fragment>
+        ))}
+      </ItemGroup>
     </div>
   );
 }
