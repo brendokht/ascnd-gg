@@ -2,8 +2,8 @@ import { type TeamSummary } from "@ascnd-gg/types";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
 import TeamsList from "./teams-list";
-import Link from "next/link";
 import { validateSession } from "@ascnd-gg/website/lib/validate-session";
+import { notFound } from "next/navigation";
 
 export default async function Teams() {
   const session = await validateSession();
@@ -20,20 +20,7 @@ export default async function Teams() {
   }
 
   if (!teams || !teams.length) {
-    return (
-      <>
-        <h1 className="text-center text-xl font-semibold">
-          You are a member of no teams.
-        </h1>
-        <p className="text-muted-foreground text-center text-sm">
-          Join or{" "}
-          <Link className="text-primary underline" href={"/create/team"}>
-            create a team
-          </Link>{" "}
-          to view the teams you&apos;re on
-        </p>
-      </>
-    );
+    notFound();
   }
 
   return (

@@ -6,6 +6,7 @@ import {
 } from "@ascnd-gg/ui/components/ui/avatar";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 
 export default async function UserProfile(props: PageProps<"/users/[user]">) {
   const { user } = await props.params;
@@ -19,7 +20,7 @@ export default async function UserProfile(props: PageProps<"/users/[user]">) {
   }
 
   if (!userData) {
-    return <>User &apos;{user}&apos; was not found</>;
+    notFound();
   }
 
   return (

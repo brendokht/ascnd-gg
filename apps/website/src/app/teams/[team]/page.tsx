@@ -7,6 +7,7 @@ import {
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 
 export default async function TeamProfile(props: PageProps<"/teams/[team]">) {
   const { team } = await props.params;
@@ -21,7 +22,7 @@ export default async function TeamProfile(props: PageProps<"/teams/[team]">) {
   }
 
   if (!teamData) {
-    return <>Team, &apos;{team}&apos; was not found</>;
+    notFound();
   }
 
   return (

@@ -9,26 +9,13 @@ export default async function Invites() {
 
   const user = session.user;
 
+  // TODO: Fetch event and hub invites using Promise.allSettled
   const { data: teamInvites, error } = await fetchApi<
     Array<TeamInviteForUserViewModel>
   >("/me/teams/invites", await headers());
 
   if (error) {
     return <>Something went wrong</>;
-  }
-
-  // TODO: Add event and hub invites to this if statement
-  if (!teamInvites || teamInvites.length <= 0) {
-    return (
-      <>
-        <h1 className="text-center text-xl font-semibold">
-          You currently have no invites.
-        </h1>
-        <p className="text-muted-foreground text-center text-sm">
-          Ask your friends to invite you or create your own team.
-        </p>
-      </>
-    );
   }
 
   return (
@@ -40,7 +27,7 @@ export default async function Invites() {
           hubs. You can accept or decline the invites you have received.
         </p>
       </div>
-      <InvitesList currentUserId={user.id} teamInvites={teamInvites} />
+      <InvitesList currentUserId={user.id} teamInvites={teamInvites ?? []} />
     </>
   );
 }

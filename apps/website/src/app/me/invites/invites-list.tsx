@@ -12,13 +12,20 @@ import {
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
 import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@ascnd-gg/ui/components/ui/empty";
+import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@ascnd-gg/ui/components/ui/tabs";
 import { patchApi } from "@ascnd-gg/website/lib/fetch-utils";
-import { Check, X } from "lucide-react";
+import { Check, Share2, ShieldHalf, Trophy, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -71,59 +78,107 @@ export default function InvitesList({
         <TabsTrigger value="hub">Hubs</TabsTrigger>
       </TabsList>
       <TabsContent value="team">
-        {teamInvites.map((teamInvite) => {
-          return (
-            <Card key={teamInvite.team?.displayName}>
-              <CardContent className="space-y-2">
-                <h3 className="text-foreground text-balance font-semibold">
-                  {teamInvite.team?.displayName}
-                </h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="size-9">
-                      <AvatarImage
-                        src={teamInvite.team?.logo ?? undefined}
-                        alt={`${teamInvite.team?.displayName}'s logo`}
-                        className="object-fill"
-                      />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                        {teamInvite.team?.displayName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+        {teamInvites && teamInvites.length > 0 ? (
+          teamInvites.map((teamInvite) => {
+            return (
+              <Card key={teamInvite.team?.displayName}>
+                <CardContent className="space-y-2">
+                  <h3 className="text-foreground text-balance font-semibold">
+                    {teamInvite.team?.displayName}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="size-9">
+                        <AvatarImage
+                          src={teamInvite.team?.logo ?? undefined}
+                          alt={`${teamInvite.team?.displayName}'s logo`}
+                          className="object-fill"
+                        />
+                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                          {teamInvite.team?.displayName.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateInvite(teamInvite, true)}
+                        className="gap-2"
+                      >
+                        <Check /> Accept
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => updateInvite(teamInvite, false)}
+                        className="gap-2"
+                      >
+                        <X /> Decline
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => updateInvite(teamInvite, true)}
-                      className="gap-2"
-                    >
-                      <Check /> Accept
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => updateInvite(teamInvite, false)}
-                      className="gap-2"
-                    >
-                      <X /> Decline
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                </CardContent>
+              </Card>
+            );
+          })
+        ) : (
+          <Card>
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant={"icon"}>
+                  <ShieldHalf />
+                </EmptyMedia>
+                <EmptyTitle>You have no team invites</EmptyTitle>
+                <EmptyDescription>
+                  Ask your friend(s) to invite you to their teams(s).
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          </Card>
+        )}
       </TabsContent>
       <TabsContent value="event">
-        <Card>
-          <CardContent>Event Invites</CardContent>
-        </Card>
+        {false! ? (
+          <Card>
+            <CardContent>Event Invites</CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant={"icon"}>
+                  <Trophy />
+                </EmptyMedia>
+                <EmptyTitle>You have no event invites</EmptyTitle>
+                <EmptyDescription>
+                  Ask the organizer(s) to invite you to their event(s).
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          </Card>
+        )}
       </TabsContent>
       <TabsContent value="hub">
-        <Card>
-          <CardContent>Hub Invites</CardContent>
-        </Card>
+        {false! ? (
+          <Card>
+            <CardContent>Hub Invites</CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant={"icon"}>
+                  <Share2 />
+                </EmptyMedia>
+                <EmptyTitle>You have no hub invites</EmptyTitle>
+                <EmptyDescription>
+                  Ask the administrator(s) to invite you to their hub(s).
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          </Card>
+        )}
       </TabsContent>
     </Tabs>
   );
