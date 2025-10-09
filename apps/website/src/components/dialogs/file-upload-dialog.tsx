@@ -148,14 +148,14 @@ export function FileUploadDialog({
             Upload a new {item} by dragging and dropping or selecting a file.
           </DialogDescription>
         </DialogHeader>
-        <div>
+        <div className="min-h-130">
           {fileUrl ? (
-            <div className={"rounded-sm border py-4"}>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-center">
+            <div className={"h-full rounded-sm border py-4"}>
+              <div className={cn("flex h-full flex-col justify-between gap-4")}>
+                <div className={cn("flex h-full items-center justify-center")}>
                   <div
                     className={cn(
-                      "relative size-[90%]",
+                      "relative w-[90%]",
                       shape === "square" || shape === "circle"
                         ? "aspect-square"
                         : "aspect-rectangle",
@@ -191,7 +191,7 @@ export function FileUploadDialog({
           ) : (
             <Empty
               className={cn(
-                "hover:bg-muted/35 relative border transition-all duration-200 hover:cursor-pointer",
+                "hover:bg-muted/35 relative h-full border transition-all duration-200 hover:cursor-pointer",
                 dragActive ? "border-primary bg-primary/5" : "border-border",
               )}
               onDragOver={(e) => {

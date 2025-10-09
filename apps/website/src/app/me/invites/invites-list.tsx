@@ -116,45 +116,24 @@ export default function InvitesList({
                         </ItemTitle>
                       </ItemContent>
                       <ItemActions>
-                        {isMobile ? (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => updateInvite(teamInvite, true)}
-                              className="gap-2"
-                            >
-                              <Check />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              onClick={() => updateInvite(teamInvite, false)}
-                              className="gap-2"
-                            >
-                              <X />
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateInvite(teamInvite, true)}
-                              className="gap-2"
-                            >
-                              <Check /> Accept
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => updateInvite(teamInvite, false)}
-                              className="gap-2"
-                            >
-                              <X /> Decline
-                            </Button>
-                          </>
-                        )}
+                        <>
+                          <Button
+                            variant="outline"
+                            size={isMobile ? "icon" : "sm"}
+                            onClick={() => updateInvite(teamInvite, true)}
+                            className="gap-2"
+                          >
+                            <Check /> {isMobile ? null : "Accept"}
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size={isMobile ? "icon" : "sm"}
+                            onClick={() => updateInvite(teamInvite, false)}
+                            className="gap-2"
+                          >
+                            <X /> {isMobile ? null : "Decline"}
+                          </Button>
+                        </>
                       </ItemActions>
                     </Item>
                   </Fragment>

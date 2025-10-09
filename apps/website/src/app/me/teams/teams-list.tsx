@@ -72,59 +72,38 @@ export default function TeamsList({
                 </ItemDescription>
               </ItemContent>
               <ItemActions>
-                {isMobile ? (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => router.push(`/teams/${team.name}`)}
-                  >
-                    <Eye />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push(`/teams/${team.name}`)}
-                  >
-                    <Eye /> View
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size={isMobile ? "icon" : "sm"}
+                  onClick={() => router.push(`/teams/${team.name}`)}
+                >
+                  <Eye />
+                  {isMobile ? null : "View"}
+                </Button>
                 {team.isTeamOwner ? (
                   <>
                     <TeamInvitationDialog team={team}>
-                      {isMobile ? (
-                        <Button size="icon">
-                          <MailPlus />
-                        </Button>
-                      ) : (
-                        <Button size="sm">
-                          <MailPlus /> Invite
-                        </Button>
-                      )}
+                      <Button size={isMobile ? "icon" : "sm"}>
+                        <MailPlus />
+                        {isMobile ? null : "Invite"}
+                      </Button>
                     </TeamInvitationDialog>
                     <EditTeamDialog defaultValues={team}>
-                      {isMobile ? (
-                        <Button size="icon">
-                          <Edit />
-                        </Button>
-                      ) : (
-                        <Button size="sm">
-                          <Edit /> Edit
-                        </Button>
-                      )}
+                      <Button size={isMobile ? "icon" : "sm"}>
+                        <Edit />
+                        {isMobile ? null : "Edit"}
+                      </Button>
                     </EditTeamDialog>
                   </>
                 ) : (
                   <LeaveTeamDialog userId={userId} team={team}>
-                    {isMobile ? (
-                      <Button variant="destructive" size="icon">
-                        <LogOut />
-                      </Button>
-                    ) : (
-                      <Button variant="destructive" size="sm">
-                        <LogOut /> Leave
-                      </Button>
-                    )}
+                    <Button
+                      variant={"destructive"}
+                      size={isMobile ? "icon" : "sm"}
+                    >
+                      <LogOut />
+                      {isMobile ? null : "Leave"}
+                    </Button>
                   </LeaveTeamDialog>
                 )}
               </ItemActions>

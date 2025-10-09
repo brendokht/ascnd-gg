@@ -32,7 +32,7 @@ export function EditTeamDialog({
             Edit {defaultValues.displayName} to give it a new look
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="max-h-[75vh]">
+        <ScrollArea className="max-h-[75vh] px-4 py-2">
           <EditTeamForm team={defaultValues} callback={() => setOpen(false)} />
         </ScrollArea>
       </DialogContent>

@@ -13,7 +13,6 @@ import {
   AvatarImage,
 } from "@ascnd-gg/ui/components/ui/avatar";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
-import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +21,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@ascnd-gg/ui/components/ui/dialog";
-import { Input } from "@ascnd-gg/ui/components/ui/input";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@ascnd-gg/ui/components/ui/empty";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@ascnd-gg/ui/components/ui/input-group";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+} from "@ascnd-gg/ui/components/ui/item";
 import { Label } from "@ascnd-gg/ui/components/ui/label";
 import {
   Pagination,
@@ -32,9 +49,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@ascnd-gg/ui/components/ui/pagination";
+import { Spinner } from "@ascnd-gg/ui/components/ui/spinner";
+import { useIsMobile } from "@ascnd-gg/ui/hooks/use-mobile";
+import { cn } from "@ascnd-gg/ui/lib/utils";
 import { fetchApi, postApi, patchApi } from "@ascnd-gg/website/lib/fetch-utils";
-import { ChevronsLeft, ChevronsRight, LoaderCircle } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  MailPlus,
+  SearchIcon,
+  User,
+  X,
+} from "lucide-react";
+import { Fragment, useState, type ReactNode } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
 const MAX_USERS_PER_PAGE = 5;
@@ -46,7 +73,9 @@ export function TeamInvitationDialog({
   team: TeamSummary;
   children: ReactNode;
 }) {
-  // TODO: Use React Query for data fetching and optimistic updates for invites
+  // TODO: Use React Query for data fetching and optimistic updates for invite
+  // TODO: Ensure users are sorted in correct order (go from first to last page and then back to see what I mean)
+  const isMobile = useIsMobile();
 
   const [open, setOpen] = useState<boolean>(false);
   const [users, setUsers] = useState<
@@ -311,70 +340,85 @@ export function TeamInvitationDialog({
         <div className="text-gray- space-y-4">
           <Label htmlFor="search">Search Users</Label>
           <div>
-            <Input
-              id="search"
-              className="bg-[url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlNWU3ZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1zZWFyY2gtaWNvbiBsdWNpZGUtc2VhcmNoIj48cGF0aCBkPSJtMjEgMjEtNC4zNC00LjM0Ii8+PGNpcmNsZSBjeD0iMTEiIGN5PSIxMSIgcj0iOCIvPjwvc3ZnPg==)] bg-[0.5em] bg-no-repeat px-9"
-              onChange={(e) => handleDebouncedSearch(e.target.value)}
-              defaultValue={input}
-              placeholder="Search..."
-            />
+            <InputGroup>
+              <InputGroupAddon>
+                <SearchIcon />
+              </InputGroupAddon>
+              <InputGroupInput
+                placeholder="Search..."
+                onChange={(e) => handleDebouncedSearch(e.target.value)}
+                defaultValue={input}
+              />
+              {loading && (
+                <InputGroupAddon align={"inline-end"}>
+                  <Spinner />
+                </InputGroupAddon>
+              )}
+            </InputGroup>
           </div>
         </div>
-        <div className="h-112.5 space-y-2">
-          {currentUsers && !loading ? (
-            currentUsers.map((user) => (
-              <Card key={user.username}>
-                <CardContent className="flex justify-between">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="size-8">
-                      <AvatarImage
-                        src={user.profilePictureUrl ?? ""}
-                        alt={`${user.displayUsername!}'s logo`}
-                        className="object-fill"
-                      />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                        {user.displayUsername!.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    {user.displayUsername}
-                  </div>
-                  <div className="space-x-2">
-                    {!user.isInvited ? (
-                      <Button
-                        size={"sm"}
-                        onClick={async () => {
-                          await updateInviteState(user, true);
-                        }}
-                      >
-                        Invite
-                      </Button>
-                    ) : (
-                      <Button
-                        size={"sm"}
-                        variant={"destructive"}
-                        onClick={async () => {
-                          await updateInviteState(user, false);
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : loading ? (
-            <div className="flex h-full animate-spin items-center justify-center">
-              <LoaderCircle />
-            </div>
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-2">
-              <p>No users found.</p>
-              <p className="text-muted-foreground text-sm">
-                Try searching a username or try again.
-              </p>
-            </div>
-          )}
+        <div className={cn("space-y-2", isMobile ? "h-96" : "h-90.5")}>
+          {currentUsers && !loading
+            ? currentUsers.map((user) => (
+                <Fragment key={user.username}>
+                  <Item variant={"muted"}>
+                    <ItemMedia>
+                      <Avatar className="size-8">
+                        <AvatarImage
+                          src={user.profilePictureUrl ?? ""}
+                          alt={`${user.displayUsername!}'s logo`}
+                          className="object-fill"
+                        />
+                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                          {user.displayUsername!.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </ItemMedia>
+                    <ItemContent>
+                      <ItemTitle>{user.displayUsername}</ItemTitle>
+                    </ItemContent>
+                    <ItemActions>
+                      {!user.isInvited ? (
+                        <Button
+                          size={isMobile ? "icon" : "sm"}
+                          onClick={async () => {
+                            await updateInviteState(user, true);
+                          }}
+                        >
+                          <MailPlus />
+                          {isMobile ? null : "Invite"}
+                        </Button>
+                      ) : (
+                        <Button
+                          size={isMobile ? "icon" : "sm"}
+                          variant={"destructive"}
+                          onClick={async () => {
+                            await updateInviteState(user, false);
+                          }}
+                        >
+                          <X />
+                          {isMobile ? null : "Cancel"}
+                        </Button>
+                      )}
+                    </ItemActions>
+                  </Item>
+                </Fragment>
+              ))
+            : !loading && (
+                <div className="flex h-[calc(100%-1rem)] flex-col items-center justify-center">
+                  <Empty>
+                    <EmptyHeader>
+                      <EmptyMedia variant={"icon"}>
+                        <User />
+                      </EmptyMedia>
+                      <EmptyTitle>No users found</EmptyTitle>
+                      <EmptyDescription>
+                        Try searching a username or try again.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                </div>
+              )}
         </div>
         {totalUsers ? (
           <div className="text-center">
@@ -386,11 +430,13 @@ export function TeamInvitationDialog({
             <PaginationContent>
               <PaginationItem>
                 <PaginationLink
+                  size={"default"}
                   onClick={() => {
                     changePage(1);
                   }}
                 >
                   <ChevronsLeft />
+                  {isMobile ? null : "First"}
                 </PaginationLink>
               </PaginationItem>
               <PaginationItem>
@@ -409,10 +455,12 @@ export function TeamInvitationDialog({
               </PaginationItem>
               <PaginationItem>
                 <PaginationLink
+                  size={"default"}
                   onClick={() => {
                     changePage(totalPages);
                   }}
                 >
+                  {isMobile ? null : "Last"}
                   <ChevronsRight />
                 </PaginationLink>
               </PaginationItem>
