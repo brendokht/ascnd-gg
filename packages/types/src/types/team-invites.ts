@@ -1,11 +1,11 @@
 import * as z from "zod";
 import { TeamSummarySchema } from "./team";
-import { TeamInviteStatus } from "@ascnd-gg/database";
+import { InviteStatus } from "@ascnd-gg/database";
 import { UserSummarySchema } from "./user";
 
 export const TeamInviteSchema = z.object({
   id: z.uuidv7({ error: "Invite ID is requied." }).trim(),
-  status: z.enum(TeamInviteStatus, { error: "Invite status is required." }),
+  status: z.enum(InviteStatus, { error: "Invite status is required." }),
   get user() {
     return UserSummarySchema;
   },
