@@ -12,7 +12,7 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Public()
-  @Get("/:id")
+  @Get("/:userId")
   async getUserById(
     @Param() params: UserIdParameterDto,
   ): Promise<UserViewModel> {
@@ -26,7 +26,7 @@ export class UsersController {
   }
 
   @Public()
-  @Get("/slug/:username")
+  @Get("/slug/:userUsername")
   async getUserByUsername(
     @Param() params: UserSearchParameterDto,
   ): Promise<UserViewModel> {
