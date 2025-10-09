@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { FileUploadDialog } from "../dialogs/file-upload-dialog";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Spinner } from "@ascnd-gg/ui/components/ui/spinner";
 
 export default function EditTeamForm({
   team,
@@ -224,11 +225,12 @@ export default function EditTeamForm({
           <Button
             type="submit"
             disabled={
+              !form.formState.isDirty ||
               !form.formState.isValid ||
-              form.formState.isLoading ||
-              !form.formState.isDirty
+              form.formState.isSubmitting
             }
           >
+            {form.formState.isSubmitting && <Spinner />}
             Update
           </Button>
           <Button

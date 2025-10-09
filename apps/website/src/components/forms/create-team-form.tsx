@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { FileUploadDialog } from "../dialogs/file-upload-dialog";
 import { useState } from "react";
 import Image from "next/image";
+import { Spinner } from "@ascnd-gg/ui/components/ui/spinner";
 
 export default function CreateTeamForm() {
   const router = useRouter();
@@ -45,14 +46,18 @@ export default function CreateTeamForm() {
 
     if (error) {
       if (error.statusCode === 409)
-        form.setError("displayName", { message: error.message });
-      else form.setError("root", { message: error.message });
+        form.setError("displayName", {
+          message: error.message,
+          type: "conflict",
+        });
+      else form.setError("root", { message: error.message, type: "error" });
       return;
     }
 
     if (!data) {
       form.setError("root", {
         message: "Something went wrong. Please try again.",
+        type: "error",
       });
       return;
     }
@@ -184,11 +189,12 @@ export default function CreateTeamForm() {
           <Button
             type="submit"
             disabled={
+              !form.formState.isDirty ||
               !form.formState.isValid ||
-              form.formState.isLoading ||
-              !form.formState.isDirty
+              form.formState.isSubmitting
             }
           >
+            {form.formState.isSubmitting && <Spinner />}
             Create
           </Button>
           <Button

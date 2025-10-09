@@ -38,6 +38,7 @@ import { patchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { Check, Share2, ShieldHalf, Trophy, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
+import { toast } from "sonner";
 
 export default function InvitesList({
   currentUserId,
@@ -74,7 +75,9 @@ export default function InvitesList({
 
     if (error) {
       setInvites(prevInvites);
-      console.error(error);
+      toast.error("Error Updating Invite...", {
+        description: error.message,
+      });
       return;
     }
 

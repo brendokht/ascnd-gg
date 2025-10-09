@@ -62,6 +62,7 @@ import {
   X,
 } from "lucide-react";
 import { Fragment, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
 
 const MAX_USERS_PER_PAGE = 5;
@@ -74,15 +75,16 @@ export function TeamInvitationDialog({
   children: ReactNode;
 }) {
   // TODO: Use React Query for data fetching and optimistic updates for invite
-  // TODO: Ensure users are sorted in correct order (go from first to last page and then back to see what I mean)
   const isMobile = useIsMobile();
 
+  // Add user index temporarily to ensure users are displayed in the order they are fetched.
+  // Note the `.sort()` and `.map()` added to `setUsers`/`setCurrentUsers` calls
   const [open, setOpen] = useState<boolean>(false);
   const [users, setUsers] = useState<
-    Array<InviteUserSearchViewModel> | undefined
+    Array<InviteUserSearchViewModel & { index: number }> | undefined
   >(undefined);
   const [currentUsers, setCurrentUsers] = useState<
-    Array<InviteUserSearchViewModel> | undefined
+    Array<InviteUserSearchViewModel & { index: number }> | undefined
   >(undefined);
   const [visitedPages, setVisitedPages] = useState<Set<number>>(new Set([1]));
   const [totalUsers, setTotalUsers] = useState<number>(0);
@@ -169,7 +171,9 @@ export function TeamInvitationDialog({
           }
         });
         setUsers(updatedUsers);
-        console.error(error ?? "missing invite data.");
+        toast.error("Error Sending Invite...", {
+          description: error ? error.message : "Something went wrong.",
+        });
         return;
       }
 
@@ -198,6 +202,10 @@ export function TeamInvitationDialog({
         }
       });
       setUsers(updatedUsers);
+
+      toast.success("Success", {
+        description: "Invite successfully sent.",
+      });
     } else {
       const updateTeamInviteBody: UpdateTeamInvite = {
         userId: invitedUser.id,
@@ -234,9 +242,15 @@ export function TeamInvitationDialog({
           }
         });
         setUsers(updatedUsers);
-        console.error(error ?? "missing invite data.");
+        toast.error("Error Cancelling Invite...", {
+          description: error.message,
+        });
         return;
       }
+
+      toast.success("Success", {
+        description: "Invite successfully cancelled.",
+      });
     }
   };
 
@@ -269,19 +283,48 @@ export function TeamInvitationDialog({
 
     if (error) {
       resetSearchState();
-      console.error(error);
+      toast.error("Error Fetching Users...", {
+        description: error.message,
+      });
       return;
     }
 
     if (!newUsers || !newUsers.users) {
-      console.error("Something went wrong");
+      toast.error("Error Fetching Users...", {
+        description: "No data recieved.",
+      });
       setUsers(undefined);
       setCurrentUsers(undefined);
       return;
     }
 
-    setUsers([...(users ?? []), ...newUsers.users]);
-    setCurrentUsers(newUsers.users);
+    setUsers(
+      [
+        ...(users ?? []),
+        ...newUsers.users.map((user, idx) => {
+          return {
+            ...user,
+            index: idx + (page - 1) * MAX_USERS_PER_PAGE,
+          };
+        }),
+      ].sort((u1, u2) => {
+        if (u1.index > u2.index) return 1;
+        else return -1;
+      }),
+    );
+    setCurrentUsers(
+      newUsers.users
+        .map((user, idx) => {
+          return {
+            ...user,
+            index: idx,
+          };
+        })
+        .sort((u1, u2) => {
+          if (u1.index > u2.index) return 1;
+          else return -1;
+        }),
+    );
   };
 
   const handleDebouncedSearch = useDebouncedCallback(async (input: string) => {
@@ -307,7 +350,9 @@ export function TeamInvitationDialog({
 
     if (error) {
       resetSearchState();
-      console.error(error);
+      toast.error("Error Fetching Users...", {
+        description: error.message,
+      });
       return;
     }
 
@@ -323,8 +368,32 @@ export function TeamInvitationDialog({
     setTotalUsers(searchResult.totalCount);
     setTotalPages(tempTotalPages);
 
-    setCurrentUsers(searchResult.users);
-    setUsers(searchResult.users);
+    setCurrentUsers(
+      searchResult.users
+        .map((user, idx) => {
+          return {
+            ...user,
+            index: idx,
+          };
+        })
+        .sort((u1, u2) => {
+          if (u1.index > u2.index) return 1;
+          else return -1;
+        }),
+    );
+    setUsers(
+      searchResult.users
+        .map((user, idx) => {
+          return {
+            ...user,
+            index: idx,
+          };
+        })
+        .sort((u1, u2) => {
+          if (u1.index > u2.index) return 1;
+          else return -1;
+        }),
+    );
   }, 250);
 
   return (

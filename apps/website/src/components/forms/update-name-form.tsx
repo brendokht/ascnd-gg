@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@ascnd-gg/ui/components/ui/form";
 import { Input } from "@ascnd-gg/ui/components/ui/input";
+import { Spinner } from "@ascnd-gg/ui/components/ui/spinner";
 import { authClient } from "@ascnd-gg/website/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -37,7 +38,10 @@ export default function UpdateNameForm({
     });
 
     if (updateRes.error) {
-      console.error(updateRes.error);
+      form.setError("name", {
+        message: updateRes.error.message,
+        type: "error",
+      });
       return;
     }
 
@@ -70,11 +74,12 @@ export default function UpdateNameForm({
         <Button
           type="submit"
           disabled={
+            !form.formState.isDirty ||
             !form.formState.isValid ||
-            form.formState.isLoading ||
-            !form.formState.dirtyFields.name
+            form.formState.isSubmitting
           }
         >
+          {form.formState.isSubmitting && <Spinner />}
           Submit
         </Button>
       </form>
