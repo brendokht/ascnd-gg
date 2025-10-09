@@ -240,7 +240,54 @@ export class TeamsService {
     userId: string | undefined,
   ): Promise<TeamViewModel | null> {
     const teamSelect = await this.prismaService.team.findFirst({
-      where: { name: params.name },
+      where: { name: params.teamName },
+      select: {
+        id: true,
+        name: true,
+        displayName: true,
+        logo: true,
+        banner: true,
+        createdAt: true,
+        teamOwnerId: true,
+        members: {
+          select: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!teamSelect) {
+      return null;
+    }
+
+    const team: TeamViewModel = {
+      id: teamSelect.id,
+      name: teamSelect.name,
+      displayName: teamSelect.displayName,
+      logo: teamSelect.logo,
+      banner: teamSelect.banner,
+      members: teamSelect.members.map(({ user }) => {
+        return {
+          id: user.id,
+          username: user.username,
+          displayUsername: user.displayUsername,
+          profilePictureUrl: user.image,
+        };
+      }),
+      createdAt: teamSelect.createdAt.toISOString(),
+      isTeamOwner: userId === teamSelect.teamOwnerId,
+    };
+
+    return team;
+  }
+
+  async getTeamById(
+    params: TeamIdParameterDto,
+    userId: string | undefined,
+  ): Promise<TeamViewModel | null> {
+    const teamSelect = await this.prismaService.team.findFirst({
+      where: { id: params.teamId },
       select: {
         id: true,
         name: true,

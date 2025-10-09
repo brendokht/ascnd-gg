@@ -40,7 +40,25 @@ export class TeamsController {
   private readonly logger = new Logger(TeamsController.name);
   constructor(private readonly teamService: TeamsService) {}
 
-  @Get(":name")
+  @Get("/:id")
+  @Optional()
+  async getTeamById(
+    @Req() req: Request,
+    @Param() params: TeamIdParameterDto,
+  ): Promise<TeamViewModel> {
+    const team = await this.teamService.getTeamById(
+      params,
+      (req["user"] as User)?.id ?? undefined,
+    );
+
+    if (!team) {
+      throw new NotFoundException();
+    }
+
+    return team;
+  }
+
+  @Get("/slug/:name")
   @Optional()
   async getTeamByName(
     @Req() req: Request,
