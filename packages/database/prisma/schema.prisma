@@ -23,11 +23,14 @@ model User {
   displayUsername String?
   active          Boolean  @default(false)
 
-  sessions    Session[]
-  accounts    Account[]
-  ownedTeams  Team[]
-  teams       UserTeam[]
-  invitations TeamInvite[]
+  sessions        Session[]
+  accounts        Account[]
+  ownedTeams      Team[]
+  teams           UserTeam[]
+  teamInvitations TeamInvite[]
+  ownedHubs       Hub[]
+  hubs            UserHub[]
+  hubInvitations  HubInvite[]
 
   @@unique([email])
   @@unique([username])
@@ -110,19 +113,62 @@ model UserTeam {
 }
 
 model TeamInvite {
-  id        String           @id @default(uuid(7))
+  id        String       @id @default(uuid(7))
   userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   teamId    String
-  team      Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  status    TeamInviteStatus
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @default(now()) @updatedAt
+  team      Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  status    InviteStatus
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
 
   @@map("team_invite")
 }
 
-enum TeamInviteStatus {
+model Hub {
+  id          String   @id @default(uuid(7))
+  hubOwnerId  String
+  hubOwner    User     @relation(fields: [hubOwnerId], references: [id], onDelete: Cascade)
+  name        String
+  displayName String
+  logo        String?
+  banner      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  members     UserHub[]
+  invitations HubInvite[]
+
+  @@unique([name])
+  @@map("hub")
+}
+
+model UserHub {
+  hubId     String
+  hub       Hub      @relation(fields: [hubId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@id([hubId, userId])
+  @@map("user_hub")
+}
+
+model HubInvite {
+  id        String       @id @default(uuid(7))
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hubId     String
+  hub       Hub          @relation(fields: [hubId], references: [id], onDelete: Cascade)
+  status    InviteStatus
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+
+  @@map("hub_invite")
+}
+
+enum InviteStatus {
   PENDING
   DECLINED
   CANCELLED

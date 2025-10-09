@@ -21,7 +21,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import type { TeamInviteStatus, User } from "@ascnd-gg/database";
+import type { InviteStatus, User } from "@ascnd-gg/database";
 import { Prisma } from "@ascnd-gg/database";
 import { StorageService } from "../storage/storage.service";
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
@@ -409,7 +409,7 @@ export class TeamsService {
         displayUsername: true,
         image: true,
         createdAt: true,
-        invitations: {
+        teamInvitations: {
           select: {
             id: true,
             status: true,
@@ -437,9 +437,11 @@ export class TeamsService {
         displayUsername: user.displayUsername,
         profilePictureUrl: user.image,
         createdAt: user.createdAt.toISOString(),
-        isInvited: user.invitations.length > 0,
+        isInvited: user.teamInvitations.length > 0,
         inviteId:
-          user.invitations.length > 0 ? user.invitations.at(0).id : undefined,
+          user.teamInvitations.length > 0
+            ? user.teamInvitations.at(0).id
+            : undefined,
       };
     });
 
@@ -447,7 +449,7 @@ export class TeamsService {
   }
 
   async getTeamInvitesForUser(
-    status: TeamInviteStatus,
+    status: InviteStatus,
     userId: string,
   ): Promise<Array<TeamInviteForUserViewModel>> {
     const invitesSelect = await this.prismaService.teamInvite.findMany({
