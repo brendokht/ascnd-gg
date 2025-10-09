@@ -13,7 +13,7 @@ export default async function TeamProfile(props: PageProps<"/teams/[team]">) {
   const { team } = await props.params;
 
   const { data: teamData, error } = await fetchApi<TeamViewModel>(
-    `/teams/${team}`,
+    `/teams/slug/${team}`,
     await headers(),
   );
 

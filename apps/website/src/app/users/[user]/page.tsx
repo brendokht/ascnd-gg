@@ -12,7 +12,7 @@ export default async function UserProfile(props: PageProps<"/users/[user]">) {
   const { user } = await props.params;
 
   const { data: userData, error } = await fetchApi<UserViewModel>(
-    `/users/${user}`,
+    `/users/slug/${user}`,
   );
 
   if (error) {

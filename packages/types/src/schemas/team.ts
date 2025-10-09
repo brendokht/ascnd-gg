@@ -26,7 +26,7 @@ export const teamIdParameterSchema = z
 
 export const teamNameParameterSchema = z
   .object({
-    name: z.string({ error: "Team Name is required." }),
+    teamName: z.string({ error: "Team Name is required." }),
   })
   .required();
 
@@ -62,7 +62,7 @@ export class EditTeamDto extends createZodDto(editTeamSchema) {}
  */
 export class TeamIdParameterDto extends createZodDto(teamIdParameterSchema) {}
 /**
- * @param {string} name The team's name - Required
+ * @param {string} teamName The team's name - Required
  */
 export class TeamNameParameterDto extends createZodDto(
   teamNameParameterSchema,

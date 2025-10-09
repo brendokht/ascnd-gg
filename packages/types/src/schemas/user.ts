@@ -12,14 +12,21 @@ export const updateUsernameSchema = UserSchema.pick({
   displayUsername: true,
 });
 
+export const userIdParameterSchema = z
+  .object({
+    userId: z.string({ error: "ID is required." }),
+  })
+  .required();
+
 export const userSearchParameterSchema = z
   .object({
-    username: z.string({ error: "Username is required." }),
+    userUsername: z.string({ error: "Username is required." }),
   })
   .required();
 
 export type UpdateName = z.infer<typeof updateNameSchema>;
 export type UpdateUsername = z.infer<typeof updateUsernameSchema>;
+export type UserIdParameter = z.infer<typeof userIdParameterSchema>;
 export type UserSearchParameter = z.infer<typeof userSearchParameterSchema>;
 
 /**
@@ -31,7 +38,11 @@ export class UpdateNameDto extends createZodDto(updateNameSchema) {}
  */
 export class UpdateUsernameDto extends createZodDto(updateUsernameSchema) {}
 /**
- * @param {string} username The full username to search - Required
+ * @param {string} userId The user's ID - Required
+ */
+export class UserIdParameterDto extends createZodDto(userIdParameterSchema) {}
+/**
+ * @param {string} userUsername The user's username - Required
  */
 export class UserSearchParameterDto extends createZodDto(
   userSearchParameterSchema,
