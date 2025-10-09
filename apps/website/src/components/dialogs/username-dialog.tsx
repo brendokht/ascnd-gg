@@ -24,6 +24,10 @@ import { authClient } from "@ascnd-gg/website/lib/auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Spinner } from "@ascnd-gg/ui/components/ui/spinner";
+import { Alert, AlertTitle } from "@ascnd-gg/ui/components/ui/alert";
+import { Info } from "lucide-react";
 
 export function UsernameDialog() {
   const router = useRouter();
@@ -43,14 +47,17 @@ export function UsernameDialog() {
     });
 
     if (availableRes.error) {
-      console.error(availableRes.error);
+      form.setError("displayUsername", {
+        message: "Something went wrong. Please try again.",
+        type: "error",
+      });
       return;
     }
 
     if (!availableRes.data.available) {
       form.setError("displayUsername", {
         type: "duplicate",
-        message: "This username has already been taken",
+        message: "This username has already been taken.",
       });
       return;
     }
@@ -61,9 +68,17 @@ export function UsernameDialog() {
     });
 
     if (updateRes.error) {
-      console.error(availableRes.error);
+      form.setError("root", {
+        message: "Something went wrong. Please try again.",
+        type: "error",
+      });
       return;
     }
+
+    toast.success("Success", {
+      description:
+        "Your username has been set. You can now continue using Ascnd GG.",
+    });
 
     setRequiresUsername(false);
 
@@ -72,13 +87,14 @@ export function UsernameDialog() {
 
   return (
     <Dialog open={requiresUsername} modal={true}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <DialogHeader>
               <DialogTitle>Choose a username</DialogTitle>
               <DialogDescription>
-                To continue using Ascnd GG, you must choose a username
+                To continue using Ascnd GG, you must choose a unique username to
+                indentify yourself to others.
               </DialogDescription>
             </DialogHeader>
             <FormField
@@ -95,12 +111,24 @@ export function UsernameDialog() {
               )}
             />
             <DialogFooter>
-              <Button disabled={!form.formState.isValid} type="submit">
+              <Button
+                type="submit"
+                disabled={
+                  !form.formState.isDirty ||
+                  !form.formState.isValid ||
+                  form.formState.isSubmitting
+                }
+              >
+                {form.formState.isSubmitting && <Spinner />}
                 Submit
               </Button>
             </DialogFooter>
           </form>
         </Form>
+        <Alert>
+          <Info />
+          <AlertTitle>You can always update your username later.</AlertTitle>
+        </Alert>
       </DialogContent>
     </Dialog>
   );

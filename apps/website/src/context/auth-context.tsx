@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "../lib/auth";
+import { toast } from "sonner";
 
 interface AuthContextType {
   requiresUsername: boolean;
@@ -35,7 +36,9 @@ export function AuthContextProvider({
 
       if (error) {
         router.replace("/sign-in");
-        console.error("checkUserActive error: ", error);
+        console.error("Error Checking State", {
+          description: error.message,
+        });
         return;
       }
 
@@ -57,7 +60,9 @@ export function AuthContextProvider({
     });
 
     if (error || !data) {
-      console.error("sign in error: ", error);
+      toast.error("Error Signing In...", {
+        description: error.message,
+      });
       return;
     }
 
@@ -68,7 +73,9 @@ export function AuthContextProvider({
     const { data, error } = await authClient.signOut();
 
     if (error || !data) {
-      console.error("sign out error: ", error);
+      toast.error("Error Signing Out...", {
+        description: error.message,
+      });
       return;
     }
 

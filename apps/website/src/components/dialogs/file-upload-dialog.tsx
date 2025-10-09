@@ -59,7 +59,7 @@ export function FileUploadDialog({
     const selectedFileType = file.type;
 
     if (!acceptedFileTypes.includes(selectedFileType)) {
-      toast.error("Image submission error", {
+      toast.error("Error Selecting Image...", {
         description: `${acceptedFileTypes.map((t, idx) => {
           if (idx === acceptedFileTypes.length - 1)
             return " and .".concat(t.split("/")[1]!).concat(" ");
@@ -70,7 +70,7 @@ export function FileUploadDialog({
     }
 
     if (file.size > maxFileSize) {
-      toast.error("Image submission error", {
+      toast.error("Errro Selecting Image...", {
         description: `File size must be less than ${maxFileSizeMB} MB`,
       });
       return false;
@@ -255,9 +255,12 @@ export function FileUploadDialog({
                 <Button
                   onClick={async () => {
                     if (!fileUrl) {
-                      toast.error("Error", {
-                        description: "No file inputted.",
-                      });
+                      toast.error(
+                        `Error Submitting ${item.charAt(0).toUpperCase() + item.slice(1)}...`,
+                        {
+                          description: "No file selected.",
+                        },
+                      );
                     }
 
                     const fileRes = await fetch(fileUrl);
