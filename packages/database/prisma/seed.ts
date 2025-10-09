@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PrismaClient, TeamInviteStatus } from "../";
+import { PrismaClient, InviteStatus } from "../";
 
 const prisma = new PrismaClient();
 
@@ -490,6 +490,28 @@ async function main() {
     },
   });
 
+  const hubOwner = await prisma.user.upsert({
+    where: { id: "0199ca9b-50ed-75b6-9f9a-fb1ea74ab51c" },
+    update: {
+      email: "hubowner@test.com",
+      emailVerified: true,
+      name: "Hub Owner",
+      username: "hubowner",
+      displayUsername: "HubOwner",
+      active: true,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: "0199ca9b-50ed-75b6-9f9a-fb1ea74ab51c",
+      email: "hubowner@test.com",
+      emailVerified: true,
+      name: "Hub Owner",
+      username: "hubowner",
+      displayUsername: "HubOwner",
+      active: true,
+    },
+  });
+
   // #endregion
 
   // #region Teams
@@ -524,6 +546,15 @@ async function main() {
       userId: member.id,
     },
   });
+
+  await prisma.userTeam.upsert({
+    where: { teamId_userId: { teamId: team.id, userId: owner.id } },
+    update: { updatedAt: new Date() },
+    create: {
+      teamId: team.id,
+      userId: owner.id,
+    },
+  });
   // #endregion
 
   // #region Team Invites
@@ -534,7 +565,7 @@ async function main() {
       id: "0199bcb0-654b-7d43-a291-b8a1e92878b2",
       teamId: team.id,
       userId: member.id,
-      status: TeamInviteStatus.ACCEPTED,
+      status: InviteStatus.ACCEPTED,
     },
   });
   // #endregion
@@ -570,50 +601,56 @@ async function main() {
     update: { updatedAt: new Date() },
     create: { teamId: team2.id, userId: owner.id },
   });
+
+  await prisma.userTeam.upsert({
+    where: { teamId_userId: { teamId: team2.id, userId: userA.id } },
+    update: { updatedAt: new Date() },
+    create: { teamId: team2.id, userId: userA.id },
+  });
   // #endregion
 
   // #region Team Invites
   await prisma.teamInvite.upsert({
     where: { id: "0199bcb0-9cd9-7dbd-9f98-e70c01c9f1bb" },
-    update: { status: TeamInviteStatus.ACCEPTED, updatedAt: new Date() },
+    update: { status: InviteStatus.ACCEPTED, updatedAt: new Date() },
     create: {
       id: "0199bcb0-9cd9-7dbd-9f98-e70c01c9f1bb",
       teamId: team2.id,
       userId: userB.id,
-      status: TeamInviteStatus.ACCEPTED,
+      status: InviteStatus.ACCEPTED,
     },
   });
 
   await prisma.teamInvite.upsert({
     where: { id: "0199bcb0-cd16-7312-82b5-b4da3d8e7704" },
-    update: { status: TeamInviteStatus.ACCEPTED, updatedAt: new Date() },
+    update: { status: InviteStatus.ACCEPTED, updatedAt: new Date() },
     create: {
       id: "0199bcb0-cd16-7312-82b5-b4da3d8e7704",
       teamId: team2.id,
       userId: owner.id,
-      status: TeamInviteStatus.ACCEPTED,
+      status: InviteStatus.ACCEPTED,
     },
   });
 
   await prisma.teamInvite.upsert({
     where: { id: "0199bcb0-cd16-7312-82b5-b4da3d8e7704" },
-    update: { status: TeamInviteStatus.DECLINED, updatedAt: new Date() },
+    update: { status: InviteStatus.DECLINED, updatedAt: new Date() },
     create: {
       id: "0199bcb0-cd16-7312-82b5-b4da3d8e7704",
       teamId: team2.id,
       userId: userC.id,
-      status: TeamInviteStatus.DECLINED,
+      status: InviteStatus.DECLINED,
     },
   });
 
   await prisma.teamInvite.upsert({
     where: { id: "0199bcb0-fa7b-7701-95bb-c4f2c2a79977" },
-    update: { status: TeamInviteStatus.PENDING, updatedAt: new Date() },
+    update: { status: InviteStatus.PENDING, updatedAt: new Date() },
     create: {
       id: "0199bcb0-fa7b-7701-95bb-c4f2c2a79977",
       teamId: team2.id,
       userId: userA.id,
-      status: TeamInviteStatus.PENDING,
+      status: InviteStatus.PENDING,
     },
   });
   // #endregion
@@ -643,32 +680,242 @@ async function main() {
     update: { updatedAt: new Date() },
     create: { teamId: team3.id, userId: userA.id },
   });
+
+  await prisma.userTeam.upsert({
+    where: { teamId_userId: { teamId: team3.id, userId: userB.id } },
+    update: { updatedAt: new Date() },
+    create: { teamId: team3.id, userId: userB.id },
+  });
   // #endregion
 
   // #region Team Invites
   await prisma.teamInvite.upsert({
     where: { id: "0199bcb1-1916-789d-a53f-6947c9163a83" },
-    update: { status: TeamInviteStatus.ACCEPTED, updatedAt: new Date() },
+    update: { status: InviteStatus.ACCEPTED, updatedAt: new Date() },
     create: {
       id: "0199bcb1-1916-789d-a53f-6947c9163a83",
       teamId: team3.id,
       userId: userA.id,
-      status: TeamInviteStatus.ACCEPTED,
+      status: InviteStatus.ACCEPTED,
     },
   });
 
   await prisma.teamInvite.upsert({
     where: { id: "0199bcb1-3854-777a-bd27-7986a1ba85c0" },
-    update: { status: TeamInviteStatus.CANCELLED, updatedAt: new Date() },
+    update: { status: InviteStatus.CANCELLED, updatedAt: new Date() },
     create: {
       id: "0199bcb1-3854-777a-bd27-7986a1ba85c0",
       teamId: team3.id,
       userId: member.id,
-      status: TeamInviteStatus.CANCELLED,
+      status: InviteStatus.CANCELLED,
     },
   });
   // #endregion
   // #endregion
+  // #endregion
+
+  // #region Hubs
+
+  // #region hub
+  const hub = await prisma.hub.upsert({
+    where: { id: "0199ca9a-b215-7506-b999-6a16877011c5" },
+    update: {
+      hubOwnerId: hubOwner.id,
+      name: "ascnd hub",
+      displayName: "Asncd Hub",
+      logo: null,
+      banner: null,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: "0199ca9a-b215-7506-b999-6a16877011c5",
+      hubOwnerId: hubOwner.id,
+      name: "ascnd hub",
+      displayName: "Asncd Hub",
+      logo: null,
+      banner: null,
+    },
+  });
+
+  // #region Hub Members
+  await prisma.userHub.upsert({
+    where: { hubId_userId: { hubId: hub.id, userId: hubOwner.id } },
+    update: { updatedAt: new Date() },
+    create: {
+      hubId: hub.id,
+      userId: hubOwner.id,
+    },
+  });
+  // #endregion
+
+  // #region Hub Invites
+  await prisma.hubInvite.upsert({
+    where: { id: "0199ca9d-c5de-7a3e-8754-2bba1045ad6c" },
+    update: { updatedAt: new Date() },
+    create: {
+      id: "0199ca9d-c5de-7a3e-8754-2bba1045ad6c",
+      hubId: hub.id,
+      userId: userD.id,
+      status: InviteStatus.PENDING,
+    },
+  });
+  // #endregion
+  // #endregion
+
+  // #region hub2
+  const hub2 = await prisma.hub.upsert({
+    where: { id: "0199ca9e-b215-7506-b999-6a16877011c5" },
+    update: {
+      hubOwnerId: userD.id,
+      name: "east collegiate league",
+      displayName: "East Collegiate League",
+      logo: null,
+      banner: null,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: "0199ca9e-b215-7506-b999-6a16877011c5",
+      hubOwnerId: userD.id,
+      name: "east collegiate league",
+      displayName: "East Collegiate League",
+      logo: null,
+      banner: null,
+    },
+  });
+
+  // #region Hub Members
+  await prisma.userHub.upsert({
+    where: { hubId_userId: { hubId: hub2.id, userId: userD.id } },
+    update: { updatedAt: new Date() },
+    create: {
+      hubId: hub2.id,
+      userId: userD.id,
+    },
+  });
+
+  await prisma.userHub.upsert({
+    where: { hubId_userId: { hubId: hub2.id, userId: userE.id } },
+    update: { updatedAt: new Date() },
+    create: {
+      hubId: hub2.id,
+      userId: userE.id,
+    },
+  });
+  // #endregion
+
+  // #region Hub Invites
+  await prisma.hubInvite.upsert({
+    where: { id: "0199ca9f-c5de-7a3e-8754-2bba1045ad6c" },
+    update: { updatedAt: new Date() },
+    create: {
+      id: "0199ca9f-c5de-7a3e-8754-2bba1045ad6c",
+      hubId: hub2.id,
+      userId: userE.id,
+      status: InviteStatus.ACCEPTED,
+    },
+  });
+
+  await prisma.hubInvite.upsert({
+    where: { id: "0199caa0-c5de-7a3e-8754-2bba1045ad6c" },
+    update: { updatedAt: new Date() },
+    create: {
+      id: "0199caa0-c5de-7a3e-8754-2bba1045ad6c",
+      hubId: hub2.id,
+      userId: userF.id,
+      status: InviteStatus.PENDING,
+    },
+  });
+
+  await prisma.hubInvite.upsert({
+    where: { id: "0199caa1-c5de-7a3e-8754-2bba1045ad6c" },
+    update: { updatedAt: new Date() },
+    create: {
+      id: "0199caa1-c5de-7a3e-8754-2bba1045ad6c",
+      hubId: hub2.id,
+      userId: userG.id,
+      status: InviteStatus.DECLINED,
+    },
+  });
+  // #endregion
+  // #endregion
+
+  // #region hub3
+  const hub3 = await prisma.hub.upsert({
+    where: { id: "0199caa2-b215-7506-b999-6a16877011c5" },
+    update: {
+      hubOwnerId: userH.id,
+      name: "ontario hs esports",
+      displayName: "Ontario HS Esports",
+      logo: null,
+      banner: null,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: "0199caa2-b215-7506-b999-6a16877011c5",
+      hubOwnerId: userH.id,
+      name: "ontario hs esports",
+      displayName: "Ontario HS Esports",
+      logo: null,
+      banner: null,
+    },
+  });
+
+  // #region Hub Members
+  await prisma.userHub.upsert({
+    where: { hubId_userId: { hubId: hub3.id, userId: userH.id } },
+    update: { updatedAt: new Date() },
+    create: {
+      hubId: hub3.id,
+      userId: userH.id,
+    },
+  });
+
+  await prisma.userHub.upsert({
+    where: { hubId_userId: { hubId: hub3.id, userId: userI.id } },
+    update: { updatedAt: new Date() },
+    create: {
+      hubId: hub3.id,
+      userId: userI.id,
+    },
+  });
+  // #endregion
+
+  // #region Hub Invites
+  await prisma.hubInvite.upsert({
+    where: { id: "0199caa3-c5de-7a3e-8754-2bba1045ad6c" },
+    update: { updatedAt: new Date() },
+    create: {
+      id: "0199caa3-c5de-7a3e-8754-2bba1045ad6c",
+      hubId: hub3.id,
+      userId: userI.id,
+      status: InviteStatus.ACCEPTED,
+    },
+  });
+
+  await prisma.hubInvite.upsert({
+    where: { id: "0199caa4-c5de-7a3e-8754-2bba1045ad6c" },
+    update: { updatedAt: new Date() },
+    create: {
+      id: "0199caa4-c5de-7a3e-8754-2bba1045ad6c",
+      hubId: hub3.id,
+      userId: userJ.id,
+      status: InviteStatus.PENDING,
+    },
+  });
+
+  await prisma.hubInvite.upsert({
+    where: { id: "0199caa5-c5de-7a3e-8754-2bba1045ad6c" },
+    update: { updatedAt: new Date() },
+    create: {
+      id: "0199caa5-c5de-7a3e-8754-2bba1045ad6c",
+      hubId: hub3.id,
+      userId: userK.id,
+      status: InviteStatus.CANCELLED,
+    },
+  });
+  // #endregion
+  // #endregion
+
   // #endregion
 }
 
