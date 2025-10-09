@@ -21,21 +21,6 @@ export default async function Settings() {
           Manage your acccount settings, notifications, billing, and privacy
         </p>
       </div>
-      {/* <div className="*:bg-primary *:hover:scale-99 grid grid-cols-2 gap-4 *:flex *:aspect-square *:min-w-36 *:items-center *:justify-center *:gap-4 *:rounded-md *:p-4 *:text-lg *:font-semibold *:duration-150 lg:grid-cols-4">
-        <Link href="/me/settings/account">
-          <User />
-          Account
-        </Link>
-        <Link href="/me/settings/notifications">
-          <Bell /> Notifications
-        </Link>
-        <Link href="/me/settings/billing">
-          <CreditCard /> Billing
-        </Link>
-        <Link href="/me/settings/privacy">
-          <Eye /> Privacy
-        </Link>
-      </div> */}
       <ItemGroup className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Item asChild variant={"muted"}>
           <Link href={"/me/settings/account"}>
