@@ -40,7 +40,7 @@ export class TeamsController {
   private readonly logger = new Logger(TeamsController.name);
   constructor(private readonly teamService: TeamsService) {}
 
-  @Get("/:id")
+  @Get("/:teamId")
   @Optional()
   async getTeamById(
     @Req() req: Request,
@@ -58,7 +58,7 @@ export class TeamsController {
     return team;
   }
 
-  @Get("/slug/:name")
+  @Get("/slug/:teamName")
   @Optional()
   async getTeamByName(
     @Req() req: Request,
