@@ -27,9 +27,7 @@
   margin-inline: auto;
   padding-inline: 2rem;
   padding-block: 2rem;
-  @media (width >= 1400px) {
-    max-width: 1400px;
-  }
+  max-width: 72rem;
 }
 
 @utility aspect-rectangle {
@@ -87,9 +85,9 @@ color utility to any element that depends on these defaults.
   --sidebar-accent-foreground: oklch(0.3211 0 0);
   --sidebar-border: oklch(0.8699 0 0);
   --sidebar-ring: oklch(0.6487 0.1538 150.3071);
-  --font-sans: Geist, Inter, system-ui, sans-serif;
+  --font-sans: Geist, ui-sans-serif, sans-serif, system-ui;
   --font-serif: Source Serif 4, serif;
-  --font-mono: Geist Mono, monospace;
+  --font-mono: Geist Mono, ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-x: 0;
   --shadow-y: 1px;

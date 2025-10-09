@@ -27,7 +27,7 @@ export default async function UserProfile(props: PageProps<"/users/[user]">) {
     <>
       <div className="aspect-rectangle relative">
         <Image
-          src="https://placehold.co/600x200/red/white/png?text=Banner&font=montersatt"
+          src="https://placehold.co/1200x400/34a85a/white/png?text=Banner&font=montersatt"
           alt="placeholder"
           fill
           priority

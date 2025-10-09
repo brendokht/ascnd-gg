@@ -22,7 +22,7 @@ export default async function Header() {
   }
 
   return (
-    <header className="container flex items-center justify-between *:flex *:items-center *:gap-8">
+    <header className="bg-muted/5 flex items-center justify-between p-8 shadow *:flex *:items-center *:gap-8">
       <Link href="/">
         <h1 className="text-2xl font-semibold">Asncd GG</h1>
       </Link>

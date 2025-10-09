@@ -31,7 +31,7 @@ export default async function TeamProfile(props: PageProps<"/teams/[team]">) {
         <Image
           src={
             teamData.banner ??
-            "https://placehold.co/600x200/red/white/png?text=Banner&font=montersatt"
+            "https://placehold.co/1200x400/34a85a/white/png?text=Banner&font=montersatt"
           }
           alt={`${teamData.displayName}'s banner`}
           fill
