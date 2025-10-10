@@ -134,7 +134,10 @@ export default function EditHubForm({
                 variant={"destructive"}
                 className="w-full"
                 onClick={() => {
-                  form.setValue("logo", null, { shouldDirty: true });
+                  form.setValue("logo", null, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
                   setLogoPreview("");
                 }}
                 type="button"
@@ -155,7 +158,10 @@ export default function EditHubForm({
                     shape="circle"
                     item="logo"
                     onSubmit={(fileUrl, fileBlob) => {
-                      form.setValue("logo", fileBlob, { shouldDirty: true });
+                      form.setValue("logo", fileBlob, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
                       setLogoPreview(fileUrl);
                     }}
                   >
@@ -182,7 +188,10 @@ export default function EditHubForm({
                 variant={"destructive"}
                 className="w-full"
                 onClick={() => {
-                  form.setValue("banner", null, { shouldDirty: true });
+                  form.setValue("banner", null, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
                   setBannerPreview("");
                 }}
                 type="button"
@@ -203,7 +212,10 @@ export default function EditHubForm({
                     shape="rectangle"
                     item="banner"
                     onSubmit={(fileUrl, fileBlob) => {
-                      form.setValue("banner", fileBlob, { shouldDirty: true });
+                      form.setValue("banner", fileBlob, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
                       setBannerPreview(fileUrl);
                     }}
                   >
@@ -226,15 +238,6 @@ export default function EditHubForm({
           >
             {form.formState.isSubmitting && <Spinner />}
             Update
-          </Button>
-          <Button
-            type="button"
-            variant={"outline"}
-            onClick={() => {
-              router.back();
-            }}
-          >
-            Back
           </Button>
         </div>
       </form>
