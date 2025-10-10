@@ -21,6 +21,7 @@ import {
   Inbox,
   LogOut,
   PlusCircle,
+  Share2,
   ShieldHalf,
   Trophy,
   User as UserIcon,
@@ -49,6 +50,9 @@ export default function UserMenu({ user }: { user: UserViewModel | null }) {
               <DropdownMenuLabel>Create</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => router.push("/create/team")}>
                 Team <Users />
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/create/hub")}>
+                Hub <Share2 />
               </DropdownMenuItem>
               <DropdownMenuItem>
                 Event <Gamepad />
@@ -79,12 +83,14 @@ export default function UserMenu({ user }: { user: UserViewModel | null }) {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuLabel>Social</DropdownMenuLabel>
-                <DropdownMenuItem>
-                  Friends <Users />
-                </DropdownMenuItem>
                 <Link href={"/me/teams"}>
                   <DropdownMenuItem>
                     Teams <ShieldHalf />
+                  </DropdownMenuItem>
+                </Link>
+                <Link href={"/me/hubs"}>
+                  <DropdownMenuItem>
+                    Hubs <Share2 />
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuItem>

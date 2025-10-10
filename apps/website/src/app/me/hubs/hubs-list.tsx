@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { type HubSummary } from "@ascnd-gg/types";
@@ -19,9 +18,9 @@ import {
   ItemTitle,
 } from "@ascnd-gg/ui/components/ui/item";
 import { useIsMobile } from "@ascnd-gg/ui/hooks/use-mobile";
-// import { EditHubDialog } from "@ascnd-gg/website/components/dialogs/edit-hub-dialog";
-// import { LeaveHubDialog } from "@ascnd-gg/website/components/dialogs/leave-hub-dialog";
-// import { HubInvitationDialog } from "@ascnd-gg/website/components/dialogs/hub-invitation-dialog";
+import { EditHubDialog } from "@ascnd-gg/website/components/dialogs/edit-hub-dialog";
+import { LeaveHubDialog } from "@ascnd-gg/website/components/dialogs/leave-hub-dialog";
+import { HubInvitationDialog } from "@ascnd-gg/website/components/dialogs/hub-invitation-dialog";
 import { Crown, Edit, Eye, LogOut, MailPlus, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Fragment } from "react";
@@ -81,7 +80,7 @@ export default function HubsList({
                   <Eye />
                   {isMobile ? null : "View"}
                 </Button>
-                {/* {hub.isHubOwner ? (
+                {hub.isHubOwner ? (
                   <>
                     <HubInvitationDialog hub={hub}>
                       <Button size={isMobile ? "icon" : "sm"}>
@@ -106,7 +105,7 @@ export default function HubsList({
                       {isMobile ? null : "Leave"}
                     </Button>
                   </LeaveHubDialog>
-                )} */}
+                )}
               </ItemActions>
             </Item>
           </Fragment>
