@@ -14,7 +14,7 @@ import { TeamInviteForUserViewModelSchema } from "./team-invites";
 // TODO: Support descriptions and banners
 
 export const UserSchema = z.object({
-  id: z.uuidv7({ error: "ID is required." }).trim(),
+  id: z.uuidv7({ error: "User ID is required." }).trim(),
   email: z.email({ error: "Email is required." }).trim(),
   username: z
     .string()

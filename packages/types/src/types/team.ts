@@ -1,5 +1,5 @@
 import {
-  TEAM_DISPLAY_USERNAME_REGEX,
+  TEAM_DISPLAY_NAME_REGEX,
   TEAM_NAME_MAX_LENGTH,
   TEAM_NAME_MIN_LENGTH,
   TEAM_NAME_REGEX,
@@ -9,7 +9,7 @@ import { UserSummarySchema } from "./user";
 import { TeamInviteForTeamViewModelSchema } from "./team-invites";
 
 export const TeamSchema = z.object({
-  id: z.uuidv7({ error: "ID is required." }).trim(),
+  id: z.uuidv7({ error: "Team ID is required." }).trim(),
   name: z
     .string({ error: "Team name is required." })
     .trim()
@@ -27,9 +27,13 @@ export const TeamSchema = z.object({
   displayName: z
     .string({ error: "Team display name is required" })
     .trim()
-    .min(TEAM_NAME_MIN_LENGTH)
-    .max(TEAM_NAME_MAX_LENGTH)
-    .regex(TEAM_DISPLAY_USERNAME_REGEX, {
+    .min(TEAM_NAME_MIN_LENGTH, {
+      error: `Team name must be at least ${TEAM_NAME_MIN_LENGTH} characters.`,
+    })
+    .max(TEAM_NAME_MAX_LENGTH, {
+      error: `Team name must be ${TEAM_NAME_MAX_LENGTH} characters or less.`,
+    })
+    .regex(TEAM_DISPLAY_NAME_REGEX, {
       error:
         "Team name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
