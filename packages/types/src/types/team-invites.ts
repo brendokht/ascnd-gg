@@ -4,8 +4,8 @@ import { InviteStatus } from "@ascnd-gg/database";
 import { UserSummarySchema } from "./user";
 
 export const TeamInviteSchema = z.object({
-  id: z.uuidv7({ error: "Invite ID is requied." }).trim(),
-  status: z.enum(InviteStatus, { error: "Invite status is required." }),
+  id: z.uuidv7({ error: "Team invite ID is requied." }).trim(),
+  status: z.enum(InviteStatus, { error: "Team invite status is required." }),
   get user() {
     return UserSummarySchema;
   },
