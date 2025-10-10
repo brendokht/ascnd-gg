@@ -32,6 +32,9 @@ import {
 import { ZodError } from "@ascnd-gg/types";
 import { MeModule } from "./me/me.module";
 import { AuthGuard } from "./auth/auth.guard";
+import { HubsController } from './hubs/hubs.controller';
+import { HubsService } from './hubs/hubs.service';
+import { HubsModule } from './hubs/hubs.module';
 
 @Module({
   imports: [
@@ -43,8 +46,9 @@ import { AuthGuard } from "./auth/auth.guard";
     StorageModule,
     TeamModule,
     MeModule,
+    HubsModule,
   ],
-  controllers: [AppController, AuthController, UsersController],
+  controllers: [AppController, AuthController, UsersController, HubsController],
   providers: [
     AppService,
     AuthService,
@@ -52,6 +56,7 @@ import { AuthGuard } from "./auth/auth.guard";
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
     { provide: APP_GUARD, useClass: AuthGuard },
+    HubsService,
   ],
 })
 export class AppModule {}
