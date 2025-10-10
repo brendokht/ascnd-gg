@@ -3,6 +3,8 @@ import { Request } from "express";
 import type { User } from "@ascnd-gg/database";
 import { MeService } from "./me.service";
 import {
+  HubInviteForUserViewModel,
+  HubSummary,
   type TeamInviteForUserViewModel,
   type TeamSummary,
 } from "@ascnd-gg/types";
@@ -20,6 +22,15 @@ export class MeController {
     return teams;
   }
 
+  @Get("hubs")
+  async getCurrentUserHubs(@Req() req: Request): Promise<Array<HubSummary>> {
+    const user: User = req["user"];
+
+    const hubs = await this.meService.getCurrentUserHubs(user.id);
+
+    return hubs;
+  }
+
   @Get("teams/invites")
   async getCurrentUserTeamInvites(
     @Req() req: Request,
@@ -29,5 +40,16 @@ export class MeController {
     const teamInvites = await this.meService.getCurrentUserTeamInvites(user.id);
 
     return teamInvites;
+  }
+
+  @Get("hubs/invites")
+  async getCurrentUserHubInvites(
+    @Req() req: Request,
+  ): Promise<Array<HubInviteForUserViewModel>> {
+    const user: User = req["user"];
+
+    const hubInvites = await this.meService.getCurrentUserHubInvites(user.id);
+
+    return hubInvites;
   }
 }
