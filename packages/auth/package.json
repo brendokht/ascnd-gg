@@ -13,7 +13,7 @@
   "scripts": {
     "ts:build": "tsc --build tsconfig.build.json",
     "ts:build-watch": "tsc --build tsconfig.build.json --watch",
-    "db:generate": "pnpx @better-auth/cli@latest generate --output '../database/prisma/schema.prisma' --yes",
+    "db:generate": "pnpx @better-auth/cli@latest generate --output ../database/prisma/schema/user.prisma --yes",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit"
