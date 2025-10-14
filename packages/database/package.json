@@ -10,9 +10,6 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "prisma": {
-    "seed": "ts-node ./prisma/seed.ts"
-  },
   "scripts": {
     "ts:build": "tsc --build tsconfig.build.json",
     "ts:build-watch": "tsc --build tsconfig.build.json --watch",
@@ -35,6 +32,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",
+    "dotenv": "^17.2.3",
     "ts-node": "^10.9.2"
   }
 }

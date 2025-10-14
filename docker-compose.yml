@@ -52,6 +52,6 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:?MINIO_ROOT_USER variable is required}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD variable is required}
     volumes:
-      - "${MINIO_VOLUME_PATH}:/data"
+      - "${MINIO_VOLUME_PATH:-./.containers/ascnd-gg-s3}:/data"
     command: server --console-address ":9001" /data
     restart: always
