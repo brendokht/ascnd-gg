@@ -1,15 +1,15 @@
 model Hub {
   id          String   @id @default(uuid(7))
-  hubOwnerId  String
+  hubOwnerId  String   @map("hub_owner_id")
   hubOwner    User     @relation(fields: [hubOwnerId], references: [id], onDelete: Cascade)
   name        String   @unique
-  displayName String
+  displayName String   @map("display_name")
   logo        String?
   banner      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
-  events Event[]
+  events      Event[]
   members     UserHub[]
   invitations HubInvite[]
 
@@ -17,12 +17,12 @@ model Hub {
 }
 
 model UserHub {
-  hubId     String
+  hubId     String   @map("hub_id")
   hub       Hub      @relation(fields: [hubId], references: [id], onDelete: Cascade)
-  userId    String
+  userId    String   @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@id([hubId, userId])
   @@map("user_hub")

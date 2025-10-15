@@ -1,101 +1,121 @@
-/* TODO: Support Game Prerequisites
- * Need to support per Game Prerequisites
- * for potential games like League of Legends
- */
-
- /* TODO: Decide how to ensure safety and dynamic rendering
-  * If a game decides to change the prerequisite process,
-  * I need a way to ensure the proper data is shown,
-  * and has a Zod schema.
-  */
-
 model Match {
-  id          String   @id @default(uuid(7))
-  eventId String
-  team1Id String
-  team1 Team @relation(name: "Team1Matches", fields: [team1Id], references: [id], onDelete: Cascade)
-  team2Id String?
-  team2 Team? @relation(name: "Team2Matches", fields: [team2Id], references: [id], onDelete: Cascade)
-  matchPrerequisiteResult Json? @db.JsonB
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id                         String                @id @default(uuid(7))
+  phaseId                    String                @map("phase_id")
+  phase                      Phase                 @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  matchIndex                 Int                   @map("match_index")
+  team1Id                    String                @map("team_1_id")
+  team1                      Team                  @relation(name: "Team1Matches", fields: [team1Id], references: [id], onDelete: Cascade)
+  team2Id                    String?               @map("team_2_id")
+  team2                      Team?                 @relation(name: "Team2Matches", fields: [team2Id], references: [id], onDelete: Cascade)
+  team1Score                 Int                   @map("team_1_score")
+  team2Score                 Int                   @map("team_2_score")
+  gameWinsNeeded             Int                   @map("game_wins_needed")
+  result                     Result                @default(SCHEDULED)
+  scheduledAt                DateTime?             @map("scheduled_at")
+  playerStatistics          Json?                 @map("player_statistics") @db.JsonB
+  drawPolicyUsed             DrawResolutionPolicy? @map("draw_policy_used")
+  matchSettingTemplateId     String?               @map("match_setting_template_id")
+  matchSettingTemplate       MatchSettingTemplate? @relation(fields: [matchSettingTemplateId], references: [id], onDelete: Cascade)
+  matchSettingTemplateResult Json?                 @map("match_setting_template_result") @db.JsonB
+  createdAt                  DateTime              @default(now()) @map("created_at")
+  updatedAt                  DateTime              @default(now()) @updatedAt @map("updated_at")
 
-  matchGames MatchGames[]
-  eventMatches EventMatches[]
+  games Game[]
 
+  @@unique([phaseId, matchIndex])
   @@map("match")
 }
 
 model MatchFormat {
-  id          String   @id @default(uuid(7))
-  name String @unique
-  displayName String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id                          String   @id @default(uuid(7))
+  name                        String   @unique
+  displayName                 String   @map("display_name")
+  shortName                   String   @map("short_name")
+  targetScore                 Int      @map("target_score")
+  gamesPerMatch               Int?     @map("games_per_match")
+  gameSettingTemplateRequired Boolean? @default(false) @map("game_setting_template_required")
+  metadata                    Json?    @db.JsonB
+  createdAt                   DateTime @default(now()) @map("created_at")
+  updatedAt                   DateTime @default(now()) @updatedAt @map("updated_at")
 
-  prerequisites MatchPrerequisite[]
-  events Event[]
+  prerequisites MatchSettingTemplate[]
+  phases        Phase[]
 
   @@map("match_format")
 }
 
-model MatchPrerequisite {
-  id          String   @id @default(uuid(7))
-  name String 
-  displayName String
-  titleId String
-  title Title @relation(fields: [titleId], references: [id], onDelete: Cascade)
-  formatId String
-  format MatchFormat @relation(fields: [formatId], references: [id], onDelete: Cascade)
-  prerequisite Json @db.JsonB
-  custom Boolean @default(false)
-  createdBy String?
-  createdByUser User? @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  version Int @default(1)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+model MatchSettingTemplate {
+  id            String      @id @default(uuid(7))
+  name          String
+  displayName   String      @map("display_name")
+  titleId       String      @map("title_id")
+  title         Title       @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  formatId      String      @map("format_id")
+  format        MatchFormat @relation(fields: [formatId], references: [id], onDelete: Cascade)
+  settings      Json        @db.JsonB
+  custom        Boolean     @default(false)
+  createdBy     String?     @map("created_by")
+  createdByUser User?       @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  version       Int         @default(1)
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at")
 
-  events Event[]
+  StageSetting StageSetting[]
+  matches      Match[]
 
-  // TODO: Check constraint for protected words? ("offcial", etc.)
-
-  @@unique([name, version, formatId, titleId])
-  @@map("match_prerequisite")
+  @@unique([titleId, formatId, version])
+  @@unique([titleId, formatId, name])
+  @@map("match_setting_template")
 }
 
 model Game {
-  id          String   @id @default(uuid(7))
-  team1Score Int @default(0)
-  team2Score Int @default(0)
-  playerStatistics Json @db.JsonB
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-
-  matchGames MatchGames[]
+  id                        String               @id @default(uuid(7))
+  matchId                   String               @map("match_id")
+  match                     Match                @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team1Score                Int                  @default(0) @map("team_1_score")
+  team2Score                Int                  @default(0) @map("team_2_score")
+  result                    Result               @default(SCHEDULED)
+  gameSettingTemplateId     String?              @map("game_setting_template_id")
+  gameSettingTemplate       GameSettingTemplate? @relation(fields: [gameSettingTemplateId], references: [id], onDelete: Cascade)
+  gameSettingTemplateResult Json?                @map("game_setting_template_result") @db.JsonB
+  playerStatistics          Json?                 @map("player_statistics") @db.JsonB
+  createdAt                 DateTime             @default(now()) @map("created_at")
+  updatedAt                 DateTime             @default(now()) @updatedAt @map("updated_at")
 
   @@map("game")
 }
 
-model MatchGames {
-  matchId String
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  gameId String
-  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+model GameSettingTemplate {
+  id            String   @id @default(uuid(7))
+  name          String
+  displayName   String   @map("display_name")
+  titleId       String   @map("title_id")
+  title         Title    @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  settings      Json     @db.JsonB
+  custom        Boolean  @default(false)
+  createdBy     String?  @map("created_by")
+  createdByUser User?    @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  version       Int      @default(1)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
 
-  @@id([matchId, gameId])
-  @@map("match_game")
+  games        Game[]
+  StageSetting StageSetting[]
+
+  @@unique([titleId, version, name])
+  @@map("game_setting_template")
 }
 
-model EventMatches {
-  matchId String
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  eventId String
-  event Event@relation(fields: [eventId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+enum Result {
+  SCHEDULED
+  PREREQUISITE
+  ONGOING
+  CANCELLED
+  ABORTED
+  DISPUTED
+  TEAM_1_WIN
+  TEAM_2_WIN
+  DRAW
 
-  @@id([matchId, eventId])
-  @@map("event_match")
+  @@map("result")
 }
