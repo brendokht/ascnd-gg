@@ -1,49 +1,153 @@
-model EventType {
-  id          String   @id @default(uuid(7))
-  name String @unique
-  displayName String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-
-  events Event[]
-
-  @@map("event_type")
-}
-
 model Event {
-  id          String   @id @default(uuid(7))
-  hubId String
-  hub Hub @relation(fields: [hubId], references: [id], onDelete: Cascade)
-  name String @unique
-  displayName String
+  id          String      @id @default(uuid(7))
+  hubId       String      @map("hub_id")
+  hub         Hub         @relation(fields: [hubId], references: [id], onDelete: Cascade)
+  name        String      @unique
+  displayName String      @map("display_name")
   description String?
-  logo String?
-  banner String?
-  matchPrerequisiteId String
-  matchPrerequisite MatchPrerequisite @relation(fields: [matchPrerequisiteId], references: [id], onDelete: Cascade)
-  titleId String
-  title Title @relation(fields: [titleId], references: [id], onDelete: Cascade)
-  eventTypeId String
-  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
-  matchFormatId String
-  matchFormat MatchFormat @relation(fields: [matchFormatId], references: [id], onDelete: Cascade)
-  seedingType EventSeedingType
-  joinType EventJoinType
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  
-  eventMatches EventMatches[]
+  logo        String?
+  banner      String?
+  titleId     String      @map("title_id")
+  title       Title       @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  status      EventStatus
+  scheduledAt DateTime    @map("scheduled_at")
+  scheduledEndAt DateTime    @map("scheduled_end_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
+
+  stages Stage[]
 
   @@map("event")
 }
 
-enum EventSeedingType {
-    RANDOM
-    MANUAL
+model Stage {
+  id          String      @id @default(uuid(7))
+  eventId     String      @map("event_id")
+  event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name        String
+  displayName String      @map("display_name")
+  description String?
+  logo        String?
+  banner      String?
+  stageTypeId String      @map("stage_type_id")
+  stageType   StageType   @relation(fields: [stageTypeId], references: [id], onDelete: Cascade)
+  status      StageStatus
+    scheduledAt DateTime    @map("scheduled_at")
+  scheduledEndAt DateTime    @map("scheduled_end_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
+
+  invitations StageInvite[]
+  settings    StageSetting[]
+  phases      Phase[]
+  stageTeams  StageTeam[]
+
+  @@map("stage")
 }
 
-enum EventJoinType {
-    PUBLIC
-    REQUEST
-    INVITE
+model StageType {
+  id          String   @id @default(uuid(7))
+  name        String   @unique
+  displayName String   @map("display_name")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  stages Stage[]
+
+  @@map("stage_type")
+}
+
+model StageSetting {
+  stageId                String                @id @map("stage_id")
+  stage                  Stage                 @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  minTeams               Int                   @default(2) @map("min_teams")
+  maxTeams               Int                   @default(128) @map("max_teams")
+  teamSize               Int                   @map("team_size")
+  numberOfSubstitutes    Int                   @default(1) @map("number_of_substitutes")
+  numberOfCoaches        Int                   @default(1) @map("number_of_coaches")
+  allowDraws             Boolean               @default(false) @map("allow_draws")
+  drawPolicy             DrawResolutionPolicy  @map("draw_policy")
+  gameModePoolIds        String[]              @map("game_mode_pool_ids")
+  needsGameModeVeto      Boolean               @map("needs_gamemode_veto")
+  mapPoolIds             String[]              @map("map_pool_ids")
+  perGameMapVeto         Boolean               @map("per_game_map_veto")
+  perMatchMapVeto        Boolean               @map("per_match_map_veto")
+  characterPoolIds       String[]              @map("character_pool_ids")
+  perGameCharacterVeto   Boolean               @map("per_game_character_veto")
+  perMatchCharacterVeto  Boolean               @map("per_match_character_veto")
+  itemPoolIds            String[]              @map("item_pool_ids")
+  perGameItemVeto        Boolean               @map("per_game_item_veto")
+  perMatchItemVeto       Boolean               @map("per_match_item_veto")
+  perGameSideVeto        Boolean               @map("per_game_side_veto")
+  perMatchSideVeto       Boolean               @map("per_match_side_veto")
+  titleSettings          Json?                 @map("title_settings") @db.JsonB
+  startDate              DateTime?             @map("start_date")
+  endDate                DateTime?             @map("end_date")
+  registrationStartDate  DateTime?             @map("registration_start_date")
+  registrationEndDate    DateTime?             @map("registration_end_date")
+  seedingType            StageSeedingType      @map("seeding_type")
+  joinType               StageJoinType         @map("join_type")
+  isLocked               Boolean               @map("is_locked")
+  matchSettingTemplateId String?               @map("match_setting_template_id")
+  matchSettingTemplate   MatchSettingTemplate? @relation(fields: [matchSettingTemplateId], references: [id], onDelete: Cascade)
+  gameSettingTemplateId  String?               @map("game_setting_template_id")
+  gameSettingTemplate    GameSettingTemplate?  @relation(fields: [gameSettingTemplateId], references: [id], onDelete: Cascade)
+  createdAt              DateTime              @default(now()) @map("created_at")
+  updatedAt              DateTime              @default(now()) @updatedAt @map("updated_at")
+
+  @@map("stage_setting")
+}
+
+model Phase {
+  id              String      @id @default(uuid(7))
+  stageId         String      @map("stage_id")
+  stage           Stage       @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  matchFormatId   String      @map("match_format_id")
+  matchFormat     MatchFormat @relation(fields: [matchFormatId], references: [id], onDelete: Cascade)
+  matchIndexStart Int?        @map("match_index_start")
+  matchIndexEnd   Int?        @map("match_index_end")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @default(now()) @updatedAt @map("updated_at")
+
+  matches Match[]
+
+  @@map("phase")
+}
+
+enum StageSeedingType {
+  RANDOM
+  MANUAL
+
+  @@map("stage_seeding_type")
+}
+
+enum StageJoinType {
+  OPEN
+  REQUEST
+  INVITE
+
+  @@map("stage_join_type")
+}
+
+enum StageStatus {
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  PENDING
+  ONGOING
+  CANCELLED
+  FINISHED
+
+  @@map("stage_status")
+}
+
+enum EventStatus {
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  PENDING
+  ONGOING
+  CANCELLED
+  FINISHED
+
+  @@map("event_status")
 }

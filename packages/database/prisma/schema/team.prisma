@@ -1,30 +1,44 @@
 model Team {
   id          String   @id @default(uuid(7))
-  teamOwnerId String
+  teamOwnerId String   @map("team_owner_id")
   teamOwner   User     @relation(fields: [teamOwnerId], references: [id], onDelete: Cascade)
   name        String   @unique
-  displayName String
+  displayName String   @map("display_name")
   logo        String?
   banner      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
-  members     UserTeam[]
-  invitations TeamInvite[]
-  team1Matches Match[]     @relation("Team1Matches")
-  team2Matches Match[]     @relation("Team2Matches")
+  members           UserTeam[]
+  memberInvitations TeamInvite[]
+  stageInvitations  StageInvite[]
+  team1Matches      Match[]       @relation("Team1Matches")
+  team2Matches      Match[]       @relation("Team2Matches")
+  stageTeams        StageTeam[]
 
   @@map("team")
 }
 
 model UserTeam {
-  teamId    String
+  teamId    String   @map("team_id")
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  userId    String
+  userId    String   @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@id([teamId, userId])
   @@map("user_team")
+}
+
+model StageTeam {
+  stageId   String   @map("stage_id")
+  stage     Stage    @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  teamId    String   @map("team_id")
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@id([stageId, teamId])
+  @@map("stage_team")
 }

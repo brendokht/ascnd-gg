@@ -1,27 +1,40 @@
 model TeamInvite {
   id        String       @id @default(uuid(7))
-  userId    String
+  userId    String       @map("user_id")
   user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  teamId    String
+  teamId    String       @map("team_id")
   team      Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
   status    InviteStatus
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @default(now()) @updatedAt
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @default(now()) @updatedAt @map("updated_at")
 
   @@map("team_invite")
 }
 
 model HubInvite {
   id        String       @id @default(uuid(7))
-  userId    String
+  userId    String       @map("user_id")
   user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  hubId     String
+  hubId     String       @map("hub_id")
   hub       Hub          @relation(fields: [hubId], references: [id], onDelete: Cascade)
   status    InviteStatus
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @default(now()) @updatedAt
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @default(now()) @updatedAt @map("updated_at")
 
   @@map("hub_invite")
+}
+
+model StageInvite {
+  id        String       @id @default(uuid(7))
+  teamId    String       @map("team_id")
+  team      Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  stageId   String       @map("stage_id")
+  stage     Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  status    InviteStatus
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@map("stage_invite")
 }
 
 enum InviteStatus {
@@ -29,4 +42,6 @@ enum InviteStatus {
   DECLINED
   CANCELLED
   ACCEPTED
+
+  @@map("invite_status")
 }
