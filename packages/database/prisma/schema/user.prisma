@@ -3,7 +3,7 @@
 model User {
   id              String   @id @default(uuid(7))
   name            String
-  email           String
+  email           String  
   emailVerified   Boolean  @default(false)
   image           String?
   createdAt       DateTime @default(now())
@@ -20,6 +20,7 @@ model User {
   ownedHubs       Hub[]
   hubs            UserHub[]
   hubInvitations  HubInvite[]
+  createdPrerequisites MatchPrerequisite[]
 
   @@unique([email])
   @@unique([username])

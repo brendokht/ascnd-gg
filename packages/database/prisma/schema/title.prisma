@@ -1,0 +1,40 @@
+model Title {
+  id          String   @id @default(uuid(7))
+  name String @unique
+  displayName String
+  genreId String
+  genre TitleGenre     @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  data TitleData[]
+  prerequisites MatchPrerequisite[]
+  events Event[]
+
+  @@map("title")
+}
+
+model TitleGenre {
+  id          String   @id @default(uuid(7))
+  name String @unique
+  displayName String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  titles Title[]
+
+  @@map("title_genre")
+}
+
+model TitleData {
+  id          String   @id @default(uuid(7))
+  titleId String
+  title Title @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  data Json @db.JsonB
+  version Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@unique([titleId, version])
+  @@map("title_data")
+}

@@ -2,17 +2,17 @@ model Hub {
   id          String   @id @default(uuid(7))
   hubOwnerId  String
   hubOwner    User     @relation(fields: [hubOwnerId], references: [id], onDelete: Cascade)
-  name        String
+  name        String   @unique
   displayName String
   logo        String?
   banner      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
+  events Event[]
   members     UserHub[]
   invitations HubInvite[]
 
-  @@unique([name])
   @@map("hub")
 }
 
