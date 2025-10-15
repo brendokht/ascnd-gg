@@ -2,7 +2,7 @@ model Team {
   id          String   @id @default(uuid(7))
   teamOwnerId String
   teamOwner   User     @relation(fields: [teamOwnerId], references: [id], onDelete: Cascade)
-  name        String
+  name        String   @unique
   displayName String
   logo        String?
   banner      String?
@@ -11,8 +11,9 @@ model Team {
 
   members     UserTeam[]
   invitations TeamInvite[]
+  team1Matches Match[]     @relation("Team1Matches")
+  team2Matches Match[]     @relation("Team2Matches")
 
-  @@unique([name])
   @@map("team")
 }
 

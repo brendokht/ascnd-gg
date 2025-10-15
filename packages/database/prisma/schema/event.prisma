@@ -1,0 +1,49 @@
+model EventType {
+  id          String   @id @default(uuid(7))
+  name String @unique
+  displayName String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  events Event[]
+
+  @@map("event_type")
+}
+
+model Event {
+  id          String   @id @default(uuid(7))
+  hubId String
+  hub Hub @relation(fields: [hubId], references: [id], onDelete: Cascade)
+  name String @unique
+  displayName String
+  description String?
+  logo String?
+  banner String?
+  matchPrerequisiteId String
+  matchPrerequisite MatchPrerequisite @relation(fields: [matchPrerequisiteId], references: [id], onDelete: Cascade)
+  titleId String
+  title Title @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  eventTypeId String
+  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  matchFormatId String
+  matchFormat MatchFormat @relation(fields: [matchFormatId], references: [id], onDelete: Cascade)
+  seedingType EventSeedingType
+  joinType EventJoinType
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  
+  eventMatches EventMatches[]
+
+  @@map("event")
+}
+
+enum EventSeedingType {
+    RANDOM
+    MANUAL
+}
+
+enum EventJoinType {
+    PUBLIC
+    REQUEST
+    INVITE
+}
