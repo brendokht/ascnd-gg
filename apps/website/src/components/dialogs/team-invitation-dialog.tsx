@@ -74,7 +74,6 @@ export function TeamInvitationDialog({
   team: TeamSummary;
   children: ReactNode;
 }) {
-  // TODO: Use React Query for data fetching and optimistic updates for invite
   const isMobile = useIsMobile();
 
   // Add user index temporarily to ensure users are displayed in the order they are fetched.

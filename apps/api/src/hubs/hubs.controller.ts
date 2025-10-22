@@ -133,8 +133,6 @@ export class HubsController {
     throw new NotImplementedException();
   }
 
-  // TODO: Create HubRoles guard to ensure proper users can perform specfic actions
-
   @Get(":hubId/invites/search")
   async searchInvitableUsers(
     @Req() req: Request,
@@ -195,7 +193,6 @@ export class HubsController {
     @Req() req: Request,
     @Param() params: HubMemberDeleteParameterDto,
   ) {
-    // TODO: RBAC
     await this.hubService.removeMemberFromHub(req["user"] as User, params);
   }
 }

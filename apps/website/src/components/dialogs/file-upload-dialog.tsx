@@ -25,10 +25,6 @@ import { Check, ImageIcon, Upload, X } from "lucide-react";
 import { useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
-{
-  /* TODO: Support lifted state for form/previewing compatibility} */
-}
-
 export function FileUploadDialog({
   children,
   shape,
@@ -161,7 +157,6 @@ export function FileUploadDialog({
                         : "aspect-rectangle",
                     )}
                   >
-                    {/* TODO: Fix slow loading of larger images */}
                     <img
                       src={fileUrl}
                       alt="Preview"
