@@ -11,8 +11,6 @@ import * as z from "zod";
 import { TeamSummarySchema } from "./team";
 import { TeamInviteForUserViewModelSchema } from "./team-invites";
 
-// TODO: Support descriptions and banners
-
 export const UserSchema = z.object({
   id: z.uuidv7({ error: "User ID is required." }).trim(),
   email: z.email({ error: "Email is required." }).trim(),
@@ -59,7 +57,6 @@ export const UserSchema = z.object({
         "Name can only include letters, spaces, hyphens, apostrophes, and periods, and must contain at least one letter.",
     })
     .optional(),
-  // TODO: Change from profilePictureUrl to just image, to match better-auth
   profilePictureUrl: z
     .url({ error: "User avatar is must be a URL pointing to an image" })
     .trim()

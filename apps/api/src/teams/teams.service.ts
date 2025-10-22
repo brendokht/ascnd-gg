@@ -368,7 +368,6 @@ export class TeamsService {
     users: Array<InviteUserSearchViewModel> | null;
     totalCount: number;
   }> {
-    // TODO: RBAC for ensuring users with proper roles can select a user's invitations
     const count = await this.prismaService.user.count({
       where: {
         username: { mode: "insensitive", contains: query.username },

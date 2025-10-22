@@ -26,7 +26,6 @@ export async function middleware(request: NextRequest) {
 
   return response;
 }
-// TODO: Set up React Query; Ensure client side and server fetching utility is set up
 export const config = {
   matcher: [
     /*

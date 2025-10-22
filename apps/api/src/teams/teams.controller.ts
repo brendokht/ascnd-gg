@@ -133,8 +133,6 @@ export class TeamsController {
     throw new NotImplementedException();
   }
 
-  // TODO: Create TeamRoles guard to ensure proper users can perform specfic actions
-
   @Get(":teamId/invites/search")
   async searchInvitableUsers(
     @Req() req: Request,
@@ -195,7 +193,6 @@ export class TeamsController {
     @Req() req: Request,
     @Param() params: TeamMemberDeleteParameterDto,
   ) {
-    // TODO: RBAC
     await this.teamService.removeMemberFromTeam(req["user"] as User, params);
   }
 }
