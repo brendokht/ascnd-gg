@@ -58,7 +58,7 @@ export const UserSchema = z.object({
     })
     .optional(),
   profilePictureUrl: z
-    .url({ error: "User avatar is must be a URL pointing to an image" })
+    .url({ error: "User avatar is must be a URL pointing to an image." })
     .trim()
     .optional(),
   get teams() {

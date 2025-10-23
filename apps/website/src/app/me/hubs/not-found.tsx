@@ -9,7 +9,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@ascnd-gg/ui/components/ui/empty";
-import { ShieldHalf } from "lucide-react";
+import { Share2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -21,7 +21,7 @@ export default function HubsNotFound() {
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant={"icon"}>
-            <ShieldHalf />
+            <Share2 />
           </EmptyMedia>
           <EmptyTitle>You are a member of no hubs</EmptyTitle>
           <EmptyDescription>

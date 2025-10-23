@@ -25,7 +25,7 @@ export const HubSchema = z.object({
         "Hub name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
   displayName: z
-    .string({ error: "Hub display name is required" })
+    .string({ error: "Hub display name is required." })
     .trim()
     .min(HUB_NAME_MIN_LENGTH, {
       error: `Hub name must be at least ${HUB_NAME_MIN_LENGTH} characters.`,
@@ -38,11 +38,11 @@ export const HubSchema = z.object({
         "Hub name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
   logo: z
-    .url({ error: "Hub logo is must be a URL pointing to an image" })
+    .url({ error: "Hub logo is must be a URL pointing to an image." })
     .trim()
     .optional(),
   banner: z
-    .url({ error: "Hub banner is must be a URL pointing to an image" })
+    .url({ error: "Hub banner is must be a URL pointing to an image." })
     .trim()
     .optional(),
   hubOwnerId: z.uuidv7({ error: "Hub owner ID is requied." }).trim(),
