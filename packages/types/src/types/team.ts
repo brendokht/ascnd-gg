@@ -25,7 +25,7 @@ export const TeamSchema = z.object({
         "Team name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
   displayName: z
-    .string({ error: "Team display name is required" })
+    .string({ error: "Team display name is required." })
     .trim()
     .min(TEAM_NAME_MIN_LENGTH, {
       error: `Team name must be at least ${TEAM_NAME_MIN_LENGTH} characters.`,
@@ -38,11 +38,11 @@ export const TeamSchema = z.object({
         "Team name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
   logo: z
-    .url({ error: "Team logo is must be a URL pointing to an image" })
+    .url({ error: "Team logo is must be a URL pointing to an image." })
     .trim()
     .optional(),
   banner: z
-    .url({ error: "Team banner is must be a URL pointing to an image" })
+    .url({ error: "Team banner is must be a URL pointing to an image." })
     .trim()
     .optional(),
   teamOwnerId: z.uuidv7({ error: "Team owner ID is requied." }).trim(),

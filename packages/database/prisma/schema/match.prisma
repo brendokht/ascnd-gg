@@ -12,7 +12,7 @@ model Match {
   gameWinsNeeded             Int                   @map("game_wins_needed")
   result                     Result                @default(SCHEDULED)
   scheduledAt                DateTime?             @map("scheduled_at")
-  playerStatistics          Json?                 @map("player_statistics") @db.JsonB
+  playerStatistics           Json?                 @map("player_statistics") @db.JsonB
   drawPolicyUsed             DrawResolutionPolicy? @map("draw_policy_used")
   matchSettingTemplateId     String?               @map("match_setting_template_id")
   matchSettingTemplate       MatchSettingTemplate? @relation(fields: [matchSettingTemplateId], references: [id], onDelete: Cascade)
@@ -78,7 +78,7 @@ model Game {
   gameSettingTemplateId     String?              @map("game_setting_template_id")
   gameSettingTemplate       GameSettingTemplate? @relation(fields: [gameSettingTemplateId], references: [id], onDelete: Cascade)
   gameSettingTemplateResult Json?                @map("game_setting_template_result") @db.JsonB
-  playerStatistics          Json?                 @map("player_statistics") @db.JsonB
+  playerStatistics          Json?                @map("player_statistics") @db.JsonB
   createdAt                 DateTime             @default(now()) @map("created_at")
   updatedAt                 DateTime             @default(now()) @updatedAt @map("updated_at")
 

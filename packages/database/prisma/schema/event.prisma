@@ -1,19 +1,19 @@
 model Event {
-  id          String      @id @default(uuid(7))
-  hubId       String      @map("hub_id")
-  hub         Hub         @relation(fields: [hubId], references: [id], onDelete: Cascade)
-  name        String      @unique
-  displayName String      @map("display_name")
-  description String?
-  logo        String?
-  banner      String?
-  titleId     String      @map("title_id")
-  title       Title       @relation(fields: [titleId], references: [id], onDelete: Cascade)
-  status      EventStatus
-  scheduledAt DateTime    @map("scheduled_at")
+  id             String      @id @default(uuid(7))
+  hubId          String      @map("hub_id")
+  hub            Hub         @relation(fields: [hubId], references: [id], onDelete: Cascade)
+  name           String      @unique
+  displayName    String      @map("display_name")
+  description    String?
+  logo           String?
+  banner         String?
+  titleId        String      @map("title_id")
+  title          Title       @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  status         EventStatus
+  scheduledAt    DateTime    @map("scheduled_at")
   scheduledEndAt DateTime    @map("scheduled_end_at")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @default(now()) @updatedAt @map("updated_at")
 
   stages Stage[]
 
@@ -21,21 +21,21 @@ model Event {
 }
 
 model Stage {
-  id          String      @id @default(uuid(7))
-  eventId     String      @map("event_id")
-  event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  name        String
-  displayName String      @map("display_name")
-  description String?
-  logo        String?
-  banner      String?
-  stageTypeId String      @map("stage_type_id")
-  stageType   StageType   @relation(fields: [stageTypeId], references: [id], onDelete: Cascade)
-  status      StageStatus
-    scheduledAt DateTime    @map("scheduled_at")
+  id             String      @id @default(uuid(7))
+  eventId        String      @map("event_id")
+  event          Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name           String
+  displayName    String      @map("display_name")
+  description    String?
+  logo           String?
+  banner         String?
+  stageTypeId    String      @map("stage_type_id")
+  stageType      StageType   @relation(fields: [stageTypeId], references: [id], onDelete: Cascade)
+  status         StageStatus
+  scheduledAt    DateTime    @map("scheduled_at")
   scheduledEndAt DateTime    @map("scheduled_end_at")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @default(now()) @updatedAt @map("updated_at")
 
   invitations StageInvite[]
   settings    StageSetting[]
