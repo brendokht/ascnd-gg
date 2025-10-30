@@ -1,43 +1,31 @@
 import * as z from "zod";
-import { EventSchema, StageSchema, StageSettingSchema } from "../types";
-import { PhaseSchema } from "../types/phase";
+import { EventSchema } from "../types";
 import { createZodDto } from "nestjs-zod";
+import { createStageSchema } from "./stage";
 
-export const createEventSchema = z.object({
-  event: z.object({
-    ...EventSchema.pick({
-      displayName: true,
-      description: true,
-      scheduledAt: true,
-      scheduledEndAt: true,
-      titleId: true,
-    }).partial({
-      description: true,
-      scheduledAt: true,
-      scheduledEndAt: true,
-    }).shape,
+export const createEventDataSchema = EventSchema.pick({
+  displayName: true,
+  description: true,
+  scheduledAt: true,
+  scheduledEndAt: true,
+  titleId: true,
+})
+  .partial({
+    description: true,
+    scheduledAt: true,
+    scheduledEndAt: true,
+  })
+  .extend({
     logo: z.instanceof(Blob).nullish(),
     banner: z.instanceof(Blob).nullish(),
-  }),
-  stages: z.array(
-    z.object({
-      ...StageSchema.pick({
-        displayName: true,
-        description: true,
-        typeId: true,
-        scheduledAt: true,
-        scheduledEndAt: true,
-      }).partial({
-        description: true,
-      }).shape,
-      logo: z.instanceof(Blob).nullish(),
-      banner: z.instanceof(Blob).nullish(),
-      stageSettings: StageSettingSchema,
-      phases: PhaseSchema,
-    }),
-  ),
+  });
+
+export const createEventSchema = z.object({
+  createEventDataSchema,
+  ...createStageSchema.shape,
 });
 
+export type CreateEventData = z.infer<typeof createEventDataSchema>;
 export type CreateEvent = z.infer<typeof createEventSchema>;
 
 /**

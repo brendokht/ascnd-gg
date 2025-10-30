@@ -1,6 +1,7 @@
 export * from "./user";
 export * from "./team";
 export * from "./event";
+export * from "./stage";
 export * from "./team-invite";
 export * from "./hub-invite";
 export * from "./hub";

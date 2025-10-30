@@ -59,18 +59,6 @@ export const StageSchema = z.object({
   createdAt: z.iso
     .datetime({ error: "Stage creation date is required." })
     .optional(),
-  // get invites() {
-  //   return z.array().optional();
-  // },
-  // get settings() {
-  //   return z.array().optional();
-  // },
-  // get phases() {
-  //   return z.array().optional();
-  // },
-  // get teams() {
-  //   return z.array().optional();
-  // },
 });
 
 // Canonical Schema
@@ -80,6 +68,19 @@ export const StageTypeSchema = z.object({
   displayName: z.string().trim(),
   description: z.string().trim().optional(),
   createdAt: z.iso.datetime().optional(),
+});
+
+export const StageTypeSummarySchema = StageTypeSchema.pick({
+  id: true,
+  name: true,
+  displayName: true,
+});
+
+export const StageTypeViewModelSchema = StageTypeSchema.pick({
+  id: true,
+  name: true,
+  displayName: true,
+  description: true,
 });
 
 export const StageSummarySchema = StageSchema.pick({
@@ -120,12 +121,15 @@ export const StageSettingSchema = z.object({
     .min(0),
   numberOfCoaches: z.int({ error: "Number of coaches is required." }).min(0),
   allowDraws: z.boolean().optional(),
-  drawPolicy: z.enum(DrawResolutionPolicy).optional(),
+  drawPolicy: z.enum(DrawResolutionPolicy).or(z.literal("")),
   gameModePoolIds: z.array(z.uuidv7(), {
     error: "Game mode pool is required.",
   }),
-  needsGammeodeVeto: z.boolean({
-    error: "Game mode veto selection is required.",
+  perGameGamemodeVeto: z.boolean({
+    error: "Per game gamemode veto selection is required.",
+  }),
+  perMatchGamemodeVeto: z.boolean({
+    error: "Per match gamemode veto selection is required.",
   }),
   mapPoolIds: z.array(z.uuidv7(), {
     error: "Map pool is required.",
@@ -172,12 +176,13 @@ export const StageSettingSchema = z.object({
     error: "Stage join type is required.",
   }),
   isLocked: z.boolean().optional(),
-  matchSettingTemplateId: z.uuidv7().optional(),
-  gameSettingTemplateId: z.uuidv7().optional(),
+  stageSettingTemplateId: z.uuidv7().optional(),
 });
 
 export type Stage = z.infer<typeof StageSchema>;
-
 export type StageSummary = z.infer<typeof StageSummarySchema>;
-
 export type StageViewModel = z.infer<typeof StageViewModelSchema>;
+export type StageType = z.infer<typeof StageTypeSchema>;
+export type StageTypeSummary = z.infer<typeof StageTypeSummarySchema>;
+export type StageTypeViewModel = z.infer<typeof StageTypeViewModelSchema>;
+export type StageSetting = z.infer<typeof StageSettingSchema>;

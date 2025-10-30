@@ -10,17 +10,29 @@ export const MatchSchema = z.object({
   team1Score: z.int({ error: "Team 1 Score is required." }),
   team2Score: z.int({ error: "Team 2 Score is required." }),
   gameWinsNeeded: z.int({ error: "Game wins needed is required." }),
-  result: z.enum(Result, { error: "Match Result is required." }),
-  scheduledAt: z.iso.datetime({ error: "Match date is required." }).optional(),
+  result: z.enum(Result, {
+    error: "Match Result is must be value from Result enum.",
+  }),
+  scheduledAt: z.iso
+    .datetime({ error: "Match date must be a valid ISO datetime." })
+    .optional(),
+  mapVeto: z.boolean({ error: "Map veto choice is required." }),
+  characterVeto: z.boolean({ error: "Character veto choice is required." }),
+  itemVeto: z.boolean({ error: "Item veto choice is required." }),
+  sideVeto: z.boolean({ error: "Side veto choice is required." }),
+  mapVetoOrder: z.json().optional(),
+  characterVetoOrder: z.json().optional(),
+  itemVetoOrder: z.json().optional(),
+  sideVetoOrder: z.json().optional(),
+  playerStatistics: z.json().optional(),
   drawPolicy: z
     .enum(DrawResolutionPolicy, {
-      error: "Draw resolution policy is required.",
+      error:
+        "Draw resolution policy must be value from DrawResolutionPolicy enum.",
     })
     .optional(),
-  // matchSettingTemplateID: z.uuidv7({ error: "Match Setting Template ID is required." }).trim().optional(),
-  // matchSettingTemplateResult: z.object().optional(),
   createdAt: z.iso
-    .datetime({ error: "Match creation date is required." })
+    .datetime({ error: "Match creation date must be valid ISO datetime." })
     .optional(),
   get games() {
     return z.array(GameSummarySchema);
@@ -58,9 +70,15 @@ export const GameSchema = z.object({
       error: "Draw resolution policy is required.",
     })
     .optional(),
-  // gameSettingTemplateID: z.uuidv7({ error: "Game Setting Template ID is required." }).trim().optional(),
-  // gameSettingTemplateResult: z.object().optional(),
-  // playerStatistics: z.object().optional(),
+  mapVeto: z.boolean({ error: "Map veto choice is required." }),
+  characterVeto: z.boolean({ error: "Character veto choice is required." }),
+  itemVeto: z.boolean({ error: "Item veto choice is required." }),
+  sideVeto: z.boolean({ error: "Side veto choice is required." }),
+  mapVetoOrder: z.json().optional(),
+  characterVetoOrder: z.json().optional(),
+  itemVetoOrder: z.json().optional(),
+  sideVetoOrder: z.json().optional(),
+  playerStatistics: z.object().optional(),
   createdAt: z.iso
     .datetime({ error: "Game creation date is required." })
     .optional(),

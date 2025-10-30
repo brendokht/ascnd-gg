@@ -10,6 +10,10 @@ export const PhaseSchema = z.object({
   createdAt: z.iso
     .datetime({ error: "Phase creation date is required." })
     .optional(),
+  mapVetoOrder: z.json().optional(),
+  characterVetoOrder: z.json().optional(),
+  itemVetoOrder: z.json().optional(),
+  sideVetoOrder: z.json().optional(),
   get matches() {
     return z.array(MatchSummarySchema).optional();
   },
