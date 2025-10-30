@@ -20,8 +20,7 @@ model User {
   ownedHubs                    Hub[]
   hubs                         UserHub[]
   hubInvitations               HubInvite[]
-  createdMatchSettingTemplates MatchSettingTemplate[]
-  createdGameSettingTemplates  GameSettingTemplate[]
+  createdStageSettingTemplates StageSettingTemplate[]
 
   @@unique([email])
   @@unique([username])
