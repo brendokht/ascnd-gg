@@ -69,7 +69,8 @@ model StageSetting {
   allowDraws             Boolean               @default(false) @map("allow_draws")
   drawPolicy             DrawResolutionPolicy  @map("draw_policy")
   gameModePoolIds        String[]              @map("game_mode_pool_ids")
-  needsGameModeVeto      Boolean               @map("needs_gamemode_veto")
+  perGameGamemodeVeto    Boolean               @map("per_game_gamemode_veto")
+  perMatchGamemodeVeto   Boolean               @map("per_match_gamemode_veto")
   mapPoolIds             String[]              @map("map_pool_ids")
   perGameMapVeto         Boolean               @map("per_game_map_veto")
   perMatchMapVeto        Boolean               @map("per_match_map_veto")
@@ -118,19 +119,19 @@ model StageSettingTemplate {
 }
 
 model Phase {
-  id              String      @id @default(uuid(7))
-  stageId         String      @map("stage_id")
-  stage           Stage       @relation(fields: [stageId], references: [id], onDelete: Cascade)
-  matchFormatId   String      @map("match_format_id")
-  matchFormat     MatchFormat @relation(fields: [matchFormatId], references: [id], onDelete: Cascade)
-  matchIndexStart Int?        @map("match_index_start")
-  matchIndexEnd   Int?        @map("match_index_end")
-  mapVetoOrder    Json?       @map("map_veto_order")
-  characterVetoOrder    Json?       @map("character_veto_order")
-  itemVetoOrder    Json?       @map("item_veto_order")
-  sideVetoOrder    Json?       @map("side_veto_order")
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @default(now()) @updatedAt @map("updated_at")
+  id                 String      @id @default(uuid(7))
+  stageId            String      @map("stage_id")
+  stage              Stage       @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  matchFormatId      String      @map("match_format_id")
+  matchFormat        MatchFormat @relation(fields: [matchFormatId], references: [id], onDelete: Cascade)
+  matchIndexStart    Int?        @map("match_index_start")
+  matchIndexEnd      Int?        @map("match_index_end")
+  mapVetoOrder       Json?       @map("map_veto_order")
+  characterVetoOrder Json?       @map("character_veto_order")
+  itemVetoOrder      Json?       @map("item_veto_order")
+  sideVetoOrder      Json?       @map("side_veto_order")
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @default(now()) @updatedAt @map("updated_at")
 
   matches Match[]
 

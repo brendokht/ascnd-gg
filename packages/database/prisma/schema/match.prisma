@@ -1,30 +1,30 @@
 model Match {
-  id                         String                @id @default(uuid(7))
-  phaseId                    String                @map("phase_id")
-  phase                      Phase                 @relation(fields: [phaseId], references: [id], onDelete: Cascade)
-  matchIndex                 Int                   @map("match_index")
-  team1Id                    String                @map("team_1_id")
-  team1                      Team                  @relation(name: "Team1Matches", fields: [team1Id], references: [id], onDelete: Cascade)
-  team2Id                    String?               @map("team_2_id")
-  team2                      Team?                 @relation(name: "Team2Matches", fields: [team2Id], references: [id], onDelete: Cascade)
-  team1Score                 Int                   @map("team_1_score")
-  team2Score                 Int                   @map("team_2_score")
-  gameWinsNeeded             Int                   @map("game_wins_needed")
-  result                     Result                @default(SCHEDULED)
-  scheduledAt                DateTime?             @map("scheduled_at")
-  mapVeto                    Boolean               @map("map_veto")
-  characterVeto              Boolean               @map("character_veto")
-  itemVeto                   Boolean               @map("item_veto")
-  sideVeto                   Boolean               @map("side_veto")
-    mapVetoOrder    Json?       @map("map_veto_order")
-  characterVetoOrder    Json?       @map("character_veto_order")
-  itemVetoOrder    Json?       @map("item_veto_order")
-  sideVetoOrder    Json?       @map("side_veto_order")
-  vetoResults                Json?                 @map("veto_results") @db.JsonB
-  playerStatistics           Json?                 @map("player_statistics") @db.JsonB
-  drawPolicyUsed             DrawResolutionPolicy? @map("draw_policy_used")
-  createdAt                  DateTime              @default(now()) @map("created_at")
-  updatedAt                  DateTime              @default(now()) @updatedAt @map("updated_at")
+  id                 String                @id @default(uuid(7))
+  phaseId            String                @map("phase_id")
+  phase              Phase                 @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  matchIndex         Int                   @map("match_index")
+  team1Id            String                @map("team_1_id")
+  team1              Team                  @relation(name: "Team1Matches", fields: [team1Id], references: [id], onDelete: Cascade)
+  team2Id            String?               @map("team_2_id")
+  team2              Team?                 @relation(name: "Team2Matches", fields: [team2Id], references: [id], onDelete: Cascade)
+  team1Score         Int                   @map("team_1_score")
+  team2Score         Int                   @map("team_2_score")
+  gameWinsNeeded     Int                   @map("game_wins_needed")
+  result             Result                @default(SCHEDULED)
+  scheduledAt        DateTime?             @map("scheduled_at")
+  mapVeto            Boolean               @map("map_veto")
+  characterVeto      Boolean               @map("character_veto")
+  itemVeto           Boolean               @map("item_veto")
+  sideVeto           Boolean               @map("side_veto")
+  mapVetoOrder       Json?                 @map("map_veto_order")
+  characterVetoOrder Json?                 @map("character_veto_order")
+  itemVetoOrder      Json?                 @map("item_veto_order")
+  sideVetoOrder      Json?                 @map("side_veto_order")
+  vetoResults        Json?                 @map("veto_results") @db.JsonB
+  playerStatistics   Json?                 @map("player_statistics") @db.JsonB
+  drawPolicyUsed     DrawResolutionPolicy? @map("draw_policy_used")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @default(now()) @updatedAt @map("updated_at")
 
   games Game[]
 
@@ -44,36 +44,33 @@ model MatchFormat {
   createdAt                   DateTime @default(now()) @map("created_at")
   updatedAt                   DateTime @default(now()) @updatedAt @map("updated_at")
 
-  phases        Phase[]
+  phases Phase[]
 
   @@map("match_format")
 }
 
-
-
 model Game {
-  id                        String               @id @default(uuid(7))
-  matchId                   String               @map("match_id")
-  match                     Match                @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  team1Score                Int                  @default(0) @map("team_1_score")
-  team2Score                Int                  @default(0) @map("team_2_score")
-  result                    Result               @default(SCHEDULED)
-  mapVeto                    Boolean               @map("map_veto")
-  characterVeto              Boolean               @map("character_veto")
-  itemVeto                   Boolean               @map("item_veto")
-  sideVeto                   Boolean               @map("side_veto")
-    mapVetoOrder    Json?       @map("map_veto_order")
-  characterVetoOrder    Json?       @map("character_veto_order")
-  itemVetoOrder    Json?       @map("item_veto_order")
-  sideVetoOrder    Json?       @map("side_veto_order")
-  vetoResults               Json?                 @map("veto_results") @db.JsonB
-  playerStatistics          Json?                @map("player_statistics") @db.JsonB
-  createdAt                 DateTime             @default(now()) @map("created_at")
-  updatedAt                 DateTime             @default(now()) @updatedAt @map("updated_at")
+  id                 String   @id @default(uuid(7))
+  matchId            String   @map("match_id")
+  match              Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team1Score         Int      @default(0) @map("team_1_score")
+  team2Score         Int      @default(0) @map("team_2_score")
+  result             Result   @default(SCHEDULED)
+  mapVeto            Boolean  @map("map_veto")
+  characterVeto      Boolean  @map("character_veto")
+  itemVeto           Boolean  @map("item_veto")
+  sideVeto           Boolean  @map("side_veto")
+  mapVetoOrder       Json?    @map("map_veto_order")
+  characterVetoOrder Json?    @map("character_veto_order")
+  itemVetoOrder      Json?    @map("item_veto_order")
+  sideVetoOrder      Json?    @map("side_veto_order")
+  vetoResults        Json?    @map("veto_results") @db.JsonB
+  playerStatistics   Json?    @map("player_statistics") @db.JsonB
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("game")
 }
-
 
 enum Result {
   SCHEDULED
