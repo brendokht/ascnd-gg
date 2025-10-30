@@ -89,14 +89,32 @@ model StageSetting {
   seedingType            StageSeedingType      @map("seeding_type")
   joinType               StageJoinType         @map("join_type")
   isLocked               Boolean               @map("is_locked")
-  matchSettingTemplateId String?               @map("match_setting_template_id")
-  matchSettingTemplate   MatchSettingTemplate? @relation(fields: [matchSettingTemplateId], references: [id], onDelete: Cascade)
-  gameSettingTemplateId  String?               @map("game_setting_template_id")
-  gameSettingTemplate    GameSettingTemplate?  @relation(fields: [gameSettingTemplateId], references: [id], onDelete: Cascade)
+  stageSettingTemplateId String
+  stageSettingTemplate   StageSettingTemplate? @relation(fields: [stageSettingTemplateId], references: [id], onDelete: Cascade)
   createdAt              DateTime              @default(now()) @map("created_at")
   updatedAt              DateTime              @default(now()) @updatedAt @map("updated_at")
 
   @@map("stage_setting")
+}
+
+model StageSettingTemplate {
+  id            String   @id @default(uuid(7))
+  name          String
+  displayName   String   @map("display_name")
+  titleId       String   @map("title_id")
+  title         Title    @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  settings      Json     @db.JsonB
+  custom        Boolean  @default(false)
+  createdBy     String?  @map("created_by")
+  createdByUser User?    @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  version       Int      @default(1)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  stageSettings StageSetting[]
+
+  @@unique([titleId, name, version])
+  @@map("stage_setting_template")
 }
 
 model Phase {
@@ -107,6 +125,10 @@ model Phase {
   matchFormat     MatchFormat @relation(fields: [matchFormatId], references: [id], onDelete: Cascade)
   matchIndexStart Int?        @map("match_index_start")
   matchIndexEnd   Int?        @map("match_index_end")
+  mapVetoOrder    Json?       @map("map_veto_order")
+  characterVetoOrder    Json?       @map("character_veto_order")
+  itemVetoOrder    Json?       @map("item_veto_order")
+  sideVetoOrder    Json?       @map("side_veto_order")
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @default(now()) @updatedAt @map("updated_at")
 

@@ -15,8 +15,7 @@ model Title {
   settings              TitleSetting[]
   items                 TitleItem[]
   roles                 TitleRole[]
-  MatchSettingTemplates MatchSettingTemplate[]
-  GameSettingTemplates  GameSettingTemplate[]
+  stageSettingTemplates StageSettingTemplate[]
   events                Event[]
 
   @@map("title")
