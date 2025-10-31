@@ -5,3 +5,4 @@ export * from "./stage";
 export * from "./team-invite";
 export * from "./hub-invite";
 export * from "./hub";
+export * from "./title";
