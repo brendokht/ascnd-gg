@@ -13,20 +13,12 @@ export const TitleSchema = z.object({
   createdAt: z.iso.datetime().optional(),
 });
 
-export const TitleSummarySchema = TitleSchema.pick({
-  id: true,
-  name: true,
-  displayName: true,
-  allowsDraws: true,
-});
-
 export const TitleViewModelSchema = TitleSchema.pick({
   id: true,
   name: true,
   displayName: true,
-  genreId: true,
   allowsDraws: true,
-  createdAt: true,
+  genreId: true,
 });
 
 export const TitleCharacterSchema = z.object({
@@ -42,17 +34,22 @@ export const TitleCharacterSchema = z.object({
   displayName: z
     .string({ error: "Title character display name is required." })
     .trim(),
+  get roles() {
+    return z.array(TitleRoleViewModelSchema).optional();
+  },
   metadata: z.json().optional(),
   active: z.boolean().default(true),
   createdAt: z.iso.datetime().optional(),
 });
 
-export const TitleCharacterSummarySchema = TitleCharacterSchema.pick({
+export const TitleCharacterViewModelSchema = TitleCharacterSchema.pick({
   id: true,
-  titleId: true,
   name: true,
   displayName: true,
   image: true,
+  roles: true,
+  active: true,
+  metadata: true,
 });
 
 export const TitleGamemodeSchema = z.object({
@@ -73,12 +70,13 @@ export const TitleGamemodeSchema = z.object({
   createdAt: z.iso.datetime().optional(),
 });
 
-export const TitleGamemodeSummarySchema = TitleGamemodeSchema.pick({
+export const TitleGamemodeViewModelSchema = TitleGamemodeSchema.pick({
   id: true,
-  titleId: true,
   name: true,
   displayName: true,
   image: true,
+  active: true,
+  metadata: true,
 });
 
 export const TitleGenreSchema = z.object({
@@ -88,6 +86,15 @@ export const TitleGenreSchema = z.object({
     .string({ error: "Title genre display name is required." })
     .trim(),
   createdAt: z.iso.datetime().optional(),
+});
+
+export const TitleGenreViewModelSchema = TitleGenreSchema.pick({
+  id: true,
+  titleId: true,
+  name: true,
+  displayName: true,
+  image: true,
+  active: true,
 });
 
 export const TitleItemSchema = z.object({
@@ -108,12 +115,13 @@ export const TitleItemSchema = z.object({
   createdAt: z.iso.datetime().optional(),
 });
 
-export const TitleItemSummarySchema = TitleItemSchema.pick({
+export const TitleItemViewModelSchema = TitleItemSchema.pick({
   id: true,
-  titleId: true,
   name: true,
   displayName: true,
   image: true,
+  active: true,
+  payload: true,
 });
 
 export const TitleMapSchema = z.object({
@@ -134,12 +142,13 @@ export const TitleMapSchema = z.object({
   createdAt: z.iso.datetime().optional(),
 });
 
-export const TitleMapSummarySchema = TitleMapSchema.pick({
+export const TitleMapViewModelSchema = TitleMapSchema.pick({
   id: true,
-  titleId: true,
   name: true,
   displayName: true,
   image: true,
+  active: true,
+  metadata: true,
 });
 
 export const TitleRoleSchema = z.object({
@@ -158,6 +167,15 @@ export const TitleRoleSchema = z.object({
   payload: z.json().optional(),
   active: z.boolean().default(true),
   createdAt: z.iso.datetime().optional(),
+});
+
+export const TitleRoleViewModelSchema = TitleRoleSchema.pick({
+  id: true,
+  name: true,
+  displayName: true,
+  image: true,
+  active: true,
+  payload: true,
 });
 
 export const TitleSettingSchema = z.object({
@@ -197,23 +215,25 @@ export const TitleSideSchema = z.object({
 });
 
 export const TitleDataSchema = z.object({
-  maps: z.array(TitleMapSummarySchema).optional(),
-  characters: z.array(TitleCharacterSummarySchema).optional(),
-  items: z.array(TitleItemSummarySchema).optional(),
-  gamemodes: z.array(TitleGamemodeSummarySchema).optional(),
+  maps: z.array(TitleMapViewModelSchema).optional(),
+  characters: z.array(TitleCharacterViewModelSchema).optional(),
+  items: z.array(TitleItemViewModelSchema).optional(),
+  gamemodes: z.array(TitleGamemodeViewModelSchema).optional(),
 });
 
 export type Title = z.infer<typeof TitleSchema>;
 
-export type TitleSummary = z.infer<typeof TitleSummarySchema>;
-
 export type TitleViewModel = z.infer<typeof TitleViewModelSchema>;
-export type TitleCharacter = z.infer<typeof TitleCharacterSchema>;
-export type TitleGamemode = z.infer<typeof TitleGamemodeSchema>;
-export type TitleGenre = z.infer<typeof TitleGenreSchema>;
-export type TitleItem = z.infer<typeof TitleItemSchema>;
-export type TitleMap = z.infer<typeof TitleMapSchema>;
-export type TitleRole = z.infer<typeof TitleRoleSchema>;
+export type TitleCharacterViewModel = z.infer<
+  typeof TitleCharacterViewModelSchema
+>;
+export type TitleGamemodeViewModel = z.infer<
+  typeof TitleGamemodeViewModelSchema
+>;
+export type TitleGenreViewModel = z.infer<typeof TitleGenreViewModelSchema>;
+export type TitleItemViewModel = z.infer<typeof TitleItemViewModelSchema>;
+export type TitleMapViewModel = z.infer<typeof TitleMapViewModelSchema>;
+export type TitleRole = z.infer<typeof TitleRoleViewModelSchema>;
 export type TitleSetting = z.infer<typeof TitleSettingSchema>;
 export type TitleSide = z.infer<typeof TitleSideSchema>;
 export type TitleData = z.infer<typeof TitleDataSchema>;
