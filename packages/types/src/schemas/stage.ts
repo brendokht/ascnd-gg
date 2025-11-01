@@ -42,6 +42,12 @@ export const createStageSchema = z.object({
     .min(1, { error: "An event needs at least 1 stage." }),
 });
 
+export const stageTypeIdParameterSchema = z
+  .object({
+    stageTypeId: z.uuidv7({ error: "Stage Type ID must be UUIDv7." }),
+  })
+  .required();
+
 export type CreateStage = z.infer<typeof createStageSchema>;
 export type CreatePhase = z.infer<typeof createPhaseSchema>;
 
@@ -51,3 +57,10 @@ export type CreatePhase = z.infer<typeof createPhaseSchema>;
  * @param {Blob} [banner] The Blob object for the event's banner - Optional
  */
 export class CreateStageDto extends createZodDto(createStageSchema) {}
+
+/**
+ * @param {string} stageTypeId The stage type's ID - Required
+ */
+export class StageTypeIdParameterDto extends createZodDto(
+  stageTypeIdParameterSchema,
+) {}
