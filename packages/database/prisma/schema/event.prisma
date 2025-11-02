@@ -57,7 +57,6 @@ model StageType {
 
   @@map("stage_type")
 }
-
 model StageSetting {
   stageId                String                @id @map("stage_id")
   stage                  Stage                 @relation(fields: [stageId], references: [id], onDelete: Cascade)
@@ -68,6 +67,7 @@ model StageSetting {
   numberOfCoaches        Int                   @default(1) @map("number_of_coaches")
   allowDraws             Boolean               @default(false) @map("allow_draws")
   drawPolicy             DrawResolutionPolicy  @map("draw_policy")
+  // TODO: Make sure word gameMode (or gamemode) is consistent (pick one)
   gameModePoolIds        String[]              @map("game_mode_pool_ids")
   perGameGamemodeVeto    Boolean               @map("per_game_gamemode_veto")
   perMatchGamemodeVeto   Boolean               @map("per_match_gamemode_veto")
