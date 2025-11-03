@@ -20,24 +20,34 @@ export const createPhaseSchema = z.object({
 export const createStageSchema = z.object({
   stages: z
     .array(
-      z.object({
-        ...StageSchema.pick({
-          displayName: true,
-          description: true,
-          typeId: true,
-          scheduledAt: true,
-          scheduledEndAt: true,
-        }).partial({
-          description: true,
-        }).shape,
-        logo: z.instanceof(Blob).nullish(),
-        banner: z.instanceof(Blob).nullish(),
-        stageSettings: StageSettingSchema.omit({
-          isLocked: true,
-          stageId: true,
-        }),
-        ...createPhaseSchema.shape,
-      }),
+      z
+        .object({
+          ...StageSchema.pick({
+            displayName: true,
+            description: true,
+            typeId: true,
+            scheduledAt: true,
+            scheduledEndAt: true,
+          }).partial({
+            description: true,
+          }).shape,
+          logo: z.instanceof(Blob).nullish(),
+          banner: z.instanceof(Blob).nullish(),
+          stageSettings: StageSettingSchema.omit({
+            isLocked: true,
+            stageId: true,
+          }),
+          ...createPhaseSchema.shape,
+        })
+        .refine(
+          (stage) =>
+            !stage.stageSettings.allowDraws ||
+            stage.stageSettings.drawPolicy !== "",
+          {
+            error: "Draw policy must be set when allowing draws",
+            path: ["stageSettings.drawPolicy"],
+          },
+        ),
     )
     .min(1, { error: "An event needs at least 1 stage." }),
 });
