@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect, type ReactNode } from "react";
 import { createStageSchema, createEventDataSchema } from "@ascnd-gg/types";
 import type {
   CreateEventData,
@@ -28,9 +28,14 @@ import { Input } from "@ascnd-gg/ui/components/ui/input";
 import { Checkbox } from "@ascnd-gg/ui/components/ui/checkbox";
 import { MultiSelect, type Option } from "@ascnd-gg/ui/components/multi-select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import {
+  useFieldArray,
+  useForm,
+  useFormContext,
+  UseFormReturn,
+} from "react-hook-form";
 import { FileUploadDialog } from "../dialogs/file-upload-dialog";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Textarea } from "@ascnd-gg/ui/components/ui/textarea";
 import DateTimePicker from "@ascnd-gg/ui/components/date-time-picker";
@@ -53,6 +58,15 @@ import {
   CardTitle,
 } from "@ascnd-gg/ui/components/ui/card";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@ascnd-gg/ui/components/ui/dialog";
+import { ScrollArea } from "@ascnd-gg/ui/components/ui/scroll-area";
 
 const { useStepper, steps, utils } = defineStepper(
   {
@@ -285,7 +299,7 @@ function EventForm({ titles }: { titles: Array<TitleViewModel> | null }) {
   };
 
   return (
-    <div className="mb-8 space-y-4 px-3">
+    <>
       <FormField
         control={formContext.control}
         name="displayName"
@@ -480,7 +494,7 @@ function EventForm({ titles }: { titles: Array<TitleViewModel> | null }) {
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 }
 
@@ -495,27 +509,14 @@ function StagesForm({
 }) {
   const formContext = useFormContext<CreateStage>();
 
-  useEffect(() => {
-    console.log(formContext.formState.errors);
-  }, [formContext.formState.errors]);
-
-  useEffect(() => {}, [title]);
-
   const stagesArray = useFieldArray({
     control: formContext.control,
     name: "stages",
   });
 
-  const [selectedTitleMaps, setSelectedTitleMaps] = useState<Array<Option>>([]);
-  const [selectedTitleCharacters, setSelectedTitleCharacters] = useState<
-    Array<Option>
-  >([]);
-  const [selectedTitleItems, setSelectedTitleItems] = useState<Array<Option>>(
-    [],
-  );
-  const [selectedTitleGamemodes, setSelectedTitleGamemodes] = useState<
-    Array<Option>
-  >([]);
+  useEffect(() => {
+    console.log("errors", formContext.formState.errors);
+  });
 
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [bannerPreview, setBannerPreview] = useState<string>("");
@@ -609,58 +610,6 @@ function StagesForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.stageSettings.allowDraws`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Allows Draws</FormLabel>
-                  <FormControl>
-                    <Checkbox
-                      id={field.name}
-                      checked={Boolean(field.value)}
-                      onCheckedChange={(v) => field.onChange(v === true)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {formContext.watch(`stages.${idx}.stageSettings.allowDraws`) ===
-              true && (
-              <FormField
-                control={formContext.control}
-                name={`stages.${idx}.stageSettings.drawPolicy`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Draw Policy</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        {...field}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ALLOW_DRAW">Allow Draw</SelectItem>
-                          <SelectItem value="TIEBREAKER">Tiebreaker</SelectItem>
-                          <SelectItem value="ADMIN_DECISION">
-                            Admin Decision
-                          </SelectItem>
-                          <SelectItem value="FALLBACK">
-                            Fallback to Leaderboard
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
             {/* TODO: Add phase sub form? */}
             {/* <FormField
               control={formContext.control}
@@ -789,6 +738,220 @@ function StagesForm({
             />
             <FormField
               control={formContext.control}
+              name={`stages.${idx}.scheduledAt`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date</FormLabel>
+                  <FormDescription>
+                    Your event&apos;s start date
+                  </FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      defaultTime={new Date(nowPlusWeek)}
+                      onDateChange={(date) =>
+                        onScheduledAtDateChange(date, idx)
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.scheduledEndAt`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date</FormLabel>
+                  <FormDescription>Your event&apos;s end date</FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      defaultTime={new Date(nowPlusTwoWeeks)}
+                      onDateChange={(date) =>
+                        onScheduledEndAtDateChange(date, idx)
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <StageSettingsDialog
+              formContext={formContext}
+              idx={idx}
+              titleData={titleData}
+            >
+              <Button variant={"secondary"} className="w-full">
+                Edit Stage Settings
+              </Button>
+            </StageSettingsDialog>
+          </CardContent>
+        </Card>
+      ))}
+      <FormMessage>
+        {Array.isArray(formContext.formState.errors.stages) &&
+          formContext.formState.errors.stages.some(Boolean) && (
+            <>
+              There are errors in{" "}
+              {formContext.formState.errors.stages
+                .map((e, idx) => (e ? `Stage ${idx + 1}` : null))
+                .filter(Boolean)
+                .join(", ")}
+            </>
+          )}
+      </FormMessage>
+      <FormMessage>
+        {formContext.formState.errors.stages?.root?.message ||
+          formContext.formState.errors.stages?.message}
+      </FormMessage>
+      <Button
+        className="w-full"
+        onClick={() => {
+          stagesArray.append({
+            displayName: "",
+            typeId: "",
+            scheduledAt: new Date(nowPlusWeek).toISOString(),
+            scheduledEndAt: new Date(nowPlusTwoWeeks).toISOString(),
+            phases: [
+              {
+                formatId: "019a33f2-fe1a-7c92-9ac6-cc614016572d",
+                matchIndexEnd: 1,
+                matchIndexStart: 1,
+              },
+            ],
+            stageSettings: {
+              minTeams: 2,
+              maxTeams: 128,
+              teamSize: 5,
+              allowDraws: title?.allowsDraws,
+              drawPolicy: "",
+              numberOfSubstitutes: 1,
+              numberOfCoaches: 1,
+              gamemodePoolIds: [],
+              perGameGamemodeVeto: false,
+              perMatchGamemodeVeto: false,
+              mapPoolIds: [],
+              perGameMapVeto: false,
+              perMatchMapVeto: false,
+              characterPoolIds: [],
+              perGameCharacterVeto: false,
+              perMatchCharacterVeto: false,
+              itemPoolIds: [],
+              perGameItemVeto: false,
+              perMatchItemVeto: false,
+              perGameSideVeto: false,
+              perMatchSideVeto: false,
+              seedingType: "RANDOM",
+              joinType: "OPEN",
+            },
+          });
+        }}
+      >
+        <Plus />
+        Add Stage
+      </Button>
+    </div>
+  );
+}
+
+function StageSettingsDialog({
+  children,
+  formContext,
+  idx,
+  titleData,
+}: {
+  children: ReactNode;
+  formContext: UseFormReturn<CreateStage>;
+  idx: number;
+  titleData: TitleData | undefined;
+}) {
+  const [selectedTitleMaps, setSelectedTitleMaps] = useState<Array<Option>>([]);
+  const [selectedTitleCharacters, setSelectedTitleCharacters] = useState<
+    Array<Option>
+  >([]);
+  const [selectedTitleItems, setSelectedTitleItems] = useState<Array<Option>>(
+    [],
+  );
+  const [selectedTitleGamemodes, setSelectedTitleGamemodes] = useState<
+    Array<Option>
+  >([]);
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Stage {idx + 1} Settings</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>
+          Stage Settings for Stage {idx + 1}
+        </DialogDescription>
+        <ScrollArea type="always" className="h-102">
+          <div className="mr-3 space-y-4">
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.stageSettings.allowDraws`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Allows Draws</FormLabel>
+                  <FormControl>
+                    <Checkbox
+                      id={field.name}
+                      checked={Boolean(field.value)}
+                      onCheckedChange={(v) => {
+                        // Ensure drawPolicy is blank if no draws are allowed
+                        if (v === false)
+                          formContext.setValue(
+                            `stages.${idx}.stageSettings.drawPolicy`,
+                            "",
+                          );
+                        field.onChange(v === true);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {formContext.watch(`stages.${idx}.stageSettings.allowDraws`) ===
+              true && (
+              <FormField
+                control={formContext.control}
+                name={`stages.${idx}.stageSettings.drawPolicy`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Draw Policy</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        {...field}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ALLOW_DRAW">Allow Draw</SelectItem>
+                          <SelectItem value="TIEBREAKER">Tiebreaker</SelectItem>
+                          <SelectItem value="ADMIN_DECISION">
+                            Admin Decision
+                          </SelectItem>
+                          <SelectItem value="FALLBACK">
+                            Fallback to Leaderboard
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            <FormField
+              control={formContext.control}
               name={`stages.${idx}.stageSettings.minTeams`}
               render={({ field }) => (
                 <FormItem>
@@ -900,40 +1063,46 @@ function StagesForm({
               titleData.gamemodes &&
               titleData.gamemodes.length > 0 && (
                 <>
-                  <FormField
-                    control={formContext.control}
-                    name={`stages.${idx}.stageSettings.perGameGamemodeVeto`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Per Game Gamemode Veto</FormLabel>
-                        <FormControl>
-                          <Checkbox
-                            id={field.name}
-                            checked={Boolean(field.value)}
-                            onCheckedChange={(v) => field.onChange(v === true)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={formContext.control}
-                    name={`stages.${idx}.stageSettings.perMatchGamemodeVeto`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Per Match Gamemode Veto</FormLabel>
-                        <FormControl>
-                          <Checkbox
-                            id={field.name}
-                            checked={Boolean(field.value)}
-                            onCheckedChange={(v) => field.onChange(v === true)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <FormField
+                      control={formContext.control}
+                      name={`stages.${idx}.stageSettings.perGameGamemodeVeto`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Per Game Gamemode Veto</FormLabel>
+                          <FormControl>
+                            <Checkbox
+                              id={field.name}
+                              checked={Boolean(field.value)}
+                              onCheckedChange={(v) =>
+                                field.onChange(v === true)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={formContext.control}
+                      name={`stages.${idx}.stageSettings.perMatchGamemodeVeto`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Per Match Gamemode Veto</FormLabel>
+                          <FormControl>
+                            <Checkbox
+                              id={field.name}
+                              checked={Boolean(field.value)}
+                              onCheckedChange={(v) =>
+                                field.onChange(v === true)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <FormField
                     control={formContext.control}
                     name={`stages.${idx}.stageSettings.gamemodePoolIds`}
@@ -968,40 +1137,42 @@ function StagesForm({
               )}
             {titleData && titleData.maps && titleData.maps.length > 0 && (
               <>
-                <FormField
-                  control={formContext.control}
-                  name={`stages.${idx}.stageSettings.perGameMapVeto`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Per Game Map Veto</FormLabel>
-                      <FormControl>
-                        <Checkbox
-                          id={field.name}
-                          checked={Boolean(field.value)}
-                          onCheckedChange={(v) => field.onChange(v === true)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={formContext.control}
-                  name={`stages.${idx}.stageSettings.perMatchMapVeto`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Per Match Map Veto</FormLabel>
-                      <FormControl>
-                        <Checkbox
-                          id={field.name}
-                          checked={Boolean(field.value)}
-                          onCheckedChange={(v) => field.onChange(v === true)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={formContext.control}
+                    name={`stages.${idx}.stageSettings.perGameMapVeto`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Per Game Map Veto</FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            id={field.name}
+                            checked={Boolean(field.value)}
+                            onCheckedChange={(v) => field.onChange(v === true)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={formContext.control}
+                    name={`stages.${idx}.stageSettings.perMatchMapVeto`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Per Match Map Veto</FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            id={field.name}
+                            checked={Boolean(field.value)}
+                            onCheckedChange={(v) => field.onChange(v === true)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={formContext.control}
                   name={`stages.${idx}.stageSettings.mapPoolIds`}
@@ -1038,40 +1209,46 @@ function StagesForm({
               titleData.characters &&
               titleData.characters.length > 0 && (
                 <>
-                  <FormField
-                    control={formContext.control}
-                    name={`stages.${idx}.stageSettings.perGameCharacterVeto`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Per Game Character Veto</FormLabel>
-                        <FormControl>
-                          <Checkbox
-                            id={field.name}
-                            checked={Boolean(field.value)}
-                            onCheckedChange={(v) => field.onChange(v === true)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={formContext.control}
-                    name={`stages.${idx}.stageSettings.perMatchCharacterVeto`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Per Match Character Veto</FormLabel>
-                        <FormControl>
-                          <Checkbox
-                            id={field.name}
-                            checked={Boolean(field.value)}
-                            onCheckedChange={(v) => field.onChange(v === true)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <FormField
+                      control={formContext.control}
+                      name={`stages.${idx}.stageSettings.perGameCharacterVeto`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Per Game Character Veto</FormLabel>
+                          <FormControl>
+                            <Checkbox
+                              id={field.name}
+                              checked={Boolean(field.value)}
+                              onCheckedChange={(v) =>
+                                field.onChange(v === true)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={formContext.control}
+                      name={`stages.${idx}.stageSettings.perMatchCharacterVeto`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Per Match Character Veto</FormLabel>
+                          <FormControl>
+                            <Checkbox
+                              id={field.name}
+                              checked={Boolean(field.value)}
+                              onCheckedChange={(v) =>
+                                field.onChange(v === true)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <FormField
                     control={formContext.control}
                     name={`stages.${idx}.stageSettings.characterPoolIds`}
@@ -1106,40 +1283,42 @@ function StagesForm({
               )}
             {titleData && titleData.items && titleData.items.length > 0 && (
               <>
-                <FormField
-                  control={formContext.control}
-                  name={`stages.${idx}.stageSettings.perGameItemVeto`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Per Game Item Veto</FormLabel>
-                      <FormControl>
-                        <Checkbox
-                          id={field.name}
-                          checked={Boolean(field.value)}
-                          onCheckedChange={(v) => field.onChange(v === true)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={formContext.control}
-                  name={`stages.${idx}.stageSettings.perMatchItemVeto`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Per Match Item Veto</FormLabel>
-                      <FormControl>
-                        <Checkbox
-                          id={field.name}
-                          checked={Boolean(field.value)}
-                          onCheckedChange={(v) => field.onChange(v === true)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={formContext.control}
+                    name={`stages.${idx}.stageSettings.perGameItemVeto`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Per Game Item Veto</FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            id={field.name}
+                            checked={Boolean(field.value)}
+                            onCheckedChange={(v) => field.onChange(v === true)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={formContext.control}
+                    name={`stages.${idx}.stageSettings.perMatchItemVeto`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Per Match Item Veto</FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            id={field.name}
+                            checked={Boolean(field.value)}
+                            onCheckedChange={(v) => field.onChange(v === true)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={formContext.control}
                   name={`stages.${idx}.stageSettings.itemPoolIds`}
@@ -1172,40 +1351,42 @@ function StagesForm({
                 />
               </>
             )}
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.stageSettings.perGameSideVeto`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Per Game Side Veto</FormLabel>
-                  <FormControl>
-                    <Checkbox
-                      id={field.name}
-                      checked={Boolean(field.value)}
-                      onCheckedChange={(v) => field.onChange(v === true)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.stageSettings.perMatchSideVeto`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Per Match Side Veto</FormLabel>
-                  <FormControl>
-                    <Checkbox
-                      id={field.name}
-                      checked={Boolean(field.value)}
-                      onCheckedChange={(v) => field.onChange(v === true)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField
+                control={formContext.control}
+                name={`stages.${idx}.stageSettings.perGameSideVeto`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Per Game Side Veto</FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        id={field.name}
+                        checked={Boolean(field.value)}
+                        onCheckedChange={(v) => field.onChange(v === true)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={formContext.control}
+                name={`stages.${idx}.stageSettings.perMatchSideVeto`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Per Match Side Veto</FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        id={field.name}
+                        checked={Boolean(field.value)}
+                        onCheckedChange={(v) => field.onChange(v === true)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={formContext.control}
               name={`stages.${idx}.stageSettings.seedingType`}
@@ -1257,101 +1438,9 @@ function StagesForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.scheduledAt`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormDescription>
-                    Your event&apos;s start date
-                  </FormDescription>
-                  <FormControl>
-                    <DateTimePicker
-                      defaultTime={new Date(nowPlusWeek)}
-                      onDateChange={(date) =>
-                        onScheduledAtDateChange(date, idx)
-                      }
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.scheduledEndAt`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Date</FormLabel>
-                  <FormDescription>Your event&apos;s end date</FormDescription>
-                  <FormControl>
-                    <DateTimePicker
-                      defaultTime={new Date(nowPlusTwoWeeks)}
-                      onDateChange={(date) =>
-                        onScheduledEndAtDateChange(date, idx)
-                      }
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-      ))}
-      <FormMessage>
-        {formContext.formState.errors.stages?.root?.message ||
-          formContext.formState.errors.stages?.message}
-      </FormMessage>
-      <Button
-        className="w-full"
-        onClick={() => {
-          stagesArray.append({
-            displayName: "",
-            typeId: "",
-            scheduledAt: new Date(nowPlusWeek).toISOString(),
-            scheduledEndAt: new Date(nowPlusTwoWeeks).toISOString(),
-            phases: [
-              {
-                formatId: "019a33f2-fe1a-7c92-9ac6-cc614016572d",
-                matchIndexEnd: 1,
-                matchIndexStart: 1,
-              },
-            ],
-            stageSettings: {
-              minTeams: 2,
-              maxTeams: 128,
-              teamSize: 5,
-              allowDraws: title?.allowsDraws,
-              drawPolicy: "",
-              numberOfSubstitutes: 1,
-              numberOfCoaches: 1,
-              gamemodePoolIds: [],
-              perGameGamemodeVeto: false,
-              perMatchGamemodeVeto: false,
-              mapPoolIds: [],
-              perGameMapVeto: false,
-              perMatchMapVeto: false,
-              characterPoolIds: [],
-              perGameCharacterVeto: false,
-              perMatchCharacterVeto: false,
-              itemPoolIds: [],
-              perGameItemVeto: false,
-              perMatchItemVeto: false,
-              perGameSideVeto: false,
-              perMatchSideVeto: false,
-              seedingType: "RANDOM",
-              joinType: "OPEN",
-            },
-          });
-        }}
-      >
-        <Plus />
-        Add Stage
-      </Button>
-    </div>
+          </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   );
 }
