@@ -122,7 +122,7 @@ export const StageSettingSchema = z.object({
   numberOfCoaches: z.int({ error: "Number of coaches is required." }).min(0),
   allowDraws: z.boolean().optional(),
   drawPolicy: z.enum(DrawResolutionPolicy).or(z.literal("")),
-  gameModePoolIds: z.array(z.uuidv7(), {
+  gamemodePoolIds: z.array(z.uuidv7(), {
     error: "Game mode pool is required.",
   }),
   perGameGamemodeVeto: z.boolean({
