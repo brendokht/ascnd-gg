@@ -54,7 +54,7 @@ export default function UserMenu({ user }: { user: UserViewModel | null }) {
               <DropdownMenuItem onClick={() => router.push("/create/hub")}>
                 Hub <Share2 />
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/create/event")}>
                 Event <Gamepad />
               </DropdownMenuItem>
             </DropdownMenuContent>
