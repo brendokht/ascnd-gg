@@ -1,4 +1,8 @@
-import type { StageTypeViewModel, TitleViewModel } from "@ascnd-gg/types";
+import type {
+  MatchFormatViewModel,
+  StageTypeViewModel,
+  TitleViewModel,
+} from "@ascnd-gg/types";
 import { Card, CardContent } from "@ascnd-gg/ui/components/ui/card";
 import CreateEventForm from "@ascnd-gg/website/components/forms/create-event-form";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
@@ -18,13 +22,21 @@ export default async function CreateHub() {
     await headers(),
   );
 
-  const [titlesResult, stageTypesResult] = await Promise.allSettled([
-    titlesPromise,
-    stageTypesPromise,
-  ]);
+  const matchFormatsPromise = fetchApi<Array<MatchFormatViewModel>>(
+    "/matches/formats",
+    await headers(),
+  );
+
+  const [titlesResult, stageTypesResult, matchFormatsResult] =
+    await Promise.allSettled([
+      titlesPromise,
+      stageTypesPromise,
+      matchFormatsPromise,
+    ]);
 
   let titles: Array<TitleViewModel> | null = null;
   let stageTypes: Array<StageTypeViewModel> | null = null;
+  let matchFormats: Array<MatchFormatViewModel> | null = null;
 
   if (titlesResult?.status === "fulfilled") {
     const { data: teamInvitesData, error: teamInvitesError } =
@@ -35,11 +47,19 @@ export default async function CreateHub() {
   }
 
   if (stageTypesResult?.status === "fulfilled") {
-    const { data: hubInvitesData, error: hubInvitesError } =
+    const { data: stageTypesData, error: stageTypesError } =
       stageTypesResult.value;
 
-    if (hubInvitesError) stageTypes = null;
-    else stageTypes = hubInvitesData ?? [];
+    if (stageTypesError) stageTypes = null;
+    else stageTypes = stageTypesData ?? [];
+  }
+
+  if (matchFormatsResult?.status === "fulfilled") {
+    const { data: matchFormatsData, error: matchFormatsError } =
+      matchFormatsResult.value;
+
+    if (matchFormatsError) matchFormats = null;
+    else matchFormats = matchFormatsData ?? [];
   }
 
   return (
@@ -52,7 +72,11 @@ export default async function CreateHub() {
       </div>
       <Card>
         <CardContent>
-          <CreateEventForm titles={titles} stageTypes={stageTypes} />
+          <CreateEventForm
+            titles={titles}
+            stageTypes={stageTypes}
+            matchFormats={matchFormats}
+          />
         </CardContent>
       </Card>
     </>

@@ -6,14 +6,10 @@ import { createStageSchema } from "./stage";
 export const createEventDataSchema = EventSchema.pick({
   displayName: true,
   description: true,
-  scheduledAt: true,
-  scheduledEndAt: true,
   titleId: true,
 })
   .partial({
     description: true,
-    scheduledAt: true,
-    scheduledEndAt: true,
   })
   .extend({
     logo: z.instanceof(Blob).nullish(),

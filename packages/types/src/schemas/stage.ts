@@ -3,20 +3,6 @@ import { StageSchema, StageSettingSchema } from "../types";
 import { PhaseSchema } from "../types/phase";
 import { createZodDto } from "nestjs-zod";
 
-export const createPhaseSchema = z.object({
-  phases: z
-    .array(
-      z.object({
-        ...PhaseSchema.pick({
-          formatId: true,
-          matchIndexStart: true,
-          matchIndexEnd: true,
-        }).shape,
-      }),
-    )
-    .min(1, { error: "A stage needs at least 1 phase." }),
-});
-
 export const createStageSchema = z.object({
   stages: z
     .array(
@@ -26,8 +12,6 @@ export const createStageSchema = z.object({
             displayName: true,
             description: true,
             typeId: true,
-            scheduledAt: true,
-            scheduledEndAt: true,
           }).partial({
             description: true,
           }).shape,
@@ -37,7 +21,17 @@ export const createStageSchema = z.object({
             isLocked: true,
             stageId: true,
           }),
-          ...createPhaseSchema.shape,
+          phases: z
+            .array(
+              z.object({
+                ...PhaseSchema.pick({
+                  formatId: true,
+                  matchIndexStart: true,
+                  matchIndexEnd: true,
+                }).shape,
+              }),
+            )
+            .min(1, { error: "A stage needs at least 1 phase." }),
         })
         .refine(
           (stage) =>
@@ -59,7 +53,6 @@ export const stageTypeIdParameterSchema = z
   .required();
 
 export type CreateStage = z.infer<typeof createStageSchema>;
-export type CreatePhase = z.infer<typeof createPhaseSchema>;
 
 /**
  * @param {string} displayName The event's display name - Required

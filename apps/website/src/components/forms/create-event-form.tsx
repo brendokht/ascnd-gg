@@ -5,7 +5,6 @@ import { createStageSchema, createEventDataSchema } from "@ascnd-gg/types";
 import type {
   CreateEventData,
   CreateStage,
-  StageTypeSummary,
   TitleData,
   TitleViewModel,
   StageTypeViewModel,
@@ -13,6 +12,7 @@ import type {
   TitleCharacterViewModel,
   TitleItemViewModel,
   TitleGamemodeViewModel,
+  MatchFormatViewModel,
 } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
@@ -49,7 +49,7 @@ import {
 import { defineStepper } from "@ascnd-gg/ui/components/stepper";
 import * as z from "zod";
 import { Separator } from "@ascnd-gg/ui/components/ui/separator";
-import { Plus, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
 import {
   Card,
   CardAction,
@@ -67,6 +67,7 @@ import {
   DialogTrigger,
 } from "@ascnd-gg/ui/components/ui/dialog";
 import { ScrollArea } from "@ascnd-gg/ui/components/ui/scroll-area";
+import { cn } from "@ascnd-gg/ui/lib/utils";
 
 const { useStepper, steps, utils } = defineStepper(
   {
@@ -92,9 +93,11 @@ nowPlusTwoWeeks.setDate(nowPlusTwoWeeks.getDate() + 14);
 export default function CreateEventForm({
   titles,
   stageTypes,
+  matchFormats,
 }: {
   titles: Array<TitleViewModel> | null;
   stageTypes: Array<StageTypeViewModel> | null;
+  matchFormats: Array<MatchFormatViewModel> | null;
 }) {
   const stepper = useStepper();
 
@@ -104,8 +107,7 @@ export default function CreateEventForm({
     defaultValues: {
       displayName: "",
       titleId: "",
-      scheduledAt: new Date(nowPlusWeek).toISOString(),
-      scheduledEndAt: new Date(nowPlusTwoWeeks).toISOString(),
+      stages: [],
     },
   });
 
@@ -263,6 +265,7 @@ export default function CreateEventForm({
                 stageTypes={stageTypes}
                 title={title}
                 titleData={titleData}
+                matchFormats={matchFormats}
               />
             ),
           })}
@@ -289,14 +292,6 @@ function EventForm({ titles }: { titles: Array<TitleViewModel> | null }) {
 
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [bannerPreview, setBannerPreview] = useState<string>("");
-
-  const onScheduledAtDateChange = (date: Date | undefined) => {
-    formContext.setValue("scheduledAt", date!.toISOString());
-  };
-
-  const onScheduledEndAtDateChange = (date: Date | undefined) => {
-    formContext.setValue("scheduledEndAt", date!.toISOString());
-  };
 
   return (
     <>
@@ -458,52 +453,18 @@ function EventForm({ titles }: { titles: Array<TitleViewModel> | null }) {
           </FormItem>
         )}
       />
-      <FormField
-        control={formContext.control}
-        name="scheduledAt"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Start Date</FormLabel>
-            <FormDescription>Your event&apos;s start date</FormDescription>
-            <FormControl>
-              <DateTimePicker
-                defaultTime={new Date(nowPlusWeek)}
-                onDateChange={onScheduledAtDateChange}
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={formContext.control}
-        name="scheduledEndAt"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>End Date</FormLabel>
-            <FormDescription>Your event&apos;s end date</FormDescription>
-            <FormControl>
-              <DateTimePicker
-                defaultTime={new Date(nowPlusTwoWeeks)}
-                onDateChange={onScheduledEndAtDateChange}
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </>
   );
 }
 
 function StagesForm({
   stageTypes,
+  matchFormats,
   title,
   titleData,
 }: {
-  stageTypes: Array<StageTypeSummary> | null;
+  stageTypes: Array<StageTypeViewModel> | null;
+  matchFormats: Array<MatchFormatViewModel> | null;
   title: TitleViewModel | undefined;
   titleData: TitleData | undefined;
 }) {
@@ -515,19 +476,11 @@ function StagesForm({
   });
 
   useEffect(() => {
-    console.log("errors", formContext.formState.errors);
-  });
+    console.log("errors", formContext.formState.errors.stages);
+  }, [formContext.formState.errors]);
 
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [bannerPreview, setBannerPreview] = useState<string>("");
-
-  const onScheduledAtDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(`stages.${idx}.scheduledAt`, date!.toISOString());
-  };
-
-  const onScheduledEndAtDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(`stages.${idx}.scheduledEndAt`, date!.toISOString());
-  };
 
   return (
     <div className="min-h-98 space-y-4">
@@ -535,14 +488,34 @@ function StagesForm({
         <Card key={stage.id}>
           <CardHeader>
             <CardTitle>Stage {idx + 1}</CardTitle>
-            <CardAction>
+            <CardAction className="space-x-2">
+              {idx !== 0 && stagesArray.fields.length > 1 && (
+                <Button
+                  onClick={() => {
+                    stagesArray.swap(idx, idx - 1);
+                  }}
+                  size={"icon-sm"}
+                >
+                  <ArrowUp />
+                </Button>
+              )}
+              {idx !== stagesArray.fields.length - 1 &&
+                stagesArray.fields.length > 1 && (
+                  <Button
+                    onClick={() => {
+                      stagesArray.swap(idx, idx + 1);
+                    }}
+                    size={"icon-sm"}
+                  >
+                    <ArrowDown />
+                  </Button>
+                )}
               <Button
                 onClick={() => stagesArray.remove(idx)}
                 variant={"destructive"}
-                className="w-full"
+                size={"icon-sm"}
               >
                 <X />
-                Remove
               </Button>
             </CardAction>
           </CardHeader>
@@ -610,35 +583,6 @@ function StagesForm({
                 </FormItem>
               )}
             />
-            {/* TODO: Add phase sub form? */}
-            {/* <FormField
-              control={formContext.control}
-              name={`stages.${idx}.phases`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phases</FormLabel>
-                  <FormDescription>
-                    The phases for this stage (comma separated)
-                  </FormDescription>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      onChange={(e) => {
-                        const raw = e.target.value;
-                        // store as array of strings
-                        field.onChange(raw.split(",").map((s) => s.trim()));
-                      }}
-                      value={
-                        Array.isArray(field.value)
-                          ? field.value.join(", ")
-                          : field.value
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
             {logoPreview && (
               <>
                 <div className="relative aspect-square">
@@ -736,58 +680,62 @@ function StagesForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.scheduledAt`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormDescription>
-                    Your event&apos;s start date
-                  </FormDescription>
-                  <FormControl>
-                    <DateTimePicker
-                      defaultTime={new Date(nowPlusWeek)}
-                      onDateChange={(date) =>
-                        onScheduledAtDateChange(date, idx)
-                      }
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.scheduledEndAt`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Date</FormLabel>
-                  <FormDescription>Your event&apos;s end date</FormDescription>
-                  <FormControl>
-                    <DateTimePicker
-                      defaultTime={new Date(nowPlusTwoWeeks)}
-                      onDateChange={(date) =>
-                        onScheduledEndAtDateChange(date, idx)
-                      }
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <StageSettingsDialog
-              formContext={formContext}
-              idx={idx}
-              titleData={titleData}
-            >
-              <Button variant={"secondary"} className="w-full">
-                Edit Stage Settings
-              </Button>
-            </StageSettingsDialog>
+            <FormItem>
+              <FormLabel>Stage Settings</FormLabel>
+              <FormDescription>Your stage&apos;s settings</FormDescription>
+              <StageSettingsDialog
+                formContext={formContext}
+                idx={idx}
+                titleData={titleData}
+              >
+                <Button
+                  variant={"secondary"}
+                  className={cn(
+                    "w-full",
+                    formContext.formState.errors.stages &&
+                      formContext.formState.errors.stages[idx]?.stageSettings &&
+                      "ring-destructive/20 dark:ring-destructive/40 ring-2",
+                  )}
+                >
+                  Edit Stage Settings
+                </Button>
+              </StageSettingsDialog>
+              <FormMessage>
+                {formContext.formState.errors.stages &&
+                  formContext.formState.errors.stages[idx]?.stageSettings &&
+                  "There are errors in Stage Settings"}
+              </FormMessage>
+            </FormItem>
+            <FormItem>
+              <FormLabel>Phases</FormLabel>
+              <FormDescription>Your stage&apos;s phases</FormDescription>
+              <PhasesDialog
+                formContext={formContext}
+                stageIdx={idx}
+                matchFormats={matchFormats}
+              >
+                <Button
+                  variant={"secondary"}
+                  className={cn(
+                    "w-full",
+                    (formContext.formState.errors.stages?.[idx]?.phases?.root
+                      ?.message ||
+                      formContext.formState.errors.stages?.[idx]?.phases
+                        ?.message) &&
+                      "ring-destructive/20 dark:ring-destructive/40 ring-2",
+                  )}
+                >
+                  Edit Phases
+                </Button>
+              </PhasesDialog>
+              <FormMessage>
+                {formContext.formState.errors.stages?.[idx]?.phases?.root
+                  ?.message ||
+                  formContext.formState.errors.stages?.[idx]?.phases?.message ||
+                  (formContext.formState.errors.stages?.[idx]?.phases &&
+                    "There are errors in one of the Phases")}
+              </FormMessage>
+            </FormItem>
           </CardContent>
         </Card>
       ))}
@@ -813,15 +761,7 @@ function StagesForm({
           stagesArray.append({
             displayName: "",
             typeId: "",
-            scheduledAt: new Date(nowPlusWeek).toISOString(),
-            scheduledEndAt: new Date(nowPlusTwoWeeks).toISOString(),
-            phases: [
-              {
-                formatId: "019a33f2-fe1a-7c92-9ac6-cc614016572d",
-                matchIndexEnd: 1,
-                matchIndexStart: 1,
-              },
-            ],
+            phases: [],
             stageSettings: {
               minTeams: 2,
               maxTeams: 128,
@@ -878,6 +818,37 @@ function StageSettingsDialog({
   const [selectedTitleGamemodes, setSelectedTitleGamemodes] = useState<
     Array<Option>
   >([]);
+
+  const onStartDateChange = (date: Date | undefined, idx: number) => {
+    formContext.setValue(
+      `stages.${idx}.stageSettings.startDate`,
+      date!.toISOString(),
+    );
+  };
+
+  const onEndDateChange = (date: Date | undefined, idx: number) => {
+    formContext.setValue(
+      `stages.${idx}.stageSettings.endDate`,
+      date!.toISOString(),
+    );
+  };
+
+  const onRegistrationStartDateChange = (
+    date: Date | undefined,
+    idx: number,
+  ) => {
+    formContext.setValue(
+      `stages.${idx}.stageSettings.registrationStartDate`,
+      date!.toISOString(),
+    );
+  };
+
+  const onRegistrationEndDateChange = (date: Date | undefined, idx: number) => {
+    formContext.setValue(
+      `stages.${idx}.stageSettings.registrationEndDate`,
+      date!.toISOString(),
+    );
+  };
 
   return (
     <Dialog>
@@ -1404,7 +1375,7 @@ function StageSettingsDialog({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="RANDOM">Random</SelectItem>
-                        <SelectItem value="SEED">Seed</SelectItem>
+                        <SelectItem value="MANUAL">Manual</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -1438,8 +1409,255 @@ function StageSettingsDialog({
                 </FormItem>
               )}
             />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.stageSettings.startDate`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date</FormLabel>
+                  <FormDescription>
+                    Your stage&apos;s start date
+                  </FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      defaultTime={new Date(nowPlusWeek)}
+                      onDateChange={(date) => onStartDateChange(date, idx)}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.stageSettings.endDate`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date</FormLabel>
+                  <FormDescription>Your stage&apos;s end date</FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      defaultTime={new Date(nowPlusTwoWeeks)}
+                      onDateChange={(date) => onEndDateChange(date, idx)}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.stageSettings.registrationStartDate`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Registration Start Date</FormLabel>
+                  <FormDescription>
+                    Your stage&apos;s registration start date
+                  </FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      defaultTime={new Date(now)}
+                      onDateChange={(date) =>
+                        onRegistrationStartDateChange(date, idx)
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.stageSettings.registrationEndDate`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Registration End Date</FormLabel>
+                  <FormDescription>
+                    Your stage&apos;s registration end date
+                  </FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      defaultTime={new Date(nowPlusWeek)}
+                      onDateChange={(date) =>
+                        onRegistrationEndDateChange(date, idx)
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </ScrollArea>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function PhasesDialog({
+  children,
+  formContext,
+  stageIdx,
+  matchFormats,
+}: {
+  children: ReactNode;
+  formContext: UseFormReturn<CreateStage>;
+  stageIdx: number;
+  matchFormats: Array<MatchFormatViewModel> | null;
+}) {
+  const phasesArray = useFieldArray({
+    control: formContext.control,
+    name: `stages.${stageIdx}.phases`,
+  });
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Stage {stageIdx + 1} Phases</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>Phases for Stage {stageIdx + 1}</DialogDescription>
+        <ScrollArea type="always" className="h-102">
+          <div className="mr-3 space-y-4">
+            {phasesArray.fields.map((phase, idx) => {
+              return (
+                <Card key={phase.id}>
+                  <CardHeader>
+                    <CardTitle>Phase {idx + 1}</CardTitle>
+                    <CardAction className="space-x-2">
+                      {idx !== 0 && phasesArray.fields.length > 1 && (
+                        <Button
+                          onClick={() => {
+                            phasesArray.swap(idx, idx - 1);
+                          }}
+                          size={"icon-sm"}
+                        >
+                          <ArrowUp />
+                        </Button>
+                      )}
+                      {idx !== phasesArray.fields.length - 1 &&
+                        phasesArray.fields.length > 1 && (
+                          <Button
+                            onClick={() => {
+                              phasesArray.swap(idx, idx + 1);
+                            }}
+                            size={"icon-sm"}
+                          >
+                            <ArrowDown />
+                          </Button>
+                        )}
+                      <Button
+                        onClick={() => phasesArray.remove(idx)}
+                        variant={"destructive"}
+                        size={"icon-sm"}
+                      >
+                        <X />
+                      </Button>
+                    </CardAction>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      control={formContext.control}
+                      name={`stages.${stageIdx}.phases.${idx}.formatId`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Type</FormLabel>
+                          <FormDescription>
+                            The type of stage to be played
+                          </FormDescription>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              {...field}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {matchFormats?.map((format) => {
+                                  return (
+                                    <SelectItem
+                                      key={format.id}
+                                      value={format.id}
+                                    >
+                                      {format.displayName}
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={formContext.control}
+                      name={`stages.${stageIdx}.phases.${idx}.matchIndexStart`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Starting Match</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  parseInt(e.target.value || "0", 10),
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={formContext.control}
+                      name={`stages.${stageIdx}.phases.${idx}.matchIndexEnd`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ending Match</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  parseInt(e.target.value || "0", 10),
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </ScrollArea>
+        <Button
+          className="w-full"
+          onClick={() => {
+            phasesArray.append({
+              formatId: "",
+              matchIndexStart: 0,
+              matchIndexEnd: 0,
+            });
+          }}
+        >
+          <Plus />
+          Add Phase
+        </Button>
       </DialogContent>
     </Dialog>
   );
