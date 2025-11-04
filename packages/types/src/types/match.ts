@@ -39,6 +39,33 @@ export const MatchSchema = z.object({
   },
 });
 
+export const MatchFormatSchema = z.object({
+  id: z.uuidv7({ error: "Match Format ID is required." }).trim(),
+  name: z
+    .string({ error: "Match Format name is required." })
+    .trim()
+    .toLowerCase(),
+  displayName: z
+    .string({ error: "Match Format display name is required." })
+    .trim(),
+  shortName: z.string({ error: "Match Format short name is required." }).trim(),
+  targetScore: z.int({
+    error: "Match Format target score must be an integer.",
+  }),
+  gamesPerMatch: z
+    .int({ error: "Match Format games per match must be an integer." })
+    .optional(),
+  gamesSettingTemplateRequired: z
+    .boolean({ error: "Match Format games per match must be a boolean." })
+    .optional(),
+  metadata: z.json().optional(),
+  createdAt: z.iso
+    .datetime({
+      error: "Match Format creation date must be valid ISO datetime.",
+    })
+    .optional(),
+});
+
 export const MatchSummarySchema = MatchSchema.pick({
   id: true,
   team1Id: true,
@@ -57,6 +84,12 @@ export const MatchViewModelSchema = MatchSchema.pick({
   result: true,
   games: true,
   matchIndex: true,
+});
+
+export const MatchFormatViewModelSchema = MatchFormatSchema.pick({
+  id: true,
+  name: true,
+  displayName: true,
 });
 
 export const GameSchema = z.object({
@@ -104,6 +137,8 @@ export type Match = z.infer<typeof MatchSchema>;
 export type MatchSummary = z.infer<typeof MatchSummarySchema>;
 
 export type MatchViewModel = z.infer<typeof MatchViewModelSchema>;
+export type MatchFormat = z.infer<typeof MatchFormatSchema>;
+export type MatchFormatViewModel = z.infer<typeof MatchFormatViewModelSchema>;
 
 export type Game = z.infer<typeof GameSchema>;
 

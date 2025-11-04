@@ -39,6 +39,7 @@ import { TitlesController } from "./titles/titles.controller";
 import { TitlesService } from "./titles/titles.service";
 import { TitleModule } from "./titles/titles.module";
 import { StagesModule } from './stages/stages.module';
+import { MatchesModule } from './matches/matches.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { StagesModule } from './stages/stages.module';
     HubsModule,
     TitleModule,
     StagesModule,
+    MatchesModule,
   ],
   controllers: [
     AppController,
