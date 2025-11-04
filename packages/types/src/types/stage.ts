@@ -54,8 +54,6 @@ export const StageSchema = z.object({
     .optional(),
   typeId: z.uuidv7({ error: "Stage type is required." }).trim(),
   status: z.enum(StageStatus, { error: "Stage status is required." }),
-  scheduledAt: z.iso.datetime({ error: "Stage start date is required." }),
-  scheduledEndAt: z.iso.datetime({ error: "Stage end date is required." }),
   createdAt: z.iso
     .datetime({ error: "Stage creation date is required." })
     .optional(),
@@ -165,10 +163,10 @@ export const StageSettingSchema = z.object({
     error: "Per match side veto selection is required.",
   }),
   titleSettings: z.json().optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-  registrationStartDate: z.date().optional(),
-  registrationEndDate: z.date().optional(),
+  startDate: z.iso.datetime().optional(),
+  endDate: z.iso.datetime().optional(),
+  registrationStartDate: z.iso.datetime().optional(),
+  registrationEndDate: z.iso.datetime().optional(),
   seedingType: z.enum(StageSeedingType, {
     error: "Stage seeding type is required.",
   }),

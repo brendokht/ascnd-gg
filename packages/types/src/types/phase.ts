@@ -5,8 +5,12 @@ export const PhaseSchema = z.object({
   id: z.uuidv7({ error: "Phase ID is required." }).trim(),
   stageId: z.uuidv7({ error: "Stage ID is required." }).trim(),
   formatId: z.uuidv7({ error: "Match format ID is required." }).trim(),
-  matchIndexStart: z.int({ error: "Starting match index is required." }),
-  matchIndexEnd: z.int({ error: "Ending match index is required." }),
+  matchIndexStart: z
+    .int({ error: "Starting match index is required." })
+    .min(0, { error: "Starting match index must be a positive number." }),
+  matchIndexEnd: z
+    .int({ error: "Ending match index is required." })
+    .min(0, { error: "Ending match index must be a positive number." }),
   createdAt: z.iso
     .datetime({ error: "Phase creation date is required." })
     .optional(),
