@@ -2,6 +2,7 @@ import * as z from "zod";
 import { HubSchema } from "../types";
 import { createZodDto } from "nestjs-zod";
 
+// TODO: Make displayName required
 export const createHubSchema = z.object({
   ...HubSchema.pick({ displayName: true }).partial({
     displayName: true,
