@@ -40,6 +40,8 @@ import { TitlesService } from "./titles/titles.service";
 import { TitleModule } from "./titles/titles.module";
 import { StagesModule } from './stages/stages.module';
 import { MatchesModule } from './matches/matches.module';
+import { EventsModule } from './events/events.module';
+import { PhasesModule } from './phases/phases.module';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { MatchesModule } from './matches/matches.module';
     TitleModule,
     StagesModule,
     MatchesModule,
+    EventsModule,
+    PhasesModule,
   ],
   controllers: [
     AppController,
