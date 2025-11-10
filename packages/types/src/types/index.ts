@@ -4,6 +4,7 @@ export * from "./hub";
 export * from "./event";
 export * from "./match";
 export * from "./stage";
+export * from "./phase";
 export * from "./title";
 export * from "./error";
 export * from "./team-invites";
