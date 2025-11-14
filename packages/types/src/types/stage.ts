@@ -54,6 +54,12 @@ export const StageSchema = z.object({
     .optional(),
   typeId: z.uuidv7({ error: "Stage type is required." }).trim(),
   status: z.enum(StageStatus, { error: "Stage status is required." }),
+  scheduledAt: z.iso
+    .datetime({ error: "Stage start date is required." })
+    .optional(),
+  scheduledEndAt: z.iso
+    .datetime({ error: "Stage end date is required." })
+    .optional(),
   createdAt: z.iso
     .datetime({ error: "Stage creation date is required." })
     .optional(),
@@ -100,7 +106,8 @@ export const StageViewModelSchema = StageSchema.pick({
   logo: true,
   banner: true,
   status: true,
-  createdAt: true,
+  scheduledAt: true,
+  scheduledEndAt: true,
 }).extend({
   isEventOwner: z.boolean().optional(),
 });
