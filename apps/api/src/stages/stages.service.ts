@@ -13,12 +13,14 @@ import { User } from "@ascnd-gg/database";
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getPublicUrl, parseKey } from "../utils";
 import { StorageService } from "../storage/storage.service";
+import { PhasesService } from "../phases/phases.service";
 
 @Injectable()
 export class StagesService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly storageService: StorageService,
+    private readonly phaseService: PhasesService,
   ) {}
 
   async getStageById(
@@ -186,6 +188,8 @@ export class StagesService {
         );
       }
 
+      await this.phaseService.createPhases(user, createStageDto.phases);
+
       const stage = await tx.stage.update({
         data: {
           logo: logoKey ? getPublicUrl(logoKey) : null,
@@ -212,6 +216,140 @@ export class StagesService {
       scheduledEndAt: stage.scheduledEndAt.toISOString(),
       isEventOwner: stage.event.hub.hubOwnerId === user.id,
     };
+  }
+
+  async createStages(
+    user: User,
+    createStageDto: Array<CreateStageDto>,
+    files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
+  ): Promise<Array<StageViewModel>> {
+    const logoFiles = files.logo ?? [];
+    const bannerFiles = files.banner ?? [];
+
+    const createdStages = await this.prismaService.$transaction(async (tx) => {
+      const createdRecords = await Promise.all(
+        createStageDto.map((dto) =>
+          tx.stage.create({
+            data: {
+              name: dto.displayName.toLowerCase(),
+              displayName: dto.displayName,
+              description: dto.description,
+              scheduledAt: dto.scheduledAt,
+              scheduledEndAt: dto.scheduledEndAt,
+              event: { connect: { id: dto.eventId } },
+              status:
+                dto.scheduledAt &&
+                new Date(dto.scheduledAt as string).getTime() > Date.now()
+                  ? "REGISTRATION_OPEN"
+                  : "PENDING",
+              stageType: { connect: { id: dto.typeId } },
+            },
+            select: { id: true },
+          }),
+        ),
+      );
+
+      const logoKeys: Array<string | undefined> = new Array(
+        createdRecords.length,
+      );
+      const bannerKeys: Array<string | undefined> = new Array(
+        createdRecords.length,
+      );
+
+      await Promise.all(
+        createdRecords.map(async (rec, i) => {
+          const ops: Promise<any>[] = [];
+
+          const logoFile = logoFiles[i];
+          if (logoFile && logoFile.size > 0) {
+            const key = `stages/${rec.id}/logo.${logoFile.mimetype.split("/")[1]}`;
+            logoKeys[i] = key;
+            ops.push(
+              this.storageService.client.send(
+                new PutObjectCommand({
+                  Bucket: process.env.S3_BUCKET,
+                  Key: key,
+                  Body: logoFile.buffer,
+                  ContentType: logoFile.mimetype,
+                }),
+              ),
+            );
+          } else {
+            logoKeys[i] = undefined;
+          }
+
+          const bannerFile = bannerFiles[i];
+          if (bannerFile && bannerFile.size > 0) {
+            const key = `stages/${rec.id}/banner.${bannerFile.mimetype.split("/")[1]}`;
+            bannerKeys[i] = key;
+            ops.push(
+              this.storageService.client.send(
+                new PutObjectCommand({
+                  Bucket: process.env.S3_BUCKET,
+                  Key: key,
+                  Body: bannerFile.buffer,
+                  ContentType: bannerFile.mimetype,
+                }),
+              ),
+            );
+          } else {
+            bannerKeys[i] = undefined;
+          }
+
+          if (ops.length > 0) {
+            await Promise.all(ops);
+          }
+        }),
+      );
+
+      const updatedStages = await Promise.all(
+        createdRecords.map((rec, i) =>
+          tx.stage.update({
+            data: {
+              logo: logoKeys[i] ? getPublicUrl(logoKeys[i]) : null,
+              banner: bannerKeys[i] ? getPublicUrl(bannerKeys[i]) : null,
+            },
+            where: { id: rec.id },
+            include: {
+              event: { select: { hub: { select: { hubOwnerId: true } } } },
+            },
+          }),
+        ),
+      );
+
+      return updatedStages;
+    });
+
+    await Promise.all(
+      createdStages.map((stage, i) => {
+        const phaseInputs =
+          createStageDto[i].phases?.map((p) => ({
+            ...p,
+            stageId: stage.id,
+          })) ?? [];
+
+        if (phaseInputs.length === 0) {
+          return Promise.resolve([]);
+        }
+
+        return this.phaseService.createPhases(user, phaseInputs);
+      }),
+    );
+
+    return createdStages.map((stage) => {
+      return {
+        id: stage.id,
+        name: stage.name,
+        displayName: stage.displayName,
+        description: stage.description,
+        status: stage.status,
+        logo: stage.logo,
+        banner: stage.banner,
+        scheduledAt: stage.scheduledAt.toISOString(),
+        scheduledEndAt: stage.scheduledEndAt.toISOString(),
+        isEventOwner: stage.event.hub.hubOwnerId === user.id,
+      };
+    });
   }
   async updateStage(
     user: User,
