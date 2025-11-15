@@ -60,8 +60,10 @@ export class PhasesService {
 
     return phase;
   }
-
-  async createPhase(user: User, createHubDto: CreatePhaseDto) {
+  async createPhase(
+    user: User,
+    createHubDto: CreatePhaseDto,
+  ): Promise<PhaseViewModel> {
     const phaseCreate = await this.prismaService.$transaction(async (tx) => {
       const createRes = await tx.phase.create({
         data: {
@@ -91,6 +93,50 @@ export class PhasesService {
     };
 
     return createdPhase;
+  }
+  async createPhases(
+    user: User,
+    createPhaseDto: Array<CreatePhaseDto>,
+  ): Promise<Array<PhaseViewModel>> {
+    if (!createPhaseDto || createPhaseDto.length === 0) {
+      return [];
+    }
+
+    const createdPhases = await this.prismaService.$transaction(async (tx) => {
+      const createdRecords = await Promise.all(
+        createPhaseDto.map((dto) =>
+          tx.phase.create({
+            data: {
+              stageId: dto.stageId,
+              matchFormatId: dto.formatId,
+              matchIndexStart: dto.matchIndexStart,
+              matchIndexEnd: dto.matchIndexEnd,
+            },
+            select: {
+              id: true,
+              stageId: true,
+              matchFormatId: true,
+              matchIndexStart: true,
+              matchIndexEnd: true,
+            },
+          }),
+        ),
+      );
+
+      return createdRecords;
+    });
+
+    const phases = createdPhases.map((rec) => {
+      return {
+        id: rec.id,
+        stageId: rec.stageId,
+        formatId: rec.matchFormatId,
+        matchIndexStart: rec.matchIndexStart,
+        matchIndexEnd: rec.matchIndexEnd,
+      };
+    });
+
+    return phases;
   }
   async updatePhase(
     user: User,
