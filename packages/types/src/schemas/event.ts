@@ -3,21 +3,16 @@ import { EventSchema } from "../types";
 import { createZodDto } from "nestjs-zod";
 import { createStageSchema } from "./stage";
 
-export const createEventDataSchema = EventSchema.pick({
-  displayName: true,
-  description: true,
-  titleId: true,
-})
-  .partial({
+export const createEventSchema = z.object({
+  ...EventSchema.pick({
+    displayName: true,
+    hubId: true,
     description: true,
-  })
-  .extend({
+    titleId: true,
+  }).extend({
     logo: z.instanceof(Blob).nullish(),
     banner: z.instanceof(Blob).nullish(),
-  });
-
-export const createEventSchema = z.object({
-  ...createEventDataSchema.shape,
+  }).shape,
   stages: z
     .array(createStageSchema)
     .min(1, { error: "An event needs at least 1 stage." }),
@@ -37,7 +32,6 @@ export const eventNameParameterSchema = z
   })
   .required();
 
-export type CreateEventData = z.infer<typeof createEventDataSchema>;
 export type CreateEvent = z.infer<typeof createEventSchema>;
 export type EditEvent = z.infer<typeof editEventSchema>;
 

@@ -1,4 +1,5 @@
 import type {
+  HubSummary,
   MatchFormatViewModel,
   StageTypeViewModel,
   TitleViewModel,
@@ -11,6 +12,11 @@ import { headers } from "next/headers";
 
 export default async function CreateHub() {
   await validateSession();
+
+  const userHubsPromise = fetchApi<Array<HubSummary>>(
+    "/me/hubs",
+    await headers(),
+  );
 
   const titlesPromise = fetchApi<Array<TitleViewModel>>(
     "/titles",
@@ -27,16 +33,25 @@ export default async function CreateHub() {
     await headers(),
   );
 
-  const [titlesResult, stageTypesResult, matchFormatsResult] =
+  const [userHubsResult, titlesResult, stageTypesResult, matchFormatsResult] =
     await Promise.allSettled([
+      userHubsPromise,
       titlesPromise,
       stageTypesPromise,
       matchFormatsPromise,
     ]);
 
+  let hubs: Array<HubSummary> | null = null;
   let titles: Array<TitleViewModel> | null = null;
   let stageTypes: Array<StageTypeViewModel> | null = null;
   let matchFormats: Array<MatchFormatViewModel> | null = null;
+
+  if (userHubsResult?.status === "fulfilled") {
+    const { data: userHubsData, error: userHubsError } = userHubsResult.value;
+
+    if (userHubsError) hubs = null;
+    else hubs = userHubsData ?? [];
+  }
 
   if (titlesResult?.status === "fulfilled") {
     const { data: teamInvitesData, error: teamInvitesError } =
@@ -73,6 +88,7 @@ export default async function CreateHub() {
       <Card>
         <CardContent>
           <CreateEventForm
+            hubs={hubs}
             titles={titles}
             stageTypes={stageTypes}
             matchFormats={matchFormats}

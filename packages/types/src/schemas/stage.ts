@@ -12,8 +12,6 @@ export const createStageSchema = z
       typeId: true,
       scheduledAt: true,
       scheduledEndAt: true,
-    }).partial({
-      description: true,
     }).shape,
     logo: z.instanceof(Blob).nullish(),
     banner: z.instanceof(Blob).nullish(),
@@ -33,7 +31,6 @@ export const createStageSchema = z
       path: ["stageSettings.drawPolicy"],
     },
   );
-
 export const editStageSchema = createStageSchema.partial();
 
 export const stageIdParameterSchema = z
