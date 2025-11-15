@@ -1,10 +1,8 @@
 "use client";
 
 import { Fragment, useEffect, type ReactNode } from "react";
-import { createStageSchema, createEventDataSchema } from "@ascnd-gg/types";
+import { createEventSchema } from "@ascnd-gg/types";
 import type {
-  CreateEventData,
-  CreateStage,
   TitleData,
   TitleViewModel,
   StageTypeViewModel,
@@ -13,6 +11,8 @@ import type {
   TitleItemViewModel,
   TitleGamemodeViewModel,
   MatchFormatViewModel,
+  CreateEvent,
+  HubSummary,
 } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
@@ -68,17 +68,25 @@ import {
 } from "@ascnd-gg/ui/components/ui/dialog";
 import { ScrollArea } from "@ascnd-gg/ui/components/ui/scroll-area";
 import { cn } from "@ascnd-gg/ui/lib/utils";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@ascnd-gg/ui/components/ui/avatar";
+
+type EventData = Omit<CreateEvent, "stages">;
+type StagesData = Pick<CreateEvent, "stages">;
 
 const { useStepper, steps, utils } = defineStepper(
   {
     id: "event",
     label: "Event",
-    schema: createEventDataSchema,
+    schema: createEventSchema.omit({ stages: true }),
   },
   {
     id: "stages",
     label: "Stages",
-    schema: createStageSchema,
+    schema: createEventSchema.pick({ stages: true }),
   },
 );
 
@@ -91,10 +99,12 @@ nowPlusTwoWeeks.setDate(nowPlusTwoWeeks.getDate() + 14);
 // TODO: Add max width and height to logo and banner preview
 
 export default function CreateEventForm({
+  hubs,
   titles,
   stageTypes,
   matchFormats,
 }: {
+  hubs: Array<HubSummary> | null;
   titles: Array<TitleViewModel> | null;
   stageTypes: Array<StageTypeViewModel> | null;
   matchFormats: Array<MatchFormatViewModel> | null;
@@ -107,7 +117,6 @@ export default function CreateEventForm({
     defaultValues: {
       displayName: "",
       titleId: "",
-      stages: [],
     },
   });
 
@@ -119,7 +128,7 @@ export default function CreateEventForm({
 
     stepper.switch({
       event: async () => {
-        const eventData = values as CreateEventData;
+        const eventData = values as Omit<CreateEvent, "stages">;
         setTitle(titles?.find((e) => e.id === eventData.titleId));
 
         // TODO: Test all games ensuring proper event set up
@@ -259,7 +268,7 @@ export default function CreateEventForm({
         </nav>
         <div className="space-y-4">
           {stepper.switch({
-            event: () => <EventForm titles={titles} />,
+            event: () => <EventForm hubs={hubs} titles={titles} />,
             stages: () => (
               <StagesForm
                 stageTypes={stageTypes}
@@ -287,8 +296,14 @@ export default function CreateEventForm({
   );
 }
 
-function EventForm({ titles }: { titles: Array<TitleViewModel> | null }) {
-  const formContext = useFormContext<CreateEventData>();
+function EventForm({
+  hubs,
+  titles,
+}: {
+  hubs: Array<HubSummary> | null;
+  titles: Array<TitleViewModel> | null;
+}) {
+  const formContext = useFormContext<EventData>();
 
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [bannerPreview, setBannerPreview] = useState<string>("");
@@ -318,6 +333,48 @@ function EventForm({ titles }: { titles: Array<TitleViewModel> | null }) {
             <FormDescription>Your event&apos;s description</FormDescription>
             <FormControl>
               <Textarea className="max-h-36" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={formContext.control}
+        name="hubId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Hub</FormLabel>
+            <FormDescription>
+              The hub for the event to be hosted under
+            </FormDescription>
+            <FormControl>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                {...field}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Hub" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hubs?.map((hub) => {
+                    return (
+                      <SelectItem key={hub.id} value={hub.id}>
+                        <Avatar>
+                          <AvatarImage
+                            src={hub.logo}
+                            alt={`${hub.displayName}'s logo`}
+                          />
+                          <AvatarFallback>
+                            {hub.name.toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        {hub.displayName}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -468,7 +525,7 @@ function StagesForm({
   title: TitleViewModel | undefined;
   titleData: TitleData | undefined;
 }) {
-  const formContext = useFormContext<CreateStage>();
+  const formContext = useFormContext<StagesData>();
 
   const stagesArray = useFieldArray({
     control: formContext.control,
@@ -761,6 +818,7 @@ function StagesForm({
           stagesArray.append({
             displayName: "",
             typeId: "",
+            eventId: "",
             phases: [],
             stageSettings: {
               minTeams: 2,
@@ -804,7 +862,7 @@ function StageSettingsDialog({
   titleData,
 }: {
   children: ReactNode;
-  formContext: UseFormReturn<CreateStage>;
+  formContext: UseFormReturn<StagesData>;
   idx: number;
   titleData: TitleData | undefined;
 }) {
@@ -1505,7 +1563,7 @@ function PhasesDialog({
   matchFormats,
 }: {
   children: ReactNode;
-  formContext: UseFormReturn<CreateStage>;
+  formContext: UseFormReturn<StagesData>;
   stageIdx: number;
   matchFormats: Array<MatchFormatViewModel> | null;
 }) {
@@ -1650,6 +1708,7 @@ function PhasesDialog({
           onClick={() => {
             phasesArray.append({
               formatId: "",
+              stageId: "",
               matchIndexStart: 0,
               matchIndexEnd: 0,
             });
