@@ -13,8 +13,6 @@ export const createStageSchema = z
       scheduledAt: true,
       scheduledEndAt: true,
     }).shape,
-    logo: z.instanceof(Blob).nullish(),
-    banner: z.instanceof(Blob).nullish(),
     stageSettings: StageSettingSchema.omit({
       isLocked: true,
       stageId: true,

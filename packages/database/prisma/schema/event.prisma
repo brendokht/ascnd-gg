@@ -27,8 +27,6 @@ model Stage {
   name           String
   displayName    String      @map("display_name")
   description    String?
-  logo           String?
-  banner         String?
   stageTypeId    String      @map("stage_type_id")
   stageType      StageType   @relation(fields: [stageTypeId], references: [id], onDelete: Cascade)
   status         StageStatus

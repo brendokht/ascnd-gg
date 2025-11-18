@@ -63,8 +63,6 @@ export class EventsService {
           id: stage.id,
           name: stage.name,
           displayName: stage.displayName,
-          logo: stage.logo,
-          banner: stage.banner,
           status: stage.status,
           isEventOwner: eventSelect.hub.hubOwnerId === user.id,
         };
@@ -110,8 +108,6 @@ export class EventsService {
           id: stage.id,
           name: stage.name,
           displayName: stage.displayName,
-          logo: stage.logo,
-          banner: stage.banner,
           status: stage.status,
           isEventOwner: eventSelect.hub.hubOwnerId === user.id,
         };
@@ -143,7 +139,7 @@ export class EventsService {
               createEventDto.stages.length - 1,
             ).scheduledEndAt,
             // TODO: Allow selection of Hub for Event
-            hubId: "temp",
+            hubId: createEventDto.hubId,
             titleId: createEventDto.titleId,
           },
           select: { id: true },
@@ -179,12 +175,11 @@ export class EventsService {
           );
         }
 
-        await this.stageService.createStages(
-          user,
-          createEventDto.stages,
-          // TODO: Fix file input for event creation
-          undefined,
-        );
+        createEventDto.stages.forEach((stage) => {
+          stage.eventId = newEventId;
+        });
+
+        await this.stageService.createStages(user, createEventDto.stages);
 
         const event = await tx.event.update({
           data: {
