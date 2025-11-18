@@ -10,16 +10,12 @@ import {
   StageViewModel,
 } from "@ascnd-gg/types";
 import { User } from "@ascnd-gg/database";
-import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getPublicUrl, parseKey } from "../utils";
-import { StorageService } from "../storage/storage.service";
 import { PhasesService } from "../phases/phases.service";
 
 @Injectable()
 export class StagesService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly storageService: StorageService,
     private readonly phaseService: PhasesService,
   ) {}
 
@@ -35,8 +31,6 @@ export class StagesService {
         name: true,
         description: true,
         status: true,
-        logo: true,
-        banner: true,
         // TOOD: Optimize this query
         event: {
           select: {
@@ -62,8 +56,6 @@ export class StagesService {
       name: stageSelect.name,
       description: stageSelect.description,
       status: stageSelect.status,
-      logo: stageSelect.logo,
-      banner: stageSelect.banner,
       isEventOwner: stageSelect.event.hub.hubOwnerId === user.id,
       scheduledAt: stageSelect.scheduledAt.toISOString(),
       scheduledEndAt: stageSelect.scheduledEndAt.toISOString(),
@@ -84,8 +76,6 @@ export class StagesService {
         name: true,
         description: true,
         status: true,
-        logo: true,
-        banner: true,
         // TOOD: Optimize this query
         event: {
           select: {
@@ -112,8 +102,6 @@ export class StagesService {
         name: stage.name,
         description: stage.description,
         status: stage.status,
-        logo: stage.logo,
-        banner: stage.banner,
         isEventOwner: stage.event.hub.hubOwnerId === user.id,
         scheduledAt: stage.scheduledAt.toISOString(),
         scheduledEndAt: stage.scheduledEndAt.toISOString(),
@@ -126,10 +114,9 @@ export class StagesService {
   async createStage(
     user: User,
     createStageDto: CreateStageDto,
-    files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ): Promise<StageViewModel> {
     const stage = await this.prismaService.$transaction(async (tx) => {
-      const { id: createdStageId } = await tx.stage.create({
+      const stage = await tx.stage.create({
         data: {
           name: createStageDto.displayName.toLowerCase(),
           displayName: createStageDto.displayName,
@@ -155,51 +142,29 @@ export class StagesService {
         },
         select: {
           id: true,
+          name: true,
+          displayName: true,
+          description: true,
+          status: true,
+          scheduledAt: true,
+          scheduledEndAt: true,
+          event: {
+            select: {
+              hub: {
+                select: {
+                  hubOwnerId: true,
+                },
+              },
+            },
+          },
         },
       });
 
-      let logoKey: string | undefined = undefined;
-
-      if (files.logo) {
-        logoKey = `stages/${createdStageId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
-
-        await this.storageService.client.send(
-          new PutObjectCommand({
-            Bucket: process.env.S3_BUCKET,
-            Key: logoKey,
-            Body: files.logo.at(0).buffer,
-            ContentType: files.logo.at(0).mimetype,
-          }),
-        );
-      }
-
-      let bannerKey: string | undefined = undefined;
-
-      if (files.banner) {
-        bannerKey = `stages/${createdStageId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
-
-        await this.storageService.client.send(
-          new PutObjectCommand({
-            Bucket: process.env.S3_BUCKET,
-            Key: bannerKey,
-            Body: files.banner.at(0).buffer,
-            ContentType: files.banner.at(0).mimetype,
-          }),
-        );
-      }
+      createStageDto.phases.forEach((phase) => {
+        phase.stageId = stage.id;
+      });
 
       await this.phaseService.createPhases(user, createStageDto.phases);
-
-      const stage = await tx.stage.update({
-        data: {
-          logo: logoKey ? getPublicUrl(logoKey) : null,
-          banner: bannerKey ? getPublicUrl(bannerKey) : null,
-        },
-        where: { id: createdStageId },
-        include: {
-          event: { select: { hub: { select: { hubOwnerId: true } } } },
-        },
-      });
 
       return stage;
     });
@@ -210,8 +175,6 @@ export class StagesService {
       displayName: stage.displayName,
       description: stage.description,
       status: stage.status,
-      logo: stage.logo,
-      banner: stage.banner,
       scheduledAt: stage.scheduledAt.toISOString(),
       scheduledEndAt: stage.scheduledEndAt.toISOString(),
       isEventOwner: stage.event.hub.hubOwnerId === user.id,
@@ -221,13 +184,9 @@ export class StagesService {
   async createStages(
     user: User,
     createStageDto: Array<CreateStageDto>,
-    files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ): Promise<Array<StageViewModel>> {
-    const logoFiles = files.logo ?? [];
-    const bannerFiles = files.banner ?? [];
-
     const createdStages = await this.prismaService.$transaction(async (tx) => {
-      const createdRecords = await Promise.all(
+      const stages = await Promise.all(
         createStageDto.map((dto) =>
           tx.stage.create({
             data: {
@@ -244,80 +203,21 @@ export class StagesService {
                   : "PENDING",
               stageType: { connect: { id: dto.typeId } },
             },
-            select: { id: true },
-          }),
-        ),
-      );
-
-      const logoKeys: Array<string | undefined> = new Array(
-        createdRecords.length,
-      );
-      const bannerKeys: Array<string | undefined> = new Array(
-        createdRecords.length,
-      );
-
-      await Promise.all(
-        createdRecords.map(async (rec, i) => {
-          const ops: Promise<any>[] = [];
-
-          const logoFile = logoFiles[i];
-          if (logoFile && logoFile.size > 0) {
-            const key = `stages/${rec.id}/logo.${logoFile.mimetype.split("/")[1]}`;
-            logoKeys[i] = key;
-            ops.push(
-              this.storageService.client.send(
-                new PutObjectCommand({
-                  Bucket: process.env.S3_BUCKET,
-                  Key: key,
-                  Body: logoFile.buffer,
-                  ContentType: logoFile.mimetype,
-                }),
-              ),
-            );
-          } else {
-            logoKeys[i] = undefined;
-          }
-
-          const bannerFile = bannerFiles[i];
-          if (bannerFile && bannerFile.size > 0) {
-            const key = `stages/${rec.id}/banner.${bannerFile.mimetype.split("/")[1]}`;
-            bannerKeys[i] = key;
-            ops.push(
-              this.storageService.client.send(
-                new PutObjectCommand({
-                  Bucket: process.env.S3_BUCKET,
-                  Key: key,
-                  Body: bannerFile.buffer,
-                  ContentType: bannerFile.mimetype,
-                }),
-              ),
-            );
-          } else {
-            bannerKeys[i] = undefined;
-          }
-
-          if (ops.length > 0) {
-            await Promise.all(ops);
-          }
-        }),
-      );
-
-      const updatedStages = await Promise.all(
-        createdRecords.map((rec, i) =>
-          tx.stage.update({
-            data: {
-              logo: logoKeys[i] ? getPublicUrl(logoKeys[i]) : null,
-              banner: bannerKeys[i] ? getPublicUrl(bannerKeys[i]) : null,
-            },
-            where: { id: rec.id },
-            include: {
+            select: {
+              id: true,
+              name: true,
+              displayName: true,
+              description: true,
+              status: true,
+              scheduledAt: true,
+              scheduledEndAt: true,
               event: { select: { hub: { select: { hubOwnerId: true } } } },
             },
           }),
         ),
       );
 
-      return updatedStages;
+      return stages;
     });
 
     await Promise.all(
@@ -343,8 +243,6 @@ export class StagesService {
         displayName: stage.displayName,
         description: stage.description,
         status: stage.status,
-        logo: stage.logo,
-        banner: stage.banner,
         scheduledAt: stage.scheduledAt.toISOString(),
         scheduledEndAt: stage.scheduledEndAt.toISOString(),
         isEventOwner: stage.event.hub.hubOwnerId === user.id,
@@ -355,7 +253,6 @@ export class StagesService {
     user: User,
     params: StageIdParameterDto,
     editStageDto: EditStageDto,
-    files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ): Promise<StageViewModel> {
     const {
       event: {
@@ -372,8 +269,8 @@ export class StagesService {
       );
     }
 
-    const stage = await this.prismaService.$transaction(async (tx) => {
-      const { logo: oldLogoUrl, banner: oldBannerUrl } = await tx.stage.update({
+    const updatedStage = await this.prismaService.$transaction(async (tx) => {
+      const stage = await tx.stage.update({
         data: {
           displayName: editStageDto.displayName ?? undefined,
           name: editStageDto.displayName
@@ -389,99 +286,30 @@ export class StagesService {
           },
         },
         where: { id: params.stageId },
-        select: { logo: true, banner: true },
-      });
-
-      let logoKey: string | undefined | null = undefined;
-      if (files.logo) {
-        if (files.logo.at(0).size > 0) {
-          if (oldLogoUrl) {
-            await this.storageService.client.send(
-              new DeleteObjectCommand({
-                Bucket: process.env.S3_BUCKET,
-                Key: parseKey(oldLogoUrl),
-              }),
-            );
-          }
-
-          logoKey = `stages/${params.stageId}/logo.${files.logo.at(0).mimetype.split("/")[1]}`;
-          await this.storageService.client.send(
-            new PutObjectCommand({
-              Bucket: process.env.S3_BUCKET,
-              Key: logoKey,
-              Body: files.logo.at(0).buffer,
-              ContentType: files.logo.at(0).mimetype,
-            }),
-          );
-        } else {
-          logoKey = null;
-          await this.storageService.client.send(
-            new DeleteObjectCommand({
-              Bucket: process.env.S3_BUCKET,
-              Key: parseKey(oldLogoUrl),
-            }),
-          );
-        }
-      }
-
-      let bannerKey: string | undefined | null = undefined;
-
-      if (files.banner) {
-        if (files.banner[0].size > 0) {
-          if (oldBannerUrl) {
-            await this.storageService.client.send(
-              new DeleteObjectCommand({
-                Bucket: process.env.S3_BUCKET,
-                Key: parseKey(oldBannerUrl),
-              }),
-            );
-          }
-
-          bannerKey = `stages/${params.stageId}/banner.${files.banner.at(0).mimetype.split("/")[1]}`;
-          await this.storageService.client.send(
-            new PutObjectCommand({
-              Bucket: process.env.S3_BUCKET,
-              Key: bannerKey,
-              Body: files.banner.at(0).buffer,
-              ContentType: files.banner.at(0).mimetype,
-            }),
-          );
-        } else {
-          bannerKey = null;
-          await this.storageService.client.send(
-            new DeleteObjectCommand({
-              Bucket: process.env.S3_BUCKET,
-              Key: parseKey(oldBannerUrl),
-            }),
-          );
-        }
-      }
-
-      const updatedStage = await tx.stage.update({
-        data: {
-          logo: logoKey ? getPublicUrl(logoKey) : logoKey,
-          banner: bannerKey ? getPublicUrl(bannerKey) : bannerKey,
-        },
-        where: { id: params.stageId },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          displayName: true,
+          description: true,
+          status: true,
+          scheduledAt: true,
+          scheduledEndAt: true,
           event: { select: { hub: { select: { hubOwnerId: true } } } },
         },
       });
 
-      return updatedStage;
+      return stage;
     });
 
     return {
-      id: stage.id,
-      name: stage.name,
-      displayName: stage.displayName,
-      description: stage.description,
-      status: stage.status,
-      logo: stage.logo,
-      banner: stage.banner,
-      scheduledAt: stage.scheduledAt.toISOString(),
-      scheduledEndAt: stage.scheduledEndAt.toISOString(),
-      isEventOwner: stage.event.hub.hubOwnerId === user.id,
+      id: updatedStage.id,
+      name: updatedStage.name,
+      displayName: updatedStage.displayName,
+      description: updatedStage.description,
+      status: updatedStage.status,
+      scheduledAt: updatedStage.scheduledAt.toISOString(),
+      scheduledEndAt: updatedStage.scheduledEndAt.toISOString(),
+      isEventOwner: updatedStage.event.hub.hubOwnerId === user.id,
     };
   }
 

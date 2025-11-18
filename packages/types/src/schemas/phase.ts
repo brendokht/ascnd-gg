@@ -4,8 +4,8 @@ import { createZodDto } from "nestjs-zod";
 
 export const createPhaseSchema = z.object({
   ...PhaseSchema.pick({
-    stageId: true,
     formatId: true,
+    stageId: true,
     matchIndexStart: true,
     matchIndexEnd: true,
   }).shape,

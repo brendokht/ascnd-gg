@@ -44,14 +44,6 @@ export const StageSchema = z.object({
         "Stage name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
   description: z.string().trim().max(STAGE_DESCRIPTION_MAX_LENGTH).optional(),
-  logo: z
-    .url({ error: "Stage logo is must be a URL pointing to an image." })
-    .trim()
-    .optional(),
-  banner: z
-    .url({ error: "Stage banner is must be a URL pointing to an image." })
-    .trim()
-    .optional(),
   typeId: z.uuidv7({ error: "Stage type is required." }).trim(),
   status: z.enum(StageStatus, { error: "Stage status is required." }),
   scheduledAt: z.iso
