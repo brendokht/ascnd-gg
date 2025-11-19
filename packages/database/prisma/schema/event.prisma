@@ -88,7 +88,7 @@ model StageSetting {
   seedingType            StageSeedingType      @map("seeding_type")
   joinType               StageJoinType         @map("join_type")
   isLocked               Boolean               @map("is_locked")
-  stageSettingTemplateId String
+  stageSettingTemplateId String?               @map("stage_setting_template_id")
   stageSettingTemplate   StageSettingTemplate? @relation(fields: [stageSettingTemplateId], references: [id], onDelete: Cascade)
   createdAt              DateTime              @default(now()) @map("created_at")
   updatedAt              DateTime              @default(now()) @updatedAt @map("updated_at")

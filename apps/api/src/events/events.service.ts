@@ -16,6 +16,9 @@ import { StorageService } from "../storage/storage.service";
 import { StagesService } from "../stages/stages.service";
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getPublicUrl, parseKey } from "../utils";
+import { v7 } from "uuid";
+
+// TODO: Fix any depepdant write issues within transactions https://www.prisma.io/docs/orm/prisma-client/queries/transactions#dependent-writes
 
 @Injectable()
 export class EventsService {
@@ -45,7 +48,7 @@ export class EventsService {
       },
     });
 
-    if (eventSelect) {
+    if (!eventSelect) {
       return null;
     }
 
@@ -75,7 +78,7 @@ export class EventsService {
 
   async getEventByName(params: EventNameParameterDto, user: User) {
     const eventSelect = await this.prismaService.event.findFirst({
-      where: { displayName: params.eventName },
+      where: { name: params.eventName },
       select: {
         id: true,
         name: true,
@@ -90,7 +93,7 @@ export class EventsService {
       },
     });
 
-    if (eventSelect) {
+    if (!eventSelect) {
       return null;
     }
 
@@ -123,28 +126,103 @@ export class EventsService {
     createEventDto: CreateEventDto,
     files: { logo?: Express.Multer.File[]; banner?: Express.Multer.File[] },
   ): Promise<EventViewModel> {
+    // Pre-compute UUIDs for event and stages, since operations are dependent on each other
+    const eventId = v7();
+    const stageIds: Array<string> = createEventDto.stages.map(() => v7());
+
+    console.log("createEventDto", createEventDto);
+
     const newEvent = await this.prismaService.$transaction(async (tx) => {
       try {
         const { id: newEventId } = await tx.event.create({
           data: {
+            id: eventId,
             name: createEventDto.displayName.toLowerCase(),
             displayName: createEventDto.displayName,
             description: createEventDto.description,
             status:
-              new Date(createEventDto.stages.at(0).scheduledAt) > new Date()
+              new Date(createEventDto.stages.at(0).stageSettings.startDate) >
+              new Date()
                 ? "REGISTRATION_OPEN"
                 : "REGISTRATION_CLOSED",
-            scheduledAt: createEventDto.stages.at(0).scheduledAt,
+            scheduledAt: createEventDto.stages.at(0).stageSettings.startDate,
             scheduledEndAt: createEventDto.stages.at(
               createEventDto.stages.length - 1,
-            ).scheduledEndAt,
-            // TODO: Allow selection of Hub for Event
+            ).stageSettings.endDate,
             hubId: createEventDto.hubId,
             titleId: createEventDto.titleId,
           },
           select: { id: true },
         });
 
+        await tx.stage.createMany({
+          data: createEventDto.stages.map((stage, idx) => ({
+            id: stageIds.at(idx),
+            name: stage.displayName.toLowerCase(),
+            displayName: stage.displayName,
+            status:
+              new Date(stage.stageSettings.startDate) > new Date()
+                ? "REGISTRATION_OPEN"
+                : "REGISTRATION_CLOSED",
+            scheduledAt: stage.stageSettings.startDate,
+            scheduledEndAt: stage.stageSettings.endDate,
+            eventId: eventId,
+            stageTypeId: stage.typeId,
+          })),
+        });
+
+        await tx.stageSetting.createMany({
+          data: createEventDto.stages.map(({ stageSettings }, idx) => {
+            return {
+              stageId: stageIds.at(idx),
+              minTeams: stageSettings.minTeams,
+              maxTeams: stageSettings.maxTeams,
+              teamSize: stageSettings.teamSize,
+              numberOfSubstitutes: stageSettings.numberOfSubstitutes,
+              numberOfCoaches: stageSettings.numberOfCoaches,
+              allowDraws: stageSettings.allowDraws,
+              drawPolicy: stageSettings.drawPolicy || "ADMIN_DECISION",
+              gameModePoolIds: stageSettings.gamemodePoolIds ?? [],
+              perGameGamemodeVeto: stageSettings.perGameGamemodeVeto,
+              perMatchGamemodeVeto: stageSettings.perMatchGamemodeVeto,
+              mapPoolIds: stageSettings.mapPoolIds ?? [],
+              perGameMapVeto: stageSettings.perGameMapVeto,
+              perMatchMapVeto: stageSettings.perMatchMapVeto,
+              characterPoolIds: stageSettings.characterPoolIds ?? [],
+              perGameCharacterVeto: stageSettings.perGameCharacterVeto,
+              perMatchCharacterVeto: stageSettings.perMatchCharacterVeto,
+              itemPoolIds: stageSettings.itemPoolIds ?? [],
+              perGameItemVeto: stageSettings.perGameItemVeto,
+              perMatchItemVeto: stageSettings.perMatchItemVeto,
+              perGameSideVeto: stageSettings.perGameSideVeto,
+              perMatchSideVeto: stageSettings.perMatchSideVeto,
+              titleSettings: stageSettings.titleSettings ?? Prisma.JsonNull,
+              startDate: stageSettings.startDate,
+              endDate: stageSettings.endDate,
+              registrationStartDate: stageSettings.registrationStartDate,
+              registrationEndDate: stageSettings.registrationEndDate,
+              seedingType: stageSettings.seedingType,
+              joinType: stageSettings.joinType,
+              isLocked: false,
+              stageSettingTemplateId: stageSettings.stageSettingTemplateId,
+            };
+          }),
+        });
+
+        createEventDto.stages.forEach((stage, idx) => {
+          stage.phases.forEach(async (phase) => {
+            await tx.phase.createMany({
+              data: {
+                stageId: stageIds.at(idx),
+                matchFormatId: phase.formatId,
+                matchIndexStart: phase.matchIndexStart,
+                matchIndexEnd: phase.matchIndexEnd,
+              },
+            });
+          });
+        });
+
+        // TODO: Abstract S3 uploads to properly rollback on failure
         let logoKey: string | undefined = undefined;
 
         if (files.logo) {
@@ -174,12 +252,6 @@ export class EventsService {
             }),
           );
         }
-
-        createEventDto.stages.forEach((stage) => {
-          stage.eventId = newEventId;
-        });
-
-        await this.stageService.createStages(user, createEventDto.stages);
 
         const event = await tx.event.update({
           data: {
@@ -212,8 +284,8 @@ export class EventsService {
 
     return {
       id: newEvent.id,
-      name: newEvent.id,
-      displayName: newEvent.id,
+      name: newEvent.name,
+      displayName: newEvent.displayName,
       description: newEvent.description,
       status: newEvent.status,
       logo: newEvent.logo,
