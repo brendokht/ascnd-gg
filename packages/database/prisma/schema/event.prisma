@@ -31,7 +31,9 @@ model Stage {
   stageType      StageType   @relation(fields: [stageTypeId], references: [id], onDelete: Cascade)
   status         StageStatus
   scheduledAt    DateTime    @map("scheduled_at")
-  scheduledEndAt DateTime    @map("scheduled_end_at")
+  scheduledEndAt DateTime?    @map("scheduled_end_at")
+  registrationStartDate  DateTime             @map("registration_start_date")
+  registrationEndDate    DateTime?             @map("registration_end_date")
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @default(now()) @updatedAt @map("updated_at")
 
@@ -81,10 +83,6 @@ model StageSetting {
   perGameSideVeto        Boolean               @map("per_game_side_veto")
   perMatchSideVeto       Boolean               @map("per_match_side_veto")
   titleSettings          Json?                 @map("title_settings") @db.JsonB
-  startDate              DateTime?             @map("start_date")
-  endDate                DateTime?             @map("end_date")
-  registrationStartDate  DateTime?             @map("registration_start_date")
-  registrationEndDate    DateTime?             @map("registration_end_date")
   seedingType            StageSeedingType      @map("seeding_type")
   joinType               StageJoinType         @map("join_type")
   isLocked               Boolean               @map("is_locked")

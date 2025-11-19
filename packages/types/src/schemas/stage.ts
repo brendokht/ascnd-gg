@@ -12,6 +12,8 @@ export const createStageSchema = z
       typeId: true,
       scheduledAt: true,
       scheduledEndAt: true,
+      registrationStartDate: true,
+      registrationEndDate: true,
     }).shape,
     stageSettings: StageSettingSchema.omit({
       isLocked: true,

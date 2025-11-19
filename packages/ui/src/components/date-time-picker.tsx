@@ -15,7 +15,7 @@ import { Input } from "@ascnd-gg/ui/components/ui/input";
 import { useState } from "react";
 
 export default function DateTimePicker({
-  defaultTime = new Date(),
+  defaultTime,
   onDateChange,
 }: {
   defaultTime?: Date;
@@ -23,7 +23,9 @@ export default function DateTimePicker({
 }) {
   const [date, setDate] = useState<Date | undefined>(defaultTime);
   const [time, setTime] = useState<string>(
-    `${date?.toTimeString().split(" ")[0]?.split(":", 2).toString().replace(",", ":")}`,
+    date
+      ? `${date?.toTimeString().split(" ")[0]?.split(":", 2).toString().replace(",", ":")}`
+      : "12:00",
   );
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {

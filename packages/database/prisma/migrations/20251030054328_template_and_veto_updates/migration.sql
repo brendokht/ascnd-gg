@@ -17,7 +17,7 @@
   - Added the required column `item_veto` to the `match` table without a default value. This is not possible if the table is not empty.
   - Added the required column `map_veto` to the `match` table without a default value. This is not possible if the table is not empty.
   - Added the required column `side_veto` to the `match` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `stageSettingTemplateId` to the `stage_setting` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `stage_setting_template_id` to the `stage_setting` table without a default value. This is not possible if the table is not empty.
 
 */
 -- DropForeignKey
@@ -110,7 +110,7 @@ CREATE TABLE "stage_setting_template" (
 CREATE UNIQUE INDEX "stage_setting_template_title_id_name_version_key" ON "stage_setting_template"("title_id", "name", "version");
 
 -- AddForeignKey
-ALTER TABLE "stage_setting" ADD CONSTRAINT "stage_setting_stageSettingTemplateId_fkey" FOREIGN KEY ("stageSettingTemplateId") REFERENCES "stage_setting_template"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "stage_setting" ADD CONSTRAINT "stage_setting_stage_setting_template_id_fkey" FOREIGN KEY ("stage_setting_template_id") REFERENCES "stage_setting_template"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "stage_setting_template" ADD CONSTRAINT "stage_setting_template_title_id_fkey" FOREIGN KEY ("title_id") REFERENCES "title"("id") ON DELETE CASCADE ON UPDATE CASCADE;
