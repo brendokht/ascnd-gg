@@ -13,6 +13,7 @@ import type {
   MatchFormatViewModel,
   CreateEvent,
   HubSummary,
+  EventViewModel,
 } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
@@ -57,7 +58,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@ascnd-gg/ui/components/ui/card";
-import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
+import { fetchApi, postApi } from "@ascnd-gg/website/lib/fetch-utils";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -73,6 +76,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@ascnd-gg/ui/components/ui/avatar";
+import { objectToFormData } from "@ascnd-gg/website/lib/form-data-helper";
 
 type EventData = Omit<CreateEvent, "stages">;
 type StagesData = Pick<CreateEvent, "stages">;
@@ -109,6 +113,7 @@ export default function CreateEventForm({
   stageTypes: Array<StageTypeViewModel> | null;
   matchFormats: Array<MatchFormatViewModel> | null;
 }) {
+  const router = useRouter();
   const stepper = useStepper();
 
   const form = useForm({
@@ -117,13 +122,14 @@ export default function CreateEventForm({
     defaultValues: {
       displayName: "",
       titleId: "",
+      hubId: "",
     },
   });
 
   const [title, setTitle] = useState<TitleViewModel | undefined>();
   const [titleData, setTitleData] = useState<TitleData>();
 
-  const onSubmit = (values: z.infer<typeof stepper.current.schema>) => {
+  const onSubmit = async (values: z.infer<typeof stepper.current.schema>) => {
     console.log(`Form values for step ${stepper.current.id}:`, values);
 
     stepper.switch({
@@ -205,7 +211,37 @@ export default function CreateEventForm({
     });
 
     if (stepper.isLast) {
-      console.log("Creating event");
+      const fullValues = form.getValues() as CreateEvent;
+      const formData = objectToFormData(fullValues);
+
+      const { data, error } = await postApi<EventViewModel>(
+        "/events",
+        formData,
+      );
+
+      if (error) {
+        if (error.statusCode === 409)
+          form.setError("displayName", {
+            message: error.message,
+            type: "conflict",
+          });
+        else form.setError("root", { message: error.message, type: "error" });
+        return;
+      }
+
+      if (!data) {
+        form.setError("root", {
+          message: "Something went wrong. Please try again.",
+          type: "error",
+        });
+        return;
+      }
+
+      toast.success("Success", {
+        description: "Your event has been successfully created.",
+      });
+
+      router.push(`/events/${data.name}`);
     } else {
       stepper.next();
     }
@@ -536,9 +572,6 @@ function StagesForm({
     console.log("errors", formContext.formState.errors.stages);
   }, [formContext.formState.errors]);
 
-  const [logoPreview, setLogoPreview] = useState<string>("");
-  const [bannerPreview, setBannerPreview] = useState<string>("");
-
   return (
     <div className="min-h-98 space-y-4">
       {stagesArray.fields.map((stage, idx) => (
@@ -640,103 +673,6 @@ function StagesForm({
                 </FormItem>
               )}
             />
-            {logoPreview && (
-              <>
-                <div className="relative aspect-square">
-                  <Image
-                    src={logoPreview}
-                    alt="Image Preview"
-                    loading="eager"
-                    fill
-                    quality={25}
-                    placeholder="empty"
-                    className="rounded-full"
-                  />
-                </div>
-                <Button
-                  variant={"destructive"}
-                  className="w-full"
-                  onClick={() => {
-                    formContext.setValue(`stages.${idx}.logo`, undefined);
-                    setLogoPreview("");
-                  }}
-                  type="button"
-                >
-                  Clear
-                </Button>
-              </>
-            )}
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.logo`}
-              render={() => (
-                <FormItem>
-                  <FormLabel>Logo</FormLabel>
-                  <FormDescription>The logo for the stage</FormDescription>
-                  <FormControl>
-                    <FileUploadDialog
-                      shape="circle"
-                      item="logo"
-                      onSubmit={(fileUrl, fileBlob) => {
-                        formContext.setValue(`stages.${idx}.logo`, fileBlob);
-                        setLogoPreview(fileUrl);
-                      }}
-                    >
-                      <Button variant={"outline"}>Upload Logo</Button>
-                    </FileUploadDialog>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {bannerPreview && (
-              <>
-                <div className="aspect-rectangle relative">
-                  <Image
-                    src={bannerPreview}
-                    alt="Image Preview"
-                    loading="eager"
-                    fill
-                    quality={25}
-                    placeholder="empty"
-                  />
-                </div>
-                <Button
-                  variant={"destructive"}
-                  className="w-full"
-                  onClick={() => {
-                    formContext.setValue(`stages.${idx}.banner`, undefined);
-                    setBannerPreview("");
-                  }}
-                  type="button"
-                >
-                  Clear
-                </Button>
-              </>
-            )}
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.banner`}
-              render={() => (
-                <FormItem>
-                  <FormLabel>Banner</FormLabel>
-                  <FormDescription>The banner for the stage</FormDescription>
-                  <FormControl>
-                    <FileUploadDialog
-                      shape="rectangle"
-                      item="banner"
-                      onSubmit={(fileUrl, fileBlob) => {
-                        formContext.setValue(`stages.${idx}.banner`, fileBlob);
-                        setBannerPreview(fileUrl);
-                      }}
-                    >
-                      <Button variant={"outline"}>Upload Banner</Button>
-                    </FileUploadDialog>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormItem>
               <FormLabel>Stage Settings</FormLabel>
               <FormDescription>Your stage&apos;s settings</FormDescription>
@@ -818,9 +754,10 @@ function StagesForm({
           stagesArray.append({
             displayName: "",
             typeId: "",
-            eventId: "",
             phases: [],
             stageSettings: {
+              startDate: nowPlusWeek.toISOString(),
+              endDate: nowPlusTwoWeeks.toISOString(),
               minTeams: 2,
               maxTeams: 128,
               teamSize: 5,
@@ -1708,7 +1645,6 @@ function PhasesDialog({
           onClick={() => {
             phasesArray.append({
               formatId: "",
-              stageId: "",
               matchIndexStart: 0,
               matchIndexEnd: 0,
             });
