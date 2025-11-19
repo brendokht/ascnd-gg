@@ -88,7 +88,7 @@ export function MultiSelect({
                   <Badge
                     key={option.value}
                     variant="secondary"
-                    className="animate-in fade-in zoom-in-95 mb-1 mr-1 flex items-center gap-1 transition-all duration-200 hover:opacity-90 hover:shadow-md"
+                    className="animate-in fade-in zoom-in-95 mb-0 mr-1 flex items-center gap-1 transition-all duration-200 hover:opacity-90 hover:shadow-md"
                   >
                     <span className="max-w-[4rem] truncate">
                       {option.label}
@@ -111,7 +111,7 @@ export function MultiSelect({
                   </Badge>
                 ))}
                 {overflowCount > 0 && (
-                  <Badge variant="outline" className="mb-1 mr-1">
+                  <Badge variant="outline" className="mb-0 mr-1">
                     +{overflowCount} more
                   </Badge>
                 )}

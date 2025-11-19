@@ -9,14 +9,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@ascnd-gg/ui/components/ui/empty";
-import { ShieldHalf } from "lucide-react";
+import { Gamepad } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-export default function HubNotFound() {
+export default function EventNotFound() {
   const router = useRouter();
   const pathname = usePathname();
-  const hubName = decodeURIComponent(
+  const EventName = decodeURIComponent(
     pathname.slice(pathname.lastIndexOf("/") + 1),
   );
 
@@ -25,18 +25,19 @@ export default function HubNotFound() {
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant={"icon"}>
-            <ShieldHalf />
+            <Gamepad />
           </EmptyMedia>
-          <EmptyTitle>Hub Not Found</EmptyTitle>
+          <EmptyTitle>Event Not Found</EmptyTitle>
           <EmptyDescription>
-            Hub &apos;{hubName}&apos; was not found. Try searching for a
+            Event &apos;{EventName}&apos; was not found. Try searching for a
             different name.
           </EmptyDescription>
           <EmptyContent>
             <div className="flex gap-2">
               <Button onClick={() => router.back()}>Go Back</Button>
               <Button asChild>
-                <Link href={"/me/hubs"}>View Your Hubs</Link>
+                {/* TODO:L Add /me/events page */}
+                <Link href={"/me/hubs"}>View Your Events</Link>
               </Button>
             </div>
           </EmptyContent>
