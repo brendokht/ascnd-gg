@@ -402,7 +402,7 @@ function EventForm({
                             alt={`${hub.displayName}'s logo`}
                           />
                           <AvatarFallback>
-                            {hub.name.toUpperCase()}
+                            {hub.name.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         {hub.displayName}
@@ -568,6 +568,39 @@ function StagesForm({
     name: "stages",
   });
 
+  const onStartDateChange = (date: Date | undefined, idx: number) => {
+    formContext.setValue(`stages.${idx}.scheduledAt`, date!.toISOString(), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
+  const onEndDateChange = (date: Date | undefined, idx: number) => {
+    formContext.setValue(`stages.${idx}.scheduledEndAt`, date!.toISOString(), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
+  const onRegistrationStartDateChange = (
+    date: Date | undefined,
+    idx: number,
+  ) => {
+    formContext.setValue(
+      `stages.${idx}.registrationStartDate`,
+      date!.toISOString(),
+      { shouldValidate: true, shouldDirty: true },
+    );
+  };
+
+  const onRegistrationEndDateChange = (date: Date | undefined, idx: number) => {
+    formContext.setValue(
+      `stages.${idx}.registrationEndDate`,
+      date!.toISOString(),
+      { shouldValidate: true, shouldDirty: true },
+    );
+  };
+
   useEffect(() => {
     console.log("errors", formContext.formState.errors.stages);
   }, [formContext.formState.errors]);
@@ -673,6 +706,84 @@ function StagesForm({
                 </FormItem>
               )}
             />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.scheduledAt`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date</FormLabel>
+                  <FormDescription>
+                    Your stage&apos;s start date
+                  </FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      onDateChange={(date) => onStartDateChange(date, idx)}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.scheduledEndAt`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date</FormLabel>
+                  <FormDescription>Your stage&apos;s end date</FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      onDateChange={(date) => onEndDateChange(date, idx)}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.registrationStartDate`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Registration Start Date</FormLabel>
+                  <FormDescription>
+                    Your stage&apos;s registration start date
+                  </FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      onDateChange={(date) =>
+                        onRegistrationStartDateChange(date, idx)
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={formContext.control}
+              name={`stages.${idx}.registrationEndDate`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Registration End Date</FormLabel>
+                  <FormDescription>
+                    Your stage&apos;s registration end date
+                  </FormDescription>
+                  <FormControl>
+                    <DateTimePicker
+                      onDateChange={(date) =>
+                        onRegistrationEndDateChange(date, idx)
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormItem>
               <FormLabel>Stage Settings</FormLabel>
               <FormDescription>Your stage&apos;s settings</FormDescription>
@@ -755,9 +866,9 @@ function StagesForm({
             displayName: "",
             typeId: "",
             phases: [],
+            scheduledAt: "",
+            registrationStartDate: "",
             stageSettings: {
-              startDate: nowPlusWeek.toISOString(),
-              endDate: nowPlusTwoWeeks.toISOString(),
               minTeams: 2,
               maxTeams: 128,
               teamSize: 5,
@@ -813,37 +924,6 @@ function StageSettingsDialog({
   const [selectedTitleGamemodes, setSelectedTitleGamemodes] = useState<
     Array<Option>
   >([]);
-
-  const onStartDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(
-      `stages.${idx}.stageSettings.startDate`,
-      date!.toISOString(),
-    );
-  };
-
-  const onEndDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(
-      `stages.${idx}.stageSettings.endDate`,
-      date!.toISOString(),
-    );
-  };
-
-  const onRegistrationStartDateChange = (
-    date: Date | undefined,
-    idx: number,
-  ) => {
-    formContext.setValue(
-      `stages.${idx}.stageSettings.registrationStartDate`,
-      date!.toISOString(),
-    );
-  };
-
-  const onRegistrationEndDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(
-      `stages.${idx}.stageSettings.registrationEndDate`,
-      date!.toISOString(),
-    );
-  };
 
   return (
     <Dialog>
@@ -1399,88 +1479,6 @@ function StageSettingsDialog({
                         <SelectItem value="REQUEST">Request to Join</SelectItem>
                       </SelectContent>
                     </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.stageSettings.startDate`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormDescription>
-                    Your stage&apos;s start date
-                  </FormDescription>
-                  <FormControl>
-                    <DateTimePicker
-                      defaultTime={new Date(nowPlusWeek)}
-                      onDateChange={(date) => onStartDateChange(date, idx)}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.stageSettings.endDate`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Date</FormLabel>
-                  <FormDescription>Your stage&apos;s end date</FormDescription>
-                  <FormControl>
-                    <DateTimePicker
-                      defaultTime={new Date(nowPlusTwoWeeks)}
-                      onDateChange={(date) => onEndDateChange(date, idx)}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.stageSettings.registrationStartDate`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Registration Start Date</FormLabel>
-                  <FormDescription>
-                    Your stage&apos;s registration start date
-                  </FormDescription>
-                  <FormControl>
-                    <DateTimePicker
-                      defaultTime={new Date(now)}
-                      onDateChange={(date) =>
-                        onRegistrationStartDateChange(date, idx)
-                      }
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formContext.control}
-              name={`stages.${idx}.stageSettings.registrationEndDate`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Registration End Date</FormLabel>
-                  <FormDescription>
-                    Your stage&apos;s registration end date
-                  </FormDescription>
-                  <FormControl>
-                    <DateTimePicker
-                      defaultTime={new Date(nowPlusWeek)}
-                      onDateChange={(date) =>
-                        onRegistrationEndDateChange(date, idx)
-                      }
-                      {...field}
-                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

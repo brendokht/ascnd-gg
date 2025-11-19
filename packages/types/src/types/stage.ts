@@ -46,12 +46,14 @@ export const StageSchema = z.object({
   description: z.string().trim().max(STAGE_DESCRIPTION_MAX_LENGTH).optional(),
   typeId: z.uuidv7({ error: "Stage type is required." }).trim(),
   status: z.enum(StageStatus, { error: "Stage status is required." }),
-  scheduledAt: z.iso
-    .datetime({ error: "Stage start date is required." })
-    .optional(),
+  scheduledAt: z.iso.datetime({ error: "Stage start date is required." }),
   scheduledEndAt: z.iso
     .datetime({ error: "Stage end date is required." })
     .optional(),
+  registrationStartDate: z.iso.datetime({
+    error: "Stage registration start date is required.",
+  }),
+  registrationEndDate: z.iso.datetime().optional(),
   createdAt: z.iso
     .datetime({ error: "Stage creation date is required." })
     .optional(),
@@ -319,10 +321,6 @@ export const StageSettingSchema = z.object({
     }),
   ),
   titleSettings: z.json().optional(),
-  startDate: z.iso.datetime().optional(),
-  endDate: z.iso.datetime().optional(),
-  registrationStartDate: z.iso.datetime().optional(),
-  registrationEndDate: z.iso.datetime().optional(),
   seedingType: z.enum(StageSeedingType, {
     error: "Stage seeding type is required.",
   }),

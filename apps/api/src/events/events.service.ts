@@ -141,14 +141,15 @@ export class EventsService {
             displayName: createEventDto.displayName,
             description: createEventDto.description,
             status:
-              new Date(createEventDto.stages.at(0).stageSettings.startDate) >
-              new Date()
+              new Date(
+                createEventDto.stages.at(0).registrationStartDate as string,
+              ) > new Date()
                 ? "REGISTRATION_OPEN"
                 : "REGISTRATION_CLOSED",
-            scheduledAt: createEventDto.stages.at(0).stageSettings.startDate,
+            scheduledAt: createEventDto.stages.at(0).registrationStartDate,
             scheduledEndAt: createEventDto.stages.at(
               createEventDto.stages.length - 1,
-            ).stageSettings.endDate,
+            ).registrationEndDate,
             hubId: createEventDto.hubId,
             titleId: createEventDto.titleId,
           },
@@ -161,11 +162,13 @@ export class EventsService {
             name: stage.displayName.toLowerCase(),
             displayName: stage.displayName,
             status:
-              new Date(stage.stageSettings.startDate) > new Date()
+              new Date(stage.registrationStartDate as string) > new Date()
                 ? "REGISTRATION_OPEN"
                 : "REGISTRATION_CLOSED",
-            scheduledAt: stage.stageSettings.startDate,
-            scheduledEndAt: stage.stageSettings.endDate,
+            scheduledAt: stage.registrationStartDate,
+            scheduledEndAt: stage.registrationEndDate,
+            registrationStartDate: stage.registrationStartDate,
+            registrationEndDate: stage.registrationEndDate,
             eventId: eventId,
             stageTypeId: stage.typeId,
           })),
@@ -197,10 +200,6 @@ export class EventsService {
               perGameSideVeto: stageSettings.perGameSideVeto,
               perMatchSideVeto: stageSettings.perMatchSideVeto,
               titleSettings: stageSettings.titleSettings ?? Prisma.JsonNull,
-              startDate: stageSettings.startDate,
-              endDate: stageSettings.endDate,
-              registrationStartDate: stageSettings.registrationStartDate,
-              registrationEndDate: stageSettings.registrationEndDate,
               seedingType: stageSettings.seedingType,
               joinType: stageSettings.joinType,
               isLocked: false,

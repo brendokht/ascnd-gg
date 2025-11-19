@@ -123,6 +123,8 @@ export class StagesService {
           description: createStageDto.description,
           scheduledAt: createStageDto.scheduledAt,
           scheduledEndAt: createStageDto.scheduledEndAt,
+          registrationStartDate: createStageDto.registrationStartDate,
+          registrationEndDate: createStageDto.registrationEndDate,
           event: {
             connect: {
               id: createStageDto.eventId,
@@ -196,6 +198,8 @@ export class StagesService {
               description: dto.description,
               scheduledAt: dto.scheduledAt,
               scheduledEndAt: dto.scheduledEndAt,
+              registrationStartDate: dto.registrationStartDate,
+              registrationEndDate: dto.registrationEndDate,
               event: { connect: { id: dto.eventId } },
               status:
                 dto.scheduledAt &&
