@@ -106,61 +106,218 @@ export const StageViewModelSchema = StageSchema.pick({
 
 export const StageSettingSchema = z.object({
   stageId: z.uuidv7({ error: "Stage ID is required." }).trim(),
-  minTeams: z
-    .int({ error: "Minimum number of teams required." })
-    .min(2, { error: "Minimum number of teams must be 2 or more." }),
-  maxTeams: z
-    .int({ error: "Maximum number of teams required." })
-    .max(256, { error: "Maximum number of teams must be less than 256." }),
-  teamSize: z.int({ error: "Team size is required." }).min(1),
-  numberOfSubstitutes: z
-    .int({ error: "Number of substitutes is required." })
-    .min(0),
-  numberOfCoaches: z.int({ error: "Number of coaches is required." }).min(0),
-  allowDraws: z.boolean().optional(),
+  minTeams: z.preprocess(
+    (val) => (val ? Number(val) : val),
+    z
+      .int({ error: "Minimum number of teams required." })
+      .min(2, { error: "Minimum number of teams must be 2 or more." }),
+  ),
+  maxTeams: z.preprocess(
+    (val) => (val ? Number(val) : val),
+    z
+      .int({ error: "Maximum number of teams required." })
+      .max(256, { error: "Maximum number of teams must be less than 256." }),
+  ),
+  teamSize: z.preprocess(
+    (val) => (val ? Number(val) : val),
+    z.int({ error: "Team size is required." }).min(1),
+  ),
+  numberOfSubstitutes: z.preprocess(
+    (val) => (val !== "" && val !== undefined ? Number(val) : val),
+    z.int({ error: "Number of substitutes is required." }).min(0),
+  ),
+  numberOfCoaches: z.preprocess(
+    (val) => (val !== "" && val !== undefined ? Number(val) : val),
+    z.int({ error: "Number of coaches is required." }).min(0),
+  ),
+  allowDraws: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean().optional(),
+  ),
   drawPolicy: z.enum(DrawResolutionPolicy).or(z.literal("")),
-  gamemodePoolIds: z.array(z.uuidv7(), {
-    error: "Game mode pool is required.",
-  }),
-  perGameGamemodeVeto: z.boolean({
-    error: "Per game gamemode veto selection is required.",
-  }),
-  perMatchGamemodeVeto: z.boolean({
-    error: "Per match gamemode veto selection is required.",
-  }),
-  mapPoolIds: z.array(z.uuidv7(), {
-    error: "Map pool is required.",
-  }),
-  perGameMapVeto: z.boolean({
-    error: "Per game map veto selection is required.",
-  }),
-  perMatchMapVeto: z.boolean({
-    error: "Per game map veto selection is required.",
-  }),
-  characterPoolIds: z.array(z.uuidv7(), {
-    error: "Character pool is required.",
-  }),
-  perGameCharacterVeto: z.boolean({
-    error: "Per game character veto selection is required.",
-  }),
-  perMatchCharacterVeto: z.boolean({
-    error: "Per game character veto selection is required.",
-  }),
-  itemPoolIds: z.array(z.uuidv7(), {
-    error: "Item pool is required.",
-  }),
-  perGameItemVeto: z.boolean({
-    error: "Per game item veto selection is required.",
-  }),
-  perMatchItemVeto: z.boolean({
-    error: "Per match item veto selection is required.",
-  }),
-  perGameSideVeto: z.boolean({
-    error: "Per game side veto selection is required.",
-  }),
-  perMatchSideVeto: z.boolean({
-    error: "Per match side veto selection is required.",
-  }),
+  gamemodePoolIds: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
+      }
+      return val;
+    },
+    z
+      .array(z.uuidv7(), {
+        error: "Game mode pool is required.",
+      })
+      .optional(),
+  ),
+  perGameGamemodeVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per game gamemode veto selection is required.",
+    }),
+  ),
+  perMatchGamemodeVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per match gamemode veto selection is required.",
+    }),
+  ),
+  mapPoolIds: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
+      }
+      return val;
+    },
+    z
+      .array(z.uuidv7(), {
+        error: "Map pool is required.",
+      })
+      .optional(),
+  ),
+  perGameMapVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per game map veto selection is required.",
+    }),
+  ),
+  perMatchMapVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per game map veto selection is required.",
+    }),
+  ),
+  characterPoolIds: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
+      }
+      return val;
+    },
+    z
+      .array(z.uuidv7(), {
+        error: "Character pool is required.",
+      })
+      .optional(),
+  ),
+  perGameCharacterVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per game character veto selection is required.",
+    }),
+  ),
+  perMatchCharacterVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per game character veto selection is required.",
+    }),
+  ),
+  itemPoolIds: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
+      }
+      return val;
+    },
+    z
+      .array(z.uuidv7(), {
+        error: "Item pool is required.",
+      })
+      .optional(),
+  ),
+  perGameItemVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per game item veto selection is required.",
+    }),
+  ),
+  perMatchItemVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per match item veto selection is required.",
+    }),
+  ),
+  perGameSideVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per game side veto selection is required.",
+    }),
+  ),
+  perMatchSideVeto: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean({
+      error: "Per match side veto selection is required.",
+    }),
+  ),
   titleSettings: z.json().optional(),
   startDate: z.iso.datetime().optional(),
   endDate: z.iso.datetime().optional(),
@@ -172,7 +329,15 @@ export const StageSettingSchema = z.object({
   joinType: z.enum(StageJoinType, {
     error: "Stage join type is required.",
   }),
-  isLocked: z.boolean().optional(),
+  isLocked: z.preprocess(
+    (val) =>
+      val === "true" || val === true
+        ? true
+        : val === "false" || val === false
+          ? false
+          : val,
+    z.boolean().optional(),
+  ),
   stageSettingTemplateId: z.uuidv7().optional(),
 });
 

@@ -14,7 +14,7 @@ export const createEventSchema = z.object({
     banner: z.instanceof(Blob).nullish(),
   }).shape,
   stages: z
-    .array(createStageSchema)
+    .array(createStageSchema.omit({ eventId: true }))
     .min(1, { error: "An event needs at least 1 stage." }),
 });
 

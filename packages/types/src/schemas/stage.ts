@@ -18,7 +18,7 @@ export const createStageSchema = z
       stageId: true,
     }),
     phases: z
-      .array(createPhaseSchema)
+      .array(createPhaseSchema.omit({ stageId: true }))
       .min(1, { error: "A stage needs at least 1 phase." }),
   })
   .refine(
