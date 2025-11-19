@@ -36,7 +36,7 @@ export class PhasesService {
       },
     });
 
-    if (phaseSelect) {
+    if (!phaseSelect) {
       return null;
     }
 

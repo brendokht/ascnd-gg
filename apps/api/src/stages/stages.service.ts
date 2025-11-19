@@ -46,7 +46,7 @@ export class StagesService {
       },
     });
 
-    if (stageSelect) {
+    if (!stageSelect) {
       return null;
     }
 
@@ -91,7 +91,7 @@ export class StagesService {
       },
     });
 
-    if (stagesSelect) {
+    if (!stagesSelect) {
       return [];
     }
 
@@ -139,6 +139,13 @@ export class StagesService {
               id: createStageDto.typeId,
             },
           },
+          phases: {
+            create: createStageDto.phases.map((phase) => ({
+              matchFormatId: phase.formatId,
+              matchIndexStart: phase.matchIndexStart,
+              matchIndexEnd: phase.matchIndexEnd,
+            })),
+          },
         },
         select: {
           id: true,
@@ -159,12 +166,6 @@ export class StagesService {
           },
         },
       });
-
-      createStageDto.phases.forEach((phase) => {
-        phase.stageId = stage.id;
-      });
-
-      await this.phaseService.createPhases(user, createStageDto.phases);
 
       return stage;
     });

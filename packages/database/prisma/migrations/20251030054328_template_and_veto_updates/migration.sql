@@ -82,7 +82,7 @@ ADD COLUMN     "side_veto_order" JSONB;
 -- AlterTable
 ALTER TABLE "stage_setting" DROP COLUMN "game_setting_template_id",
 DROP COLUMN "match_setting_template_id",
-ADD COLUMN     "stageSettingTemplateId" TEXT NOT NULL;
+ADD COLUMN     "stage_setting_template_id" TEXT;
 
 -- DropTable
 DROP TABLE "public"."game_setting_template";
