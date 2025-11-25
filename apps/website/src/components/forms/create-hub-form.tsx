@@ -30,6 +30,7 @@ export default function CreateHubForm() {
     defaultValues: {
       displayName: "",
     },
+    mode: "onChange",
   });
 
   const [logoPreview, setLogoPreview] = useState<string>("");

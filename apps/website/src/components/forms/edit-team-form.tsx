@@ -40,7 +40,7 @@ export default function EditTeamForm({
     defaultValues: {
       displayName: team?.displayName ?? "",
     },
-    reValidateMode: "onChange",
+    mode: "onChange",
   });
 
   useEffect(() => {

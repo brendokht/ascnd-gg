@@ -30,6 +30,7 @@ export default function CreateTeamForm() {
     defaultValues: {
       displayName: "",
     },
+    mode: "onChange",
   });
 
   const [logoPreview, setLogoPreview] = useState<string>("");
