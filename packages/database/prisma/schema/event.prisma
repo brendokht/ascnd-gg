@@ -10,8 +10,8 @@ model Event {
   titleId        String      @map("title_id")
   title          Title       @relation(fields: [titleId], references: [id], onDelete: Cascade)
   status         EventStatus
-  scheduledAt    DateTime    @map("scheduled_at")
-  scheduledEndAt DateTime    @map("scheduled_end_at")
+  startDate    DateTime    @map("start_date")
+  endDate DateTime    @map("end_date")
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @default(now()) @updatedAt @map("updated_at")
 
@@ -30,8 +30,8 @@ model Stage {
   stageTypeId    String      @map("stage_type_id")
   stageType      StageType   @relation(fields: [stageTypeId], references: [id], onDelete: Cascade)
   status         StageStatus
-  scheduledAt    DateTime    @map("scheduled_at")
-  scheduledEndAt DateTime?    @map("scheduled_end_at")
+  startDate    DateTime    @map("start_date")
+  endDate DateTime?    @map("end_date")
   registrationStartDate  DateTime             @map("registration_start_date")
   registrationEndDate    DateTime?             @map("registration_end_date")
   createdAt      DateTime    @default(now()) @map("created_at")

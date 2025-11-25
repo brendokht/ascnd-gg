@@ -50,8 +50,8 @@ export const EventSchema = z.object({
     .optional(),
   titleId: z.uuidv7({ error: "Title ID is required." }).trim(),
   status: z.enum(EventStatus, { error: "Event status is required." }),
-  scheduledAt: z.iso.datetime({ error: "Event start date is required." }),
-  scheduledEndAt: z.iso.datetime({ error: "Event end date is required." }),
+  startDate: z.iso.datetime({ error: "Event start date is required." }),
+  endDate: z.iso.datetime({ error: "Event end date is required." }),
   createdAt: z.iso
     .datetime({ error: "Event creation date is required." })
     .optional(),

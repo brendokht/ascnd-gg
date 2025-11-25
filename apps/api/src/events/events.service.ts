@@ -146,10 +146,9 @@ export class EventsService {
               ) > new Date()
                 ? "REGISTRATION_OPEN"
                 : "REGISTRATION_CLOSED",
-            scheduledAt: createEventDto.stages.at(0).registrationStartDate,
-            scheduledEndAt: createEventDto.stages.at(
-              createEventDto.stages.length - 1,
-            ).registrationEndDate,
+            startDate: createEventDto.stages.at(0).registrationStartDate,
+            endDate: createEventDto.stages.at(createEventDto.stages.length - 1)
+              .registrationEndDate,
             hubId: createEventDto.hubId,
             titleId: createEventDto.titleId,
           },
@@ -165,8 +164,8 @@ export class EventsService {
               new Date(stage.registrationStartDate as string) > new Date()
                 ? "REGISTRATION_OPEN"
                 : "REGISTRATION_CLOSED",
-            scheduledAt: stage.registrationStartDate,
-            scheduledEndAt: stage.registrationEndDate,
+            startDate: stage.registrationStartDate,
+            endDate: stage.registrationEndDate,
             registrationStartDate: stage.registrationStartDate,
             registrationEndDate: stage.registrationEndDate,
             eventId: eventId,
