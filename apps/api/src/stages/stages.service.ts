@@ -41,8 +41,8 @@ export class StagesService {
             },
           },
         },
-        scheduledAt: true,
-        scheduledEndAt: true,
+        startDate: true,
+        endDate: true,
       },
     });
 
@@ -57,8 +57,8 @@ export class StagesService {
       description: stageSelect.description,
       status: stageSelect.status,
       isEventOwner: stageSelect.event.hub.hubOwnerId === user.id,
-      scheduledAt: stageSelect.scheduledAt.toISOString(),
-      scheduledEndAt: stageSelect.scheduledEndAt.toISOString(),
+      startDate: stageSelect.startDate.toISOString(),
+      endDate: stageSelect.endDate.toISOString(),
     };
 
     return stage;
@@ -86,8 +86,8 @@ export class StagesService {
             },
           },
         },
-        scheduledAt: true,
-        scheduledEndAt: true,
+        startDate: true,
+        endDate: true,
       },
     });
 
@@ -103,8 +103,8 @@ export class StagesService {
         description: stage.description,
         status: stage.status,
         isEventOwner: stage.event.hub.hubOwnerId === user.id,
-        scheduledAt: stage.scheduledAt.toISOString(),
-        scheduledEndAt: stage.scheduledEndAt.toISOString(),
+        startDate: stage.startDate.toISOString(),
+        endDate: stage.endDate.toISOString(),
       };
     });
 
@@ -121,8 +121,8 @@ export class StagesService {
           name: createStageDto.displayName.toLowerCase(),
           displayName: createStageDto.displayName,
           description: createStageDto.description,
-          scheduledAt: createStageDto.scheduledAt,
-          scheduledEndAt: createStageDto.scheduledEndAt,
+          startDate: createStageDto.startDate,
+          endDate: createStageDto.endDate,
           registrationStartDate: createStageDto.registrationStartDate,
           registrationEndDate: createStageDto.registrationEndDate,
           event: {
@@ -131,9 +131,8 @@ export class StagesService {
             },
           },
           status:
-            createStageDto.scheduledAt &&
-            new Date(createStageDto.scheduledAt as string).getTime() >
-              Date.now()
+            createStageDto.startDate &&
+            new Date(createStageDto.startDate as string).getTime() > Date.now()
               ? "REGISTRATION_OPEN"
               : "PENDING",
           stageType: {
@@ -155,8 +154,8 @@ export class StagesService {
           displayName: true,
           description: true,
           status: true,
-          scheduledAt: true,
-          scheduledEndAt: true,
+          startDate: true,
+          endDate: true,
           event: {
             select: {
               hub: {
@@ -178,8 +177,8 @@ export class StagesService {
       displayName: stage.displayName,
       description: stage.description,
       status: stage.status,
-      scheduledAt: stage.scheduledAt.toISOString(),
-      scheduledEndAt: stage.scheduledEndAt.toISOString(),
+      startDate: stage.startDate.toISOString(),
+      endDate: stage.endDate.toISOString(),
       isEventOwner: stage.event.hub.hubOwnerId === user.id,
     };
   }
@@ -196,14 +195,14 @@ export class StagesService {
               name: dto.displayName.toLowerCase(),
               displayName: dto.displayName,
               description: dto.description,
-              scheduledAt: dto.scheduledAt,
-              scheduledEndAt: dto.scheduledEndAt,
+              startDate: dto.startDate,
+              endDate: dto.endDate,
               registrationStartDate: dto.registrationStartDate,
               registrationEndDate: dto.registrationEndDate,
               event: { connect: { id: dto.eventId } },
               status:
-                dto.scheduledAt &&
-                new Date(dto.scheduledAt as string).getTime() > Date.now()
+                dto.startDate &&
+                new Date(dto.startDate as string).getTime() > Date.now()
                   ? "REGISTRATION_OPEN"
                   : "PENDING",
               stageType: { connect: { id: dto.typeId } },
@@ -214,8 +213,8 @@ export class StagesService {
               displayName: true,
               description: true,
               status: true,
-              scheduledAt: true,
-              scheduledEndAt: true,
+              startDate: true,
+              endDate: true,
               event: { select: { hub: { select: { hubOwnerId: true } } } },
             },
           }),
@@ -248,8 +247,8 @@ export class StagesService {
         displayName: stage.displayName,
         description: stage.description,
         status: stage.status,
-        scheduledAt: stage.scheduledAt.toISOString(),
-        scheduledEndAt: stage.scheduledEndAt.toISOString(),
+        startDate: stage.startDate.toISOString(),
+        endDate: stage.endDate.toISOString(),
         isEventOwner: stage.event.hub.hubOwnerId === user.id,
       };
     });
@@ -282,8 +281,8 @@ export class StagesService {
             ? editStageDto.displayName.toLowerCase()
             : undefined,
           description: editStageDto.description,
-          scheduledAt: editStageDto.scheduledAt,
-          scheduledEndAt: editStageDto.scheduledEndAt,
+          startDate: editStageDto.startDate,
+          endDate: editStageDto.endDate,
           stageType: {
             connect: {
               id: editStageDto.typeId,
@@ -297,8 +296,8 @@ export class StagesService {
           displayName: true,
           description: true,
           status: true,
-          scheduledAt: true,
-          scheduledEndAt: true,
+          startDate: true,
+          endDate: true,
           event: { select: { hub: { select: { hubOwnerId: true } } } },
         },
       });
@@ -312,8 +311,8 @@ export class StagesService {
       displayName: updatedStage.displayName,
       description: updatedStage.description,
       status: updatedStage.status,
-      scheduledAt: updatedStage.scheduledAt.toISOString(),
-      scheduledEndAt: updatedStage.scheduledEndAt.toISOString(),
+      startDate: updatedStage.startDate.toISOString(),
+      endDate: updatedStage.endDate.toISOString(),
       isEventOwner: updatedStage.event.hub.hubOwnerId === user.id,
     };
   }

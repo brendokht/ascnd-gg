@@ -11,7 +11,7 @@ model Match {
   team2Score         Int                   @map("team_2_score")
   gameWinsNeeded     Int                   @map("game_wins_needed")
   result             Result                @default(SCHEDULED)
-  scheduledAt        DateTime?             @map("scheduled_at")
+  startDate        DateTime?             @map("scheduled_at")
   mapVeto            Boolean               @map("map_veto")
   characterVeto      Boolean               @map("character_veto")
   itemVeto           Boolean               @map("item_veto")

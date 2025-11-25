@@ -13,7 +13,7 @@ export const MatchSchema = z.object({
   result: z.enum(Result, {
     error: "Match Result is must be value from Result enum.",
   }),
-  scheduledAt: z.iso
+  startDate: z.iso
     .datetime({ error: "Match date must be a valid ISO datetime." })
     .optional(),
   mapVeto: z.boolean({ error: "Map veto choice is required." }),

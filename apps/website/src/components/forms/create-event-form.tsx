@@ -569,14 +569,14 @@ function StagesForm({
   });
 
   const onStartDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(`stages.${idx}.scheduledAt`, date!.toISOString(), {
+    formContext.setValue(`stages.${idx}.startDate`, date!.toISOString(), {
       shouldValidate: true,
       shouldDirty: true,
     });
   };
 
   const onEndDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(`stages.${idx}.scheduledEndAt`, date!.toISOString(), {
+    formContext.setValue(`stages.${idx}.endDate`, date!.toISOString(), {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -708,7 +708,7 @@ function StagesForm({
             />
             <FormField
               control={formContext.control}
-              name={`stages.${idx}.scheduledAt`}
+              name={`stages.${idx}.startDate`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Start Date</FormLabel>
@@ -727,7 +727,7 @@ function StagesForm({
             />
             <FormField
               control={formContext.control}
-              name={`stages.${idx}.scheduledEndAt`}
+              name={`stages.${idx}.endDate`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>End Date</FormLabel>
@@ -866,7 +866,7 @@ function StagesForm({
             displayName: "",
             typeId: "",
             phases: [],
-            scheduledAt: "",
+            startDate: "",
             registrationStartDate: "",
             stageSettings: {
               minTeams: 2,
