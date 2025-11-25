@@ -28,6 +28,7 @@ export default function UpdateUsernameForm({
     defaultValues: {
       displayUsername: currentUsername,
     },
+    mode: "onChange",
   });
 
   const onSubmit = async (values: UpdateUsername) => {

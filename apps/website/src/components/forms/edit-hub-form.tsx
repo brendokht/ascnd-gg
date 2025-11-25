@@ -36,7 +36,7 @@ export default function EditHubForm({
     defaultValues: {
       displayName: hub?.displayName ?? "",
     },
-    reValidateMode: "onChange",
+    mode: "onChange",
   });
 
   useEffect(() => {

@@ -28,6 +28,7 @@ export default function UpdateNameForm({
     defaultValues: {
       name: currentName,
     },
+    mode: "onChange",
   });
 
   const onSubmit = async (values: UpdateName) => {
