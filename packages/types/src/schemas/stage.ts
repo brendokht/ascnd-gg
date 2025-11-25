@@ -25,7 +25,7 @@ export const createStageSchema = z
   })
   .refine(
     (stage) =>
-      !stage.stageSettings.allowDraws || stage.stageSettings.drawPolicy !== "",
+      !stage.stageSettings.allowDraws || !stage.stageSettings.drawPolicy,
     {
       error: "Draw policy must be set when allowing draws",
       path: ["stageSettings.drawPolicy"],

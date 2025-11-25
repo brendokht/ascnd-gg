@@ -141,7 +141,7 @@ export const StageSettingSchema = z.object({
           : val,
     z.boolean().optional(),
   ),
-  drawPolicy: z.enum(DrawResolutionPolicy).or(z.literal("")),
+  drawPolicy: z.enum(DrawResolutionPolicy).optional(),
   gamemodePoolIds: z.preprocess(
     (val) => {
       if (typeof val === "string") {
