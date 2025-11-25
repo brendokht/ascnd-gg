@@ -315,7 +315,7 @@ CREATE TABLE "stage_setting" (
     "number_of_substitutes" INTEGER NOT NULL DEFAULT 1,
     "number_of_coaches" INTEGER NOT NULL DEFAULT 1,
     "allow_draws" BOOLEAN NOT NULL DEFAULT false,
-    "draw_policy" "draw_resolution_policy" NOT NULL,
+    "draw_policy" "draw_resolution_policy",
     "game_mode_pool_ids" TEXT[],
     "needs_gamemode_veto" BOOLEAN NOT NULL,
     "map_pool_ids" TEXT[],

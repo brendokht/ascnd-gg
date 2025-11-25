@@ -873,7 +873,7 @@ function StagesForm({
               maxTeams: 128,
               teamSize: 5,
               allowDraws: title?.allowsDraws,
-              drawPolicy: "",
+              drawPolicy: title?.allowsDraws ? "ADMIN_DECISION" : undefined,
               numberOfSubstitutes: 1,
               numberOfCoaches: 1,
               gamemodePoolIds: [],
@@ -948,12 +948,12 @@ function StageSettingsDialog({
                       id={field.name}
                       checked={Boolean(field.value)}
                       onCheckedChange={(v) => {
-                        // Ensure drawPolicy is blank if no draws are allowed
-                        if (v === false)
-                          formContext.setValue(
-                            `stages.${idx}.stageSettings.drawPolicy`,
-                            "",
-                          );
+                        // Ensure drawPolicy is undefined if no draws are allowed
+                        formContext.setValue(
+                          `stages.${idx}.stageSettings.drawPolicy`,
+                          v ? "ADMIN_DECISION" : undefined,
+                        );
+
                         field.onChange(v === true);
                       }}
                     />

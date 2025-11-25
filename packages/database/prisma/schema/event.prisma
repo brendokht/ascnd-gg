@@ -66,7 +66,8 @@ model StageSetting {
   numberOfSubstitutes    Int                   @default(1) @map("number_of_substitutes")
   numberOfCoaches        Int                   @default(1) @map("number_of_coaches")
   allowDraws             Boolean               @default(false) @map("allow_draws")
-  drawPolicy             DrawResolutionPolicy  @map("draw_policy")
+  // TODO: Add check constraint to ensure if allowDraws is true, this must be set
+  drawPolicy             DrawResolutionPolicy?  @map("draw_policy")
   // TODO: Make sure word gameMode (or gamemode) is consistent (pick one)
   gameModePoolIds        String[]              @map("game_mode_pool_ids")
   perGameGamemodeVeto    Boolean               @map("per_game_gamemode_veto")

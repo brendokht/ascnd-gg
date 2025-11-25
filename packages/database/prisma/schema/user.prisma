@@ -59,6 +59,7 @@ model Account {
   updatedAt             DateTime  @updatedAt @map("updated_at")
 
   @@map("account")
+  @@index([userId])
 }
 
 model Verification {
@@ -70,4 +71,5 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("verification")
+  @@index([identifier])
 }
