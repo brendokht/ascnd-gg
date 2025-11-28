@@ -1,6 +1,5 @@
 export function objectToFormData(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: { [key: string]: any },
+  data: Record<string, unknown>,
   formData: FormData = new FormData(),
   parentKey?: string,
 ): FormData {
@@ -19,7 +18,7 @@ export function objectToFormData(
     } else if (value instanceof File || value instanceof Blob) {
       formData.append(formKey, value);
     } else if (typeof value === "object") {
-      objectToFormData(value, formData, formKey);
+      objectToFormData(value as Record<string, unknown>, formData, formKey);
     } else {
       formData.append(formKey, String(value));
     }
