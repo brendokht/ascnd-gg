@@ -161,7 +161,7 @@ export function FileUploadDialog({
                       src={fileUrl}
                       alt="Preview"
                       className={cn(
-                        "h-full w-full object-cover",
+                        "h-full w-full",
                         shape === "circle" && "rounded-full",
                       )}
                       loading="eager"
