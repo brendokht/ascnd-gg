@@ -90,6 +90,7 @@ export const MatchFormatViewModelSchema = MatchFormatSchema.pick({
   id: true,
   name: true,
   displayName: true,
+  shortName: true,
 });
 
 export const GameSchema = z.object({

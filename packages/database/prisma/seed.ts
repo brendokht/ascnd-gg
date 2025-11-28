@@ -4256,10 +4256,10 @@ async function main() {
   // #region Match Formats
 
   const bo1MatchFormat = await prisma.matchFormat.upsert({
-    where: { name: "best of one" },
+    where: { name: "bo1" },
     update: { updatedAt: new Date() },
     create: {
-      name: "best of one",
+      name: "bo1",
       shortName: "BO1",
       displayName: "Best of One",
       targetScore: 1,
