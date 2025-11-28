@@ -130,8 +130,6 @@ export class EventsService {
     const eventId = v7();
     const stageIds: Array<string> = createEventDto.stages.map(() => v7());
 
-    console.log("createEventDto", createEventDto);
-
     const newEvent = await this.prismaService.$transaction(async (tx) => {
       try {
         const { id: newEventId } = await tx.event.create({
@@ -145,10 +143,10 @@ export class EventsService {
                 createEventDto.stages.at(0).registrationStartDate as string,
               ) > new Date()
                 ? "REGISTRATION_OPEN"
-                : "REGISTRATION_CLOSED",
-            startDate: createEventDto.stages.at(0).registrationStartDate,
+                : "PENDING",
+            startDate: createEventDto.stages.at(0).startDate,
             endDate: createEventDto.stages.at(createEventDto.stages.length - 1)
-              .registrationEndDate,
+              .endDate,
             hubId: createEventDto.hubId,
             titleId: createEventDto.titleId,
           },
@@ -164,9 +162,9 @@ export class EventsService {
             status:
               new Date(stage.registrationStartDate as string) > new Date()
                 ? "REGISTRATION_OPEN"
-                : "REGISTRATION_CLOSED",
-            startDate: stage.registrationStartDate,
-            endDate: stage.registrationEndDate,
+                : "PENDING",
+            startDate: stage.startDate,
+            endDate: stage.endDate,
             registrationStartDate: stage.registrationStartDate,
             registrationEndDate: stage.registrationEndDate,
             eventId: eventId,
@@ -184,7 +182,7 @@ export class EventsService {
               numberOfSubstitutes: stageSettings.numberOfSubstitutes,
               numberOfCoaches: stageSettings.numberOfCoaches,
               allowDraws: stageSettings.allowDraws,
-              drawPolicy: stageSettings.drawPolicy || "ADMIN_DECISION",
+              drawPolicy: stageSettings.drawPolicy,
               gameModePoolIds: stageSettings.gamemodePoolIds ?? [],
               perGameGamemodeVeto: stageSettings.perGameGamemodeVeto,
               perMatchGamemodeVeto: stageSettings.perMatchGamemodeVeto,

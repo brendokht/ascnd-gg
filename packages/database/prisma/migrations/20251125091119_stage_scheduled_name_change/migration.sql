@@ -19,7 +19,7 @@ ADD COLUMN     "start_date" TIMESTAMP(3) NOT NULL;
 -- AlterTable
 ALTER TABLE "stage" DROP COLUMN "scheduled_at",
 DROP COLUMN "scheduled_end_at",
-ADD COLUMN     "end_date" TIMESTAMP(3),
+ADD COLUMN     "end_date" TIMESTAMP(3) NOT NULL,
 ADD COLUMN     "start_date" TIMESTAMP(3) NOT NULL;
 
 -- CreateIndex
