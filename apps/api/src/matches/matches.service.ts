@@ -15,6 +15,7 @@ export class MatchesService {
         id: true,
         name: true,
         displayName: true,
+        shortName: true,
       },
     });
 
@@ -28,6 +29,7 @@ export class MatchesService {
           id: stageType.id,
           name: stageType.name,
           displayName: stageType.displayName,
+          shortName: stageType.shortName,
         };
       },
     );
@@ -41,6 +43,7 @@ export class MatchesService {
         id: true,
         name: true,
         displayName: true,
+        shortName: true,
       },
     });
 
@@ -52,6 +55,7 @@ export class MatchesService {
       id: matchFormatSelect.id,
       name: matchFormatSelect.name,
       displayName: matchFormatSelect.displayName,
+      shortName: matchFormatSelect.shortName,
     };
 
     return matchFormat;

@@ -160,6 +160,7 @@ export class EventsService {
             id: stageIds.at(idx),
             name: stage.displayName.toLowerCase(),
             displayName: stage.displayName,
+            description: stage.description,
             status:
               new Date(stage.registrationStartDate as string) > new Date()
                 ? "REGISTRATION_OPEN"
