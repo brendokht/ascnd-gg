@@ -47,11 +47,13 @@ export const StageSchema = z.object({
   typeId: z.uuidv7({ error: "Stage type is required." }).trim(),
   status: z.enum(StageStatus, { error: "Stage status is required." }),
   startDate: z.iso.datetime({ error: "Stage start date is required." }),
-  endDate: z.iso.datetime({ error: "Stage end date is required." }).optional(),
+  endDate: z.iso.datetime({ error: "Stage end date is required." }),
   registrationStartDate: z.iso.datetime({
     error: "Stage registration start date is required.",
   }),
-  registrationEndDate: z.iso.datetime().optional(),
+  registrationEndDate: z.iso.datetime({
+    error: "Stage registration end date is required.",
+  }),
   createdAt: z.iso
     .datetime({ error: "Stage creation date is required." })
     .optional(),

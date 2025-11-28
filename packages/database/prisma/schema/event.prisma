@@ -31,9 +31,9 @@ model Stage {
   stageType      StageType   @relation(fields: [stageTypeId], references: [id], onDelete: Cascade)
   status         StageStatus
   startDate    DateTime    @map("start_date")
-  endDate DateTime?    @map("end_date")
+  endDate DateTime    @map("end_date")
   registrationStartDate  DateTime             @map("registration_start_date")
-  registrationEndDate    DateTime?             @map("registration_end_date")
+  registrationEndDate    DateTime             @map("registration_end_date")
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @default(now()) @updatedAt @map("updated_at")
 

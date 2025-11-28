@@ -9,7 +9,7 @@
 
 */
 -- AlterTable
-ALTER TABLE "stage" ADD COLUMN     "registration_end_date" TIMESTAMP(3),
+ALTER TABLE "stage" ADD COLUMN     "registration_end_date" TIMESTAMP(3) NOT NULL,
 ADD COLUMN     "registration_start_date" TIMESTAMP(3) NOT NULL,
 ALTER COLUMN "scheduled_end_at" DROP NOT NULL;
 
