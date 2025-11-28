@@ -1,6 +1,12 @@
 "use client";
 
-import { Fragment, useEffect, type ReactNode } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react";
 import { createEventSchema } from "@ascnd-gg/types";
 import type {
   TitleData,
@@ -14,6 +20,7 @@ import type {
   CreateEvent,
   HubSummary,
   EventViewModel,
+  CreatePhase,
 } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
@@ -50,7 +57,7 @@ import {
 import { defineStepper } from "@ascnd-gg/ui/components/stepper";
 import * as z from "zod";
 import { Separator } from "@ascnd-gg/ui/components/ui/separator";
-import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronRight, Plus, X } from "lucide-react";
 import {
   Card,
   CardAction,
@@ -77,9 +84,16 @@ import {
   AvatarImage,
 } from "@ascnd-gg/ui/components/ui/avatar";
 import { objectToFormData } from "@ascnd-gg/website/lib/form-data-helper";
+import { Kbd, KbdGroup } from "@ascnd-gg/ui/components/ui/kbd";
 
 type EventData = Omit<CreateEvent, "stages">;
 type StagesData = Pick<CreateEvent, "stages">;
+
+// RoundInfo is just the different display for phases
+type RoundInfo = Pick<CreatePhase, "matchIndexStart" | "matchIndexEnd"> & {
+  id: string;
+  label: string;
+};
 
 const { useStepper, steps, utils } = defineStepper(
   {
@@ -99,6 +113,29 @@ const nowPlusWeek = new Date(now.getTime());
 nowPlusWeek.setDate(nowPlusWeek.getDate() + 7);
 const nowPlusTwoWeeks = new Date(now.getTime());
 nowPlusTwoWeeks.setDate(nowPlusTwoWeeks.getDate() + 14);
+
+function generateRounds(maxTeams: number): RoundInfo[] {
+  const rounds: RoundInfo[] = [];
+  let currentSize = maxTeams;
+  let matchIndex = 0;
+
+  while (currentSize >= 2) {
+    const matchesInRound = currentSize / 2;
+    const label = currentSize === 2 ? "Finals" : `RO${currentSize}`;
+
+    rounds.push({
+      id: label,
+      label,
+      matchIndexStart: matchIndex,
+      matchIndexEnd: matchIndex + matchesInRound - 1,
+    });
+
+    matchIndex += matchesInRound;
+    currentSize = currentSize / 2;
+  }
+
+  return rounds;
+}
 
 // TODO: Add max width and height to logo and banner preview
 
@@ -130,8 +167,6 @@ export default function CreateEventForm({
   const [titleData, setTitleData] = useState<TitleData>();
 
   const onSubmit = async (values: z.infer<typeof stepper.current.schema>) => {
-    console.log(`Form values for step ${stepper.current.id}:`, values);
-
     stepper.switch({
       event: async () => {
         const eventData = values as Omit<CreateEvent, "stages">;
@@ -354,7 +389,7 @@ function EventForm({
             <FormLabel>Name</FormLabel>
             <FormDescription>Your event&apos;s name</FormDescription>
             <FormControl>
-              <Input {...field} />
+              <Input autoFocus {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -451,7 +486,7 @@ function EventForm({
       />
       {logoPreview && (
         <>
-          <div className="relative aspect-square">
+          <div className="relative aspect-square w-1/2">
             <Image
               src={logoPreview}
               alt="Image Preview"
@@ -500,7 +535,7 @@ function EventForm({
       />
       {bannerPreview && (
         <>
-          <div className="aspect-rectangle relative">
+          <div className="aspect-rectangle relative w-1/2">
             <Image
               src={bannerPreview}
               alt="Image Preview"
@@ -563,20 +598,32 @@ function StagesForm({
 }) {
   const formContext = useFormContext<StagesData>();
 
+  useEffect(() => {
+    /**
+     * Errors are hidden when user goes back a step and then goes forward again
+     * This simply triggers re-validation when the user has a stage inputted,
+     * ensuring they see any errors
+     */
+    const values = formContext.getValues("stages");
+    if (values) {
+      formContext.trigger("stages");
+    }
+  }, [formContext.getValues("stages")]);
+
   const stagesArray = useFieldArray({
     control: formContext.control,
     name: "stages",
   });
 
   const onStartDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(`stages.${idx}.startDate`, date!.toISOString(), {
+    formContext.setValue(`stages.${idx}.startDate`, date?.toISOString() ?? "", {
       shouldValidate: true,
       shouldDirty: true,
     });
   };
 
   const onEndDateChange = (date: Date | undefined, idx: number) => {
-    formContext.setValue(`stages.${idx}.endDate`, date!.toISOString(), {
+    formContext.setValue(`stages.${idx}.endDate`, date?.toISOString() ?? "", {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -588,7 +635,7 @@ function StagesForm({
   ) => {
     formContext.setValue(
       `stages.${idx}.registrationStartDate`,
-      date!.toISOString(),
+      date?.toISOString() ?? "",
       { shouldValidate: true, shouldDirty: true },
     );
   };
@@ -596,14 +643,10 @@ function StagesForm({
   const onRegistrationEndDateChange = (date: Date | undefined, idx: number) => {
     formContext.setValue(
       `stages.${idx}.registrationEndDate`,
-      date!.toISOString(),
+      date?.toISOString() ?? "",
       { shouldValidate: true, shouldDirty: true },
     );
   };
-
-  useEffect(() => {
-    console.log("errors", formContext.formState.errors.stages);
-  }, [formContext.formState.errors]);
 
   return (
     <div className="min-h-98 space-y-4">
@@ -717,6 +760,9 @@ function StagesForm({
                   </FormDescription>
                   <FormControl>
                     <DateTimePicker
+                      defaultDate={
+                        field.value ? new Date(field.value) : undefined
+                      }
                       onDateChange={(date) => onStartDateChange(date, idx)}
                       {...field}
                     />
@@ -734,6 +780,9 @@ function StagesForm({
                   <FormDescription>Your stage&apos;s end date</FormDescription>
                   <FormControl>
                     <DateTimePicker
+                      defaultDate={
+                        field.value ? new Date(field.value) : undefined
+                      }
                       onDateChange={(date) => onEndDateChange(date, idx)}
                       {...field}
                     />
@@ -753,6 +802,9 @@ function StagesForm({
                   </FormDescription>
                   <FormControl>
                     <DateTimePicker
+                      defaultDate={
+                        field.value ? new Date(field.value) : undefined
+                      }
                       onDateChange={(date) =>
                         onRegistrationStartDateChange(date, idx)
                       }
@@ -774,6 +826,9 @@ function StagesForm({
                   </FormDescription>
                   <FormControl>
                     <DateTimePicker
+                      defaultDate={
+                        field.value ? new Date(field.value) : undefined
+                      }
                       onDateChange={(date) =>
                         onRegistrationEndDateChange(date, idx)
                       }
@@ -822,10 +877,12 @@ function StagesForm({
                   variant={"secondary"}
                   className={cn(
                     "w-full",
-                    (formContext.formState.errors.stages?.[idx]?.phases?.root
-                      ?.message ||
-                      formContext.formState.errors.stages?.[idx]?.phases
-                        ?.message) &&
+                    Array.isArray(
+                      formContext.formState.errors.stages?.[idx]?.phases,
+                    ) &&
+                      formContext.formState.errors.stages?.[idx]?.phases?.some(
+                        Boolean,
+                      ) &&
                       "ring-destructive/20 dark:ring-destructive/40 ring-2",
                   )}
                 >
@@ -861,13 +918,22 @@ function StagesForm({
       </FormMessage>
       <Button
         className="w-full"
+        autoFocus
         onClick={() => {
           stagesArray.append({
             displayName: "",
             typeId: "",
-            phases: [],
+            phases: generateRounds(128).map((round) => {
+              return {
+                formatId: "",
+                matchIndexStart: round.matchIndexStart,
+                matchIndexEnd: round.matchIndexEnd,
+              };
+            }),
             startDate: "",
+            endDate: "",
             registrationStartDate: "",
+            registrationEndDate: "",
             stageSettings: {
               minTeams: 2,
               maxTeams: 128,
@@ -936,7 +1002,7 @@ function StageSettingsDialog({
           Stage Settings for Stage {idx + 1}
         </DialogDescription>
         <ScrollArea type="always" className="h-102">
-          <div className="mr-3 space-y-4">
+          <div className="ml-1 mr-4 space-y-4">
             <FormField
               control={formContext.control}
               name={`stages.${idx}.stageSettings.allowDraws`}
@@ -946,6 +1012,7 @@ function StageSettingsDialog({
                   <FormControl>
                     <Checkbox
                       id={field.name}
+                      autoFocus
                       checked={Boolean(field.value)}
                       onCheckedChange={(v) => {
                         // Ensure drawPolicy is undefined if no draws are allowed
@@ -1003,13 +1070,27 @@ function StageSettingsDialog({
                 <FormItem>
                   <FormLabel>Minimum Number of Teams</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
+                    <Select
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(parseInt(e.target.value || "0", 10))
-                      }
-                    />
+                      value={field.value?.toString() ?? ""}
+                      onValueChange={(val) => {
+                        const value = parseInt(val, 10);
+                        field.onChange(value);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select minimum number of teams" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="8">8</SelectItem>
+                        <SelectItem value="16">16</SelectItem>
+                        <SelectItem value="32">32</SelectItem>
+                        <SelectItem value="64">64</SelectItem>
+                        <SelectItem value="128">128</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -1022,13 +1103,41 @@ function StageSettingsDialog({
                 <FormItem>
                   <FormLabel>Maximum Number of Teams</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
+                    <Select
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(parseInt(e.target.value || "0", 10))
-                      }
-                    />
+                      value={field.value?.toString() ?? ""}
+                      onValueChange={(val) => {
+                        const value = parseInt(val, 10);
+                        field.onChange(value);
+                        formContext.setValue(
+                          `stages.${idx}.phases`,
+                          generateRounds(value).map((round) => {
+                            return {
+                              formatId: "",
+                              matchIndexStart: round.matchIndexStart,
+                              matchIndexEnd: round.matchIndexEnd,
+                            };
+                          }),
+                          {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          },
+                        );
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select maximum number of teams" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="8">8</SelectItem>
+                        <SelectItem value="16">16</SelectItem>
+                        <SelectItem value="32">32</SelectItem>
+                        <SelectItem value="64">64</SelectItem>
+                        <SelectItem value="128">128</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -1040,28 +1149,15 @@ function StageSettingsDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team Size</FormLabel>
+                  <FormDescription>X vs. X</FormDescription>
                   <FormControl>
-                    <Select
-                      name={field.name}
-                      value={String(field.value)}
-                      onValueChange={(v) => field.onChange(v === "true")}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1v1</SelectItem>
-                        <SelectItem value="2">2v2</SelectItem>
-                        <SelectItem value="3">3v3</SelectItem>
-                        <SelectItem value="4">4v4</SelectItem>
-                        <SelectItem value="5">5v5</SelectItem>
-                        <SelectItem value="6">6v6</SelectItem>
-                        <SelectItem value="7">7v7</SelectItem>
-                        <SelectItem value="8">8v8</SelectItem>
-                        <SelectItem value="9">9v0</SelectItem>
-                        <SelectItem value="10">10v10</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(parseInt(e.target.value || "0", 10))
+                      }
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -1502,155 +1598,238 @@ function PhasesDialog({
   stageIdx: number;
   matchFormats: Array<MatchFormatViewModel> | null;
 }) {
-  const phasesArray = useFieldArray({
-    control: formContext.control,
-    name: `stages.${stageIdx}.phases`,
-  });
+  const [open, setOpen] = useState(false);
+  const [selectedRounds, setSelectedRounds] = useState<Set<number>>(new Set());
+  const [lastClickedIndex, setLastClickedIndex] = useState<number | null>(null);
+
+  const maxTeams = formContext.watch(
+    `stages.${stageIdx}.stageSettings.maxTeams`,
+  );
+  const phases = formContext.watch(`stages.${stageIdx}.phases`);
+  const rounds = generateRounds(maxTeams);
+  const hasSelection = selectedRounds.size > 0;
+  const railRef = useRef<HTMLDivElement>(null);
+
+  const handleOpenChange = (open: boolean) => {
+    setOpen(open);
+    setSelectedRounds(new Set());
+    setLastClickedIndex(null);
+  };
+
+  const handleChipClick = useCallback(
+    (index: number, event: React.MouseEvent) => {
+      if (event.shiftKey && lastClickedIndex !== null) {
+        // Range selection
+        const start = Math.min(lastClickedIndex, index);
+        const end = Math.max(lastClickedIndex, index);
+        const newSelected = new Set(selectedRounds);
+        for (let i = start; i <= end; i++) {
+          newSelected.add(i);
+        }
+        setSelectedRounds(newSelected);
+      } else if (event.ctrlKey || event.metaKey) {
+        // Toggle individual selection
+        const newSelected = new Set(selectedRounds);
+        if (newSelected.has(index)) {
+          newSelected.delete(index);
+        } else {
+          newSelected.add(index);
+        }
+        setSelectedRounds(newSelected);
+        setLastClickedIndex(index);
+      } else {
+        // Single selection
+        if (selectedRounds.has(index) && selectedRounds.size === 1) {
+          setSelectedRounds(new Set());
+          setLastClickedIndex(null);
+        } else {
+          setSelectedRounds(new Set([index]));
+          setLastClickedIndex(index);
+        }
+      }
+    },
+    [lastClickedIndex, selectedRounds],
+  );
+
+  const handleSetFormat = useCallback(
+    (formatId: string) => {
+      selectedRounds.forEach((index) => {
+        formContext.setValue(
+          `stages.${stageIdx}.phases.${index}.formatId`,
+          formatId,
+          { shouldDirty: true, shouldValidate: true },
+        );
+      });
+    },
+    [selectedRounds, formContext],
+  );
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedRounds(new Set());
+    setLastClickedIndex(null);
+  }, []);
+
+  const getFormatName = (index: number) => {
+    return matchFormats?.find(
+      (format) => format.id === phases?.[index]?.formatId,
+    )?.shortName;
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Stage {stageIdx + 1} Phases</DialogTitle>
         </DialogHeader>
         <DialogDescription>Phases for Stage {stageIdx + 1}</DialogDescription>
-        <ScrollArea type="always" className="h-102">
-          <div className="mr-3 space-y-4">
-            {phasesArray.fields.map((phase, idx) => {
+        <div
+          className={cn(
+            "bg-card flex items-center justify-between rounded-lg border p-3 shadow-sm transition-all duration-200",
+            hasSelection
+              ? "border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/30"
+              : "border-transparent bg-transparent shadow-none",
+          )}
+        >
+          {hasSelection ? (
+            <>
+              <div className="flex flex-col items-center gap-3">
+                <span className="text-foreground text-sm font-medium">
+                  {selectedRounds.size} round
+                  {selectedRounds.size > 1 ? "s" : ""} selected
+                </span>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleClearSelection}
+                >
+                  Clear
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                {matchFormats?.map((format) => (
+                  <Button
+                    variant={
+                      phases
+                        .filter((_, index) => selectedRounds.has(index))
+                        .some((phase) => phase.formatId === format.id)
+                        ? "secondary"
+                        : "outline"
+                    }
+                    size={"sm"}
+                    key={format.id}
+                    onClick={() => handleSetFormat(format.id)}
+                  >
+                    {format.shortName}
+                  </Button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <span className="text-muted-foreground text-xs">
+              <Kbd>Click</Kbd> to select rounds,{" "}
+              <KbdGroup>
+                <Kbd>Shift</Kbd>
+                <Kbd>Click</Kbd>
+              </KbdGroup>{" "}
+              for range,{" "}
+              <KbdGroup>
+                <Kbd>Ctrl/Cmd</Kbd>
+                <Kbd>Click</Kbd>
+              </KbdGroup>{" "}
+              to add.
+            </span>
+          )}
+        </div>
+        <div className="relative" ref={railRef}>
+          <div className="bg-border absolute left-4 right-4 top-1/2 h-0.5 -translate-y-1/2" />
+          <div className="relative flex flex-wrap items-center justify-center gap-x-2 gap-y-4">
+            {rounds.map((round, index) => {
+              const isSelected = selectedRounds.has(index);
+              const isLast = index === rounds.length - 1;
+
               return (
-                <Card key={phase.id}>
-                  <CardHeader>
-                    <CardTitle>Phase {idx + 1}</CardTitle>
-                    <CardAction className="space-x-2">
-                      {idx !== 0 && phasesArray.fields.length > 1 && (
-                        <Button
-                          onClick={() => {
-                            phasesArray.swap(idx, idx - 1);
-                          }}
-                          size={"icon-sm"}
-                        >
-                          <ArrowUp />
-                        </Button>
+                <div key={round.id} className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={(e) => handleChipClick(index, e)}
+                    className={cn(
+                      "bg-card relative flex size-20 flex-col items-center justify-evenly gap-1 rounded-xl border-2 px-4 py-3 transition-all duration-150",
+                      "focus:ring-ring hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2",
+                      isSelected
+                        ? "border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-500/20 dark:bg-blue-950/50"
+                        : "border-border hover:border-muted-foreground/30",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "whitespace-nowrap text-sm font-semibold",
+                        isSelected
+                          ? "text-blue-700 dark:text-blue-300"
+                          : "text-foreground",
                       )}
-                      {idx !== phasesArray.fields.length - 1 &&
-                        phasesArray.fields.length > 1 && (
-                          <Button
-                            onClick={() => {
-                              phasesArray.swap(idx, idx + 1);
-                            }}
-                            size={"icon-sm"}
-                          >
-                            <ArrowDown />
-                          </Button>
-                        )}
-                      <Button
-                        onClick={() => phasesArray.remove(idx)}
-                        variant={"destructive"}
-                        size={"icon-sm"}
-                      >
-                        <X />
-                      </Button>
-                    </CardAction>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormField
-                      control={formContext.control}
-                      name={`stages.${stageIdx}.phases.${idx}.formatId`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Type</FormLabel>
-                          <FormDescription>
-                            The type of stage to be played
-                          </FormDescription>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              {...field}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {matchFormats?.map((format) => {
-                                  return (
-                                    <SelectItem
-                                      key={format.id}
-                                      value={format.id}
-                                    >
-                                      {format.displayName}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                    >
+                      {round.label}
+                    </span>
+                    <span
+                      className={cn(
+                        "flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                        isSelected
+                          ? "bg-blue-500 text-white"
+                          : "bg-muted text-muted-foreground",
                       )}
-                    />
-                    <FormField
-                      control={formContext.control}
-                      name={`stages.${stageIdx}.phases.${idx}.matchIndexStart`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Starting Match</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  parseInt(e.target.value || "0", 10),
-                                )
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={formContext.control}
-                      name={`stages.${stageIdx}.phases.${idx}.matchIndexEnd`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ending Match</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  parseInt(e.target.value || "0", 10),
-                                )
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
+                    >
+                      {getFormatName(index)}
+                    </span>
+                  </button>
+                  {!isLast && (
+                    <ChevronRight className="text-muted-foreground mx-1 h-4 w-4 flex-shrink-0" />
+                  )}
+                </div>
               );
             })}
           </div>
-        </ScrollArea>
-        <Button
-          className="w-full"
-          onClick={() => {
-            phasesArray.append({
-              formatId: "",
-              matchIndexStart: 0,
-              matchIndexEnd: 0,
-            });
-          }}
-        >
-          <Plus />
-          Add Phase
-        </Button>
+        </div>
+        <div className="text-muted-foreground flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="h-3 w-3 rounded border-2 border-blue-500 bg-blue-50 dark:bg-blue-950" />
+            <span>Selected</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="border-border bg-card h-3 w-3 rounded border-2" />
+            <span>Unselected</span>
+          </div>
+        </div>
+        <FormMessage>
+          {formContext.formState.errors.stages?.[stageIdx]?.phases?.root
+            ?.message ||
+            formContext.formState.errors.stages?.[stageIdx]?.phases?.message ||
+            (() => {
+              const phaseErrors =
+                formContext.formState.errors.stages?.[stageIdx]?.phases;
+              if (!Array.isArray(phaseErrors)) return null;
+
+              const messageCounts = new Map<string, number>();
+              phaseErrors.forEach((phase) => {
+                const messages = [];
+                if (phase?.formatId?.message) {
+                  messages.push(phase.formatId.message);
+                }
+                if (phase?.matchIndexEnd?.message) {
+                  messages.push(phase.matchIndexEnd.message);
+                }
+                if (phase?.matchIndexStart?.message) {
+                  messages.push(phase.matchIndexStart.message);
+                }
+                messages.forEach((msg) => {
+                  messageCounts.set(msg, (messageCounts.get(msg) || 0) + 1);
+                });
+              });
+              return Array.from(messageCounts.entries())
+                .map(([message, count]) => `${message} (${count})`)
+                .join(", ");
+            })()}
+        </FormMessage>
       </DialogContent>
     </Dialog>
   );
