@@ -1,6 +1,6 @@
 "use client";
 
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import {
   Popover,
@@ -15,16 +15,16 @@ import { Input } from "@ascnd-gg/ui/components/ui/input";
 import { useState } from "react";
 
 export default function DateTimePicker({
-  defaultTime,
+  defaultDate,
   onDateChange,
 }: {
-  defaultTime?: Date;
+  defaultDate?: Date;
   onDateChange: (date: Date | undefined) => void;
 }) {
-  const [date, setDate] = useState<Date | undefined>(defaultTime);
+  const [date, setDate] = useState<Date | undefined>(defaultDate);
   const [time, setTime] = useState<string>(
-    date
-      ? `${date?.toTimeString().split(" ")[0]?.split(":", 2).toString().replace(",", ":")}`
+    defaultDate
+      ? `${defaultDate?.toTimeString().split(" ")[0]?.split(":", 2).toString().replace(",", ":")}`
       : "12:00",
   );
 
@@ -45,8 +45,14 @@ export default function DateTimePicker({
   };
 
   const handleDateChange = (date: Date | undefined) => {
-    setDate(date);
-    onDateChange(date);
+    if (date && time) {
+      date?.setHours(
+        Number.parseInt(time.split(":")[0]!, 10),
+        Number.parseInt(time.split(":")[1]!, 10),
+      );
+      setDate(date);
+      onDateChange(date);
+    }
   };
 
   return (
@@ -60,22 +66,14 @@ export default function DateTimePicker({
           variant="outline"
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? (
-            `${format(date, "PPP")} at ${format(
-              // parse "HH:mm" time string into a Date, using the stage date (or now) as the base
-              parse(time, "HH:mm", date ?? new Date()),
-              "h:mm a",
-            )}`
-          ) : (
-            <span>Pick a date and time</span>
-          )}
+          {date ? `${format(date, "PPPp")}` : <span>Pick a date and time</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto p-0">
         <div className="bg-background divide-y overflow-hidden">
           <Calendar
             mode="single"
-            month={defaultTime}
+            month={defaultDate}
             onSelect={handleDateChange}
             selected={date}
           />
