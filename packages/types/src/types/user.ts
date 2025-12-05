@@ -3,6 +3,7 @@ import {
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   NAME_REGEX,
+  USER_DESCRIPTION_MAX_LENGTH,
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
   USERNAME_REGEX,
@@ -57,8 +58,13 @@ export const UserSchema = z.object({
         "Name can only include letters, spaces, hyphens, apostrophes, and periods, and must contain at least one letter.",
     })
     .optional(),
-  profilePictureUrl: z
-    .url({ error: "User avatar is must be a URL pointing to an image." })
+  description: z.string().trim().max(USER_DESCRIPTION_MAX_LENGTH).optional(),
+  avatar: z
+    .url({ error: "User avatar must be a URL pointing to an image." })
+    .trim()
+    .optional(),
+  banner: z
+    .url({ error: "User banner must be a URL pointing to an image." })
     .trim()
     .optional(),
   get teams() {
@@ -76,14 +82,16 @@ export const UserSummarySchema = UserSchema.pick({
   id: true,
   username: true,
   displayUsername: true,
-  profilePictureUrl: true,
+  avatar: true,
 });
 
 export const UserViewModelSchema = UserSchema.pick({
   id: true,
   username: true,
   displayUsername: true,
-  profilePictureUrl: true,
+  description: true,
+  avatar: true,
+  banner: true,
   teams: true,
   createdAt: true,
 });

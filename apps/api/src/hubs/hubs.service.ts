@@ -270,7 +270,7 @@ export class HubsService {
           id: user.id,
           username: user.username,
           displayUsername: user.displayUsername,
-          profilePictureUrl: user.image,
+          avatar: user.image,
         };
       }),
       createdAt: hubSelect.createdAt.toISOString(),
@@ -317,7 +317,7 @@ export class HubsService {
           id: user.id,
           username: user.username,
           displayUsername: user.displayUsername,
-          profilePictureUrl: user.image,
+          avatar: user.image,
         };
       }),
       createdAt: hubSelect.createdAt.toISOString(),
@@ -432,7 +432,7 @@ export class HubsService {
         id: user.id,
         username: user.username,
         displayUsername: user.displayUsername,
-        profilePictureUrl: user.image,
+        avatar: user.image,
         createdAt: user.createdAt.toISOString(),
         isInvited: user.hubInvitations.length > 0,
         inviteId:

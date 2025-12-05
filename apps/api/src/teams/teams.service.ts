@@ -272,7 +272,7 @@ export class TeamsService {
           id: user.id,
           username: user.username,
           displayUsername: user.displayUsername,
-          profilePictureUrl: user.image,
+          avatar: user.image,
         };
       }),
       createdAt: teamSelect.createdAt.toISOString(),
@@ -319,7 +319,7 @@ export class TeamsService {
           id: user.id,
           username: user.username,
           displayUsername: user.displayUsername,
-          profilePictureUrl: user.image,
+          avatar: user.image,
         };
       }),
       createdAt: teamSelect.createdAt.toISOString(),
@@ -434,7 +434,7 @@ export class TeamsService {
         id: user.id,
         username: user.username,
         displayUsername: user.displayUsername,
-        profilePictureUrl: user.image,
+        avatar: user.image,
         createdAt: user.createdAt.toISOString(),
         isInvited: user.teamInvitations.length > 0,
         inviteId:

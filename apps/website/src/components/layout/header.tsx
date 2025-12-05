@@ -16,7 +16,7 @@ export default async function Header() {
       id: session.user.id,
       username: session.user.username ?? undefined,
       displayUsername: session.user.displayUsername ?? undefined,
-      profilePictureUrl: session.user.image ?? undefined,
+      avatar: session.user.image ?? undefined,
       createdAt: session.user.createdAt.toISOString(),
     };
   }
