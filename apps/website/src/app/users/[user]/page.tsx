@@ -27,15 +27,18 @@ export default async function UserProfile(props: PageProps<"/users/[user]">) {
     <>
       <div className="aspect-rectangle relative">
         <Image
-          src="https://placehold.co/1200x400/34a85a/white/png?text=Banner&font=montersatt"
-          alt="placeholder"
+          src={
+            userData.banner ??
+            "https://placehold.co/1200x400/34a85a/white/png?text=Banner&font=montersatt"
+          }
+          alt={`${userData.displayUsername}'s banner`}
           fill
           priority
         />
       </div>
       <Avatar className="size-24">
         <AvatarImage
-          src={userData.profilePictureUrl}
+          src={userData.avatar}
           alt={`${userData.displayUsername!}'s logo`}
           className="object-fill"
         />
@@ -44,6 +47,9 @@ export default async function UserProfile(props: PageProps<"/users/[user]">) {
         </AvatarFallback>
       </Avatar>
       <h1 className="text-2xl font-semibold">{userData.displayUsername}</h1>
+      {userData.description && (
+        <p className="text-sm">{userData.description}</p>
+      )}
       {userData.createdAt && (
         <p className="text-muted-foreground text-sm">
           Member since{" "}
