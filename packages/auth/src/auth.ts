@@ -33,8 +33,21 @@ const authConfig = {
       active: {
         type: "boolean",
         required: true,
+        returned: true,
         defaultValue: false,
         input: false,
+      },
+      banner: {
+        type: "string",
+        required: false,
+        returned: false, // We will return from User API endpoint, not Auth endpoint
+        input: true,
+      },
+      description: {
+        type: "string",
+        required: false,
+        returned: false, // We will return from User API endpoint, not Auth endpoint
+        input: true,
       },
     },
   },
