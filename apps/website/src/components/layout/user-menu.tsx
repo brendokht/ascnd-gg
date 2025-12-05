@@ -62,7 +62,7 @@ export default function UserMenu({ user }: { user: UserViewModel | null }) {
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full">
               <Avatar>
-                <AvatarImage src={user.profilePictureUrl} />
+                <AvatarImage src={user.avatar} />
                 <AvatarFallback>{`${user.username?.charAt(0).toUpperCase()}`}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>

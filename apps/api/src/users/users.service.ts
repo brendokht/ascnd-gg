@@ -17,7 +17,9 @@ export class UsersService {
         id: true,
         username: true,
         displayUsername: true,
+        description: true,
         image: true,
+        banner: true,
         createdAt: true,
         teams: { select: { team: true } },
       },
@@ -31,7 +33,9 @@ export class UsersService {
       id: userSelect.id,
       username: userSelect.username,
       displayUsername: userSelect.displayUsername,
-      profilePictureUrl: userSelect.image,
+      description: userSelect.description,
+      avatar: userSelect.image,
+      banner: userSelect.banner,
       createdAt: userSelect.createdAt.toISOString(),
       teams: userSelect.teams
         ? userSelect.teams.map((t) => {
@@ -58,7 +62,9 @@ export class UsersService {
         id: true,
         username: true,
         displayUsername: true,
+        description: true,
         image: true,
+        banner: true,
         createdAt: true,
         teams: { select: { team: true } },
       },
@@ -72,7 +78,9 @@ export class UsersService {
       id: userSelect.id,
       username: userSelect.username,
       displayUsername: userSelect.displayUsername,
-      profilePictureUrl: userSelect.image,
+      description: userSelect.description,
+      avatar: userSelect.image,
+      banner: userSelect.banner,
       createdAt: userSelect.createdAt.toISOString(),
       teams: userSelect.teams
         ? userSelect.teams.map((t) => {

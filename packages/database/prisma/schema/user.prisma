@@ -11,8 +11,8 @@ model User {
   username        String?
   displayUsername String?  @map("display_username")
   active          Boolean  @default(false)
-  banner      String?
-  description String?
+  banner          String?
+  description     String?
 
   sessions                     Session[]
   accounts                     Account[]

@@ -433,7 +433,7 @@ export function TeamInvitationDialog({
                     <ItemMedia>
                       <Avatar className="size-8">
                         <AvatarImage
-                          src={user.profilePictureUrl ?? ""}
+                          src={user.avatar ?? ""}
                           alt={`${user.displayUsername!}'s logo`}
                           className="object-fill"
                         />
