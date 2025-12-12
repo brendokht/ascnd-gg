@@ -22,12 +22,12 @@
     "@ascnd-gg/constants": "workspace:^",
     "@ascnd-gg/database": "workspace:*",
     "@ascnd-gg/redis": "workspace:^",
-    "better-auth": "^1.3.27",
+    "better-auth": "^1.4.6",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "@ascnd-gg/eslint-config": "workspace:*",
     "@ascnd-gg/typescript-config": "workspace:*",
-    "@types/node": "^24.7.0"
+    "@types/node": "^25.0.0"
   }
 }

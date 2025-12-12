@@ -20,14 +20,14 @@
   "devDependencies": {
     "@ascnd-gg/eslint-config": "workspace:*",
     "@ascnd-gg/typescript-config": "workspace:*",
-    "eslint": "^9.37.0",
-    "prettier": "^3.6.2",
+    "eslint": "^9.39.1",
+    "prettier": "^3.7.4",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@ascnd-gg/constants": "workspace:^",
     "@ascnd-gg/database": "workspace:^",
     "nestjs-zod": "^5.0.1",
-    "zod": "^4.1.12"
+    "zod": "^4.1.13"
   }
 }
