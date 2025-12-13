@@ -4,9 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@ascnd-gg/website/*": ["./src/*"],
-      "@ascnd-gg/ui/*": ["../../packages/ui/src/*"],
+      "@ascnd-gg/auth": ["../../packages/auth/src/auth.ts"],
       "@ascnd-gg/types": ["../../packages/types/src/index.ts"],
-      "@ascnd-gg/auth": ["../../packages/auth/src/auth.ts"]
+      "@ascnd-gg/ui/*": ["../../packages/ui/src/*"]
     },
     "plugins": [
       {
