@@ -1,4 +1,4 @@
-import { EventStatus } from "@ascnd-gg/database";
+import { EventStatus } from "@ascnd-gg/database/browser";
 import {
   EVENT_DESCRIPTION_MAX_LENGTH,
   EVENT_DISPLAY_NAME_REGEX,

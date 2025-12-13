@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PrismaClient, InviteStatus } from "../";
 
-const prisma = new PrismaClient();
+import { prisma, InviteStatus } from "../";
 
 async function main() {
   // #region Users

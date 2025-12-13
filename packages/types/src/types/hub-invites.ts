@@ -1,11 +1,21 @@
 import * as z from "zod";
 import { HubSummarySchema } from "./hub";
-import { InviteStatus } from "@ascnd-gg/database";
 import { UserSummarySchema } from "./user";
+
+// runtime values for the invite status enum — keep these local so importing types
+// from `@ascnd-gg/database` doesn't pull server-only runtime code into consumer bundles.
+const InviteStatusValues = [
+  "PENDING",
+  "DECLINED",
+  "CANCELLED",
+  "ACCEPTED",
+] as const;
 
 export const HubInviteSchema = z.object({
   id: z.uuidv7({ error: "Hub invite ID is requied." }).trim(),
-  status: z.enum(InviteStatus, { error: "Hub invite status is required." }),
+  status: z.enum(InviteStatusValues, {
+    error: "Hub invite status is required.",
+  }),
   get user() {
     return UserSummarySchema;
   },

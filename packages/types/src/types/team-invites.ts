@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { TeamSummarySchema } from "./team";
-import { InviteStatus } from "@ascnd-gg/database";
+import { InviteStatus } from "@ascnd-gg/database/browser";
 import { UserSummarySchema } from "./user";
 
 export const TeamInviteSchema = z.object({
