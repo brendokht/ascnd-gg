@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@ascnd-gg/types/*": ["./src/*"],
-      "@ascnd-gg/constants": ["../constants"]
+      "@ascnd-gg/constants": ["../constants"],
+      "@ascnd-gg/database": ["../database"]
     },
     "strict": true
   },

@@ -4,8 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@ascnd-gg/auth/*": ["./src/*"],
+      "@ascnd-gg/constants": ["../constants"],
       "@ascnd-gg/database": ["../database"],
-      "@ascnd-gg/constants": ["../constants"]
+      "@ascnd-gg/redis": ["../redis"]
     },
     "declaration": false,
     "declarationMap": null

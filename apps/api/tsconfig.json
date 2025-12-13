@@ -4,10 +4,12 @@
     "baseUrl": ".",
     "paths": {
       "@ascnd-gg/api/*": ["./src/*"],
-      "@ascnd-gg/types": ["../../packages/types/dist"],
-      "@ascnd-gg/database": ["../../packages/database/dist"],
       "@ascnd-gg/auth": ["../../packages/auth/dist"],
-      "@ascnd-gg/constants": ["../../packages/constants/dist"]
+      "@ascnd-gg/constants": ["../../packages/constants/dist"],
+      "@ascnd-gg/database": ["../../packages/database/dist"],
+      "@ascnd-gg/redis": ["../../packages/redis/dist"],
+      "@ascnd-gg/storage": ["../../packages/storage/dist"],
+      "@ascnd-gg/types": ["../../packages/types/dist"]
     },
     "outDir": "./dist"
   },
