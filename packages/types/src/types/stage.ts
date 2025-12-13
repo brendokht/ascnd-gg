@@ -3,7 +3,7 @@ import {
   StageJoinType,
   StageSeedingType,
   StageStatus,
-} from "@ascnd-gg/database";
+} from "@ascnd-gg/database/browser";
 import {
   STAGE_DESCRIPTION_MAX_LENGTH,
   STAGE_DISPLAY_NAME_REGEX,

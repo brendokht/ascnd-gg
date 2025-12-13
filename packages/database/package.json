@@ -8,14 +8,18 @@
     ".": {
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./browser": {
+      "default": "./dist/browser.js",
+      "types": "./dist/browser.d.ts"
     }
   },
   "scripts": {
     "ts:build": "tsc --build tsconfig.build.json",
     "ts:build-watch": "tsc --build tsconfig.build.json --watch",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev --skip-generate",
-    "db:reset": "prisma migrate reset --skip-seed",
+    "db:migrate": "prisma migrate dev",
+    "db:reset": "prisma migrate reset",
     "db:seed": "prisma db seed",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
@@ -33,6 +37,7 @@
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.51.1",
+    "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.1.0",
     "ts-node": "^10.9.2"
   }

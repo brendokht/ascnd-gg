@@ -1,4 +1,4 @@
-import { DrawResolutionPolicy, Result } from "@ascnd-gg/database";
+import { DrawResolutionPolicy, Result } from "@ascnd-gg/database/browser";
 import * as z from "zod";
 
 export const MatchSchema = z.object({

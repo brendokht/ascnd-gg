@@ -1,4 +1,4 @@
-import { DrawResolutionPolicy } from "@ascnd-gg/database";
+import { DrawResolutionPolicy } from "@ascnd-gg/database/browser";
 import * as z from "zod";
 
 export const TitleSchema = z.object({

@@ -3,9 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@ascnd-gg/database/*": ["./src/*"]
+      "@ascnd-gg/database/*": ["."]
     }
   },
-  "include": ["src", "prisma/seed.ts"],
+  "include": ["src", "generated", "prisma/seed.ts"],
   "exclude": ["node_modules", "dist"]
 }
