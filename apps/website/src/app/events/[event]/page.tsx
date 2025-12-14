@@ -64,7 +64,7 @@ export default async function EventProfile(
       <p>
         {eventData.isEventOwner ? "You are the owner" : "You are not the owner"}
       </p>
-      <pre className="text-muted-foreground bg-muted text-wrap rounded-md p-2 font-mono text-sm">
+      <pre className="text-muted-foreground bg-muted rounded-md p-2 font-mono text-sm text-wrap">
         {JSON.stringify(eventData, null, 2)}
       </pre>
     </>
