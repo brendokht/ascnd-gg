@@ -51,6 +51,9 @@ export default async function EventProfile(
         </AvatarFallback>
       </Avatar>
       <h1 className="text-2xl font-semibold">{eventData.displayName}</h1>
+      {eventData.description && (
+        <p className="text-muted-foreground text-sm">{eventData.description}</p>
+      )}
       {eventData.createdAt && (
         <p className="text-muted-foreground text-sm">
           Event created on{" "}

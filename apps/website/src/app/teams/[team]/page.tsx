@@ -49,6 +49,9 @@ export default async function TeamProfile(props: PageProps<"/teams/[team]">) {
         </AvatarFallback>
       </Avatar>
       <h1 className="text-2xl font-semibold">{teamData.displayName}</h1>
+      {teamData.description && (
+        <p className="text-muted-foreground text-sm">{teamData.description}</p>
+      )}
       {teamData.createdAt && (
         <p className="text-muted-foreground text-sm">
           Team active on Ascnd GG since{" "}

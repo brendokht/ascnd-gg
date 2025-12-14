@@ -21,6 +21,7 @@ import { FileUploadDialog } from "../dialogs/file-upload-dialog";
 import { useState } from "react";
 import Image from "next/image";
 import { Spinner } from "@ascnd-gg/ui/components/ui/spinner";
+import { Textarea } from "@ascnd-gg/ui/components/ui/textarea";
 
 export default function CreateHubForm() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function CreateHubForm() {
     resolver: zodResolver(createHubSchema),
     defaultValues: {
       displayName: "",
+      description: "",
     },
     mode: "onChange",
   });
@@ -40,6 +42,7 @@ export default function CreateHubForm() {
     const formData = new FormData();
 
     if (values.displayName) formData.append("displayName", values.displayName);
+    if (values.description) formData.append("description", values.description);
     if (values.logo) formData.append("logo", values.logo ?? new Blob());
     if (values.banner) formData.append("banner", values.banner ?? new Blob());
 
@@ -83,6 +86,20 @@ export default function CreateHubForm() {
                 <FormDescription>Your hub&apos;s name</FormDescription>
                 <FormControl>
                   <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hub Description</FormLabel>
+                <FormDescription>Your hub&apos;s description</FormDescription>
+                <FormControl>
+                  <Textarea className="max-h-36" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

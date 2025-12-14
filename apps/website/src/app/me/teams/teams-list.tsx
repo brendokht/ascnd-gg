@@ -1,6 +1,6 @@
 "use client";
 
-import { type TeamSummary } from "@ascnd-gg/types";
+import { type TeamViewModel } from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -29,7 +29,7 @@ export default function TeamsList({
   teams,
   userId,
 }: {
-  teams: Array<TeamSummary>;
+  teams: Array<TeamViewModel>;
   userId: string;
 }) {
   const isMobile = useIsMobile();
