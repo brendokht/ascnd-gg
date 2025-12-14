@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { prisma, InviteStatus } from "../";
+import { prisma, InviteStatus } from "../src/index";
 
 async function main() {
   // #region Users

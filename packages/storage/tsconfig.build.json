@@ -5,9 +5,9 @@
     "incremental": true,
     "outDir": "dist",
     "rootDir": "src",
-    "module": "commonjs",
+    "module": "nodenext",
     "target": "ES2020",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "skipLibCheck": true
   },
