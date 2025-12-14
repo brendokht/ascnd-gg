@@ -45,6 +45,7 @@ export class TeamsService {
         const { id: newTeamId, name: newTeamName } = await tx.team.create({
           data: {
             displayName: createTeamDto.displayName,
+            description: createTeamDto.description,
             name: createTeamDto.displayName.toLowerCase(),
             teamOwner: { connect: { id: user.id } },
             members: {
@@ -137,6 +138,7 @@ export class TeamsService {
           } = await tx.team.update({
             data: {
               displayName: editTeamDto.displayName ?? undefined,
+              description: editTeamDto.description ?? undefined,
               name: editTeamDto.displayName
                 ? editTeamDto.displayName.toLowerCase()
                 : undefined,
@@ -245,6 +247,7 @@ export class TeamsService {
         id: true,
         name: true,
         displayName: true,
+        description: true,
         logo: true,
         banner: true,
         createdAt: true,
@@ -265,6 +268,7 @@ export class TeamsService {
       id: teamSelect.id,
       name: teamSelect.name,
       displayName: teamSelect.displayName,
+      description: teamSelect.description,
       logo: teamSelect.logo,
       banner: teamSelect.banner,
       members: teamSelect.members.map(({ user }) => {
@@ -292,6 +296,7 @@ export class TeamsService {
         id: true,
         name: true,
         displayName: true,
+        description: true,
         logo: true,
         banner: true,
         createdAt: true,
@@ -312,6 +317,7 @@ export class TeamsService {
       id: teamSelect.id,
       name: teamSelect.name,
       displayName: teamSelect.displayName,
+      description: teamSelect.description,
       logo: teamSelect.logo,
       banner: teamSelect.banner,
       members: teamSelect.members.map(({ user }) => {
