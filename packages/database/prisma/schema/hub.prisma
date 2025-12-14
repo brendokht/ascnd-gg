@@ -4,6 +4,7 @@ model Hub {
   hubOwner    User     @relation(fields: [hubOwnerId], references: [id], onDelete: Cascade)
   name        String   @unique
   displayName String   @map("display_name")
+  description    String?
   logo        String?
   banner      String?
   createdAt   DateTime @default(now()) @map("created_at")
