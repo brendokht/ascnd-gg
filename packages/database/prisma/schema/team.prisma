@@ -4,6 +4,7 @@ model Team {
   teamOwner   User     @relation(fields: [teamOwnerId], references: [id], onDelete: Cascade)
   name        String   @unique
   displayName String   @map("display_name")
+  description String?
   logo        String?
   banner      String?
   createdAt   DateTime @default(now()) @map("created_at")
