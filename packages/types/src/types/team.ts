@@ -1,4 +1,5 @@
 import {
+  TEAM_DESCRIPTION_MAX_LENGTH,
   TEAM_DISPLAY_NAME_REGEX,
   TEAM_NAME_MAX_LENGTH,
   TEAM_NAME_MIN_LENGTH,
@@ -37,6 +38,7 @@ export const TeamSchema = z.object({
       error:
         "Team name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
+  description: z.string().trim().max(TEAM_DESCRIPTION_MAX_LENGTH).optional(),
   logo: z
     .url({ error: "Team logo is must be a URL pointing to an image." })
     .trim()
@@ -71,6 +73,7 @@ export const TeamViewModelSchema = TeamSchema.pick({
   id: true,
   name: true,
   displayName: true,
+  description: true,
   members: true,
   logo: true,
   banner: true,
