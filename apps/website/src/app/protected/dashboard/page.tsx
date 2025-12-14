@@ -15,7 +15,7 @@ export default async function Dashboard() {
           This is a dashboard!
         </p>
       </div>
-      <pre className="text-pretty break-words rounded-md bg-neutral-300 p-8 dark:bg-neutral-700">
+      <pre className="rounded-md bg-neutral-300 p-8 text-pretty break-words dark:bg-neutral-700">
         {JSON.stringify(user, null, 2)}
       </pre>
       <div className="flex items-center justify-center gap-4">

@@ -38,10 +38,10 @@ import { HubsModule } from "./hubs/hubs.module";
 import { TitlesController } from "./titles/titles.controller";
 import { TitlesService } from "./titles/titles.service";
 import { TitleModule } from "./titles/titles.module";
-import { StagesModule } from './stages/stages.module';
-import { MatchesModule } from './matches/matches.module';
-import { EventsModule } from './events/events.module';
-import { PhasesModule } from './phases/phases.module';
+import { StagesModule } from "./stages/stages.module";
+import { MatchesModule } from "./matches/matches.module";
+import { EventsModule } from "./events/events.module";
+import { PhasesModule } from "./phases/phases.module";
 
 @Module({
   imports: [

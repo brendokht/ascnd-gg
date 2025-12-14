@@ -190,7 +190,7 @@ export default function InvitesList({
       </TabsList>
       <TabsContent value="team">
         {teamInvites && teamInvites.length > 0 ? (
-          <ScrollArea className="bg-muted/50 h-82 flex w-full flex-col gap-4 rounded-md px-4 py-2">
+          <ScrollArea className="bg-muted/50 flex h-82 w-full flex-col gap-4 rounded-md px-4 py-2">
             <ItemGroup className="gap-4">
               {teamInvites.map((teamInvite) => {
                 return (
@@ -276,7 +276,7 @@ export default function InvitesList({
       </TabsContent>
       <TabsContent value="hub">
         {hubInvites && hubInvites.length > 0 ? (
-          <ScrollArea className="bg-muted/50 h-82 flex w-full flex-col gap-4 rounded-md px-4 py-2">
+          <ScrollArea className="bg-muted/50 flex h-82 w-full flex-col gap-4 rounded-md px-4 py-2">
             <ItemGroup className="gap-4">
               {hubInvites.map((hubInvite) => {
                 return (

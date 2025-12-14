@@ -81,18 +81,16 @@ export function MultiSelect({
           aria-expanded={open}
           className="hover:bg-background w-full justify-between bg-transparent"
         >
-          <div className="flex max-h-[2.5rem] flex-wrap items-center gap-1 overflow-hidden">
+          <div className="flex max-h-10 flex-wrap items-center gap-1 overflow-hidden">
             {selected.length > 0 ? (
               <>
                 {displayedBadges.map((option) => (
                   <Badge
                     key={option.value}
                     variant="secondary"
-                    className="animate-in fade-in zoom-in-95 mb-0 mr-1 flex items-center gap-1 transition-all duration-200 hover:opacity-90 hover:shadow-md"
+                    className="animate-in fade-in zoom-in-95 mr-1 mb-0 flex items-center gap-1 transition-all duration-200 hover:opacity-90 hover:shadow-md"
                   >
-                    <span className="max-w-[4rem] truncate">
-                      {option.label}
-                    </span>
+                    <span className="max-w-16 truncate">{option.label}</span>
                     <div
                       className="ring-offset-background focus:ring-ring group ml-1 shrink-0 rounded-full outline-none focus:ring-2 focus:ring-offset-2"
                       onKeyDown={(e) => {
@@ -111,7 +109,7 @@ export function MultiSelect({
                   </Badge>
                 ))}
                 {overflowCount > 0 && (
-                  <Badge variant="outline" className="mb-0 mr-1">
+                  <Badge variant="outline" className="mr-1 mb-0">
                     +{overflowCount} more
                   </Badge>
                 )}
@@ -123,7 +121,7 @@ export function MultiSelect({
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-w-lg p-0">
+      <PopoverContent className="w-(--radix-popover-trigger-width) max-w-lg p-0">
         <Command>
           <CommandInput
             placeholder="Search..."
