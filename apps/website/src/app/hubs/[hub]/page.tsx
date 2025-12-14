@@ -49,6 +49,9 @@ export default async function HubProfile(props: PageProps<"/hubs/[hub]">) {
         </AvatarFallback>
       </Avatar>
       <h1 className="text-2xl font-semibold">{hubData.displayName}</h1>
+      {hubData.description && (
+        <p className="text-muted-foreground text-sm">{hubData.description}</p>
+      )}
       {hubData.createdAt && (
         <p className="text-muted-foreground text-sm">
           Hub active on Ascnd GG since{" "}

@@ -2,8 +2,8 @@
 
 import {
   editTeamSchema,
+  type TeamViewModel,
   type EditTeam,
-  type TeamSummary,
 } from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
@@ -25,12 +25,13 @@ import { FileUploadDialog } from "../dialogs/file-upload-dialog";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Spinner } from "@ascnd-gg/ui/components/ui/spinner";
+import { Textarea } from "@ascnd-gg/ui/components/ui/textarea";
 
 export default function EditTeamForm({
   team,
   callback,
 }: {
-  team: TeamSummary;
+  team: TeamViewModel;
   callback?: () => void;
 }) {
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function EditTeamForm({
     resolver: zodResolver(editTeamSchema),
     defaultValues: {
       displayName: team?.displayName ?? "",
+      description: team?.description ?? "",
     },
     mode: "onChange",
   });
@@ -118,6 +120,20 @@ export default function EditTeamForm({
                 <FormDescription>Your team&apos;s name</FormDescription>
                 <FormControl>
                   <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Team Description</FormLabel>
+                <FormDescription>Your team&apos;s description</FormDescription>
+                <FormControl>
+                  <Textarea className="max-h-36" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

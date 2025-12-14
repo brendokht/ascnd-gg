@@ -1,4 +1,4 @@
-import { type HubSummary } from "@ascnd-gg/types";
+import { type HubViewModel } from "@ascnd-gg/types";
 import { fetchApi } from "@ascnd-gg/website/lib/fetch-utils";
 import { headers } from "next/headers";
 import HubsList from "./hubs-list";
@@ -10,7 +10,7 @@ export default async function Hubs() {
 
   const user = session.user;
 
-  const { data: hubs, error } = await fetchApi<Array<HubSummary>>(
+  const { data: hubs, error } = await fetchApi<Array<HubViewModel>>(
     "/me/hubs",
     await headers(),
   );

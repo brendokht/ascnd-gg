@@ -1,6 +1,10 @@
 "use client";
 
-import { editHubSchema, type EditHub, type HubSummary } from "@ascnd-gg/types";
+import {
+  editHubSchema,
+  type HubViewModel,
+  type EditHub,
+} from "@ascnd-gg/types";
 import { Button } from "@ascnd-gg/ui/components/ui/button";
 import {
   Form,
@@ -21,12 +25,13 @@ import { FileUploadDialog } from "../dialogs/file-upload-dialog";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Spinner } from "@ascnd-gg/ui/components/ui/spinner";
+import { Textarea } from "@ascnd-gg/ui/components/ui/textarea";
 
 export default function EditHubForm({
   hub,
   callback,
 }: {
-  hub: HubSummary;
+  hub: HubViewModel;
   callback?: () => void;
 }) {
   const router = useRouter();
@@ -35,6 +40,7 @@ export default function EditHubForm({
     resolver: zodResolver(editHubSchema),
     defaultValues: {
       displayName: hub?.displayName ?? "",
+      description: hub?.description ?? "",
     },
     mode: "onChange",
   });
@@ -66,6 +72,8 @@ export default function EditHubForm({
 
     if (form.formState.dirtyFields.displayName)
       formData.append("displayName", values.displayName ?? "");
+    if (form.formState.dirtyFields.description)
+      formData.append("description", values.description ?? "");
     if (form.formState.dirtyFields.logo)
       formData.append("logo", values.logo ?? new Blob());
     if (form.formState.dirtyFields.banner)
@@ -112,6 +120,20 @@ export default function EditHubForm({
                 <FormDescription>Your hub&apos;s name</FormDescription>
                 <FormControl>
                   <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hub Description</FormLabel>
+                <FormDescription>Your hub&apos;s description</FormDescription>
+                <FormControl>
+                  <Textarea className="max-h-36" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

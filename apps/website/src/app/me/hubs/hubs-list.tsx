@@ -1,6 +1,6 @@
 "use client";
 
-import { type HubSummary } from "@ascnd-gg/types";
+import { type HubViewModel } from "@ascnd-gg/types";
 import {
   Avatar,
   AvatarFallback,
@@ -29,7 +29,7 @@ export default function HubsList({
   hubs,
   userId,
 }: {
-  hubs: Array<HubSummary>;
+  hubs: Array<HubViewModel>;
   userId: string;
 }) {
   const isMobile = useIsMobile();
