@@ -1,4 +1,5 @@
 import {
+  HUB_DESCRIPTION_MAX_LENGTH,
   HUB_DISPLAY_NAME_REGEX,
   HUB_NAME_MAX_LENGTH,
   HUB_NAME_MIN_LENGTH,
@@ -37,6 +38,7 @@ export const HubSchema = z.object({
       error:
         "Hub name can only contain alphanumeric characters, spaces, underscores, dots, and dashes, and must contain at least 1 letter.",
     }),
+  description: z.string().trim().max(HUB_DESCRIPTION_MAX_LENGTH).optional(),
   logo: z
     .url({ error: "Hub logo is must be a URL pointing to an image." })
     .trim()
@@ -71,6 +73,7 @@ export const HubViewModelSchema = HubSchema.pick({
   id: true,
   name: true,
   displayName: true,
+  description: true,
   members: true,
   logo: true,
   banner: true,

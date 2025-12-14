@@ -3,16 +3,18 @@ import { TeamSchema } from "../types";
 import { createZodDto } from "nestjs-zod";
 
 export const createTeamSchema = z.object({
-  ...TeamSchema.pick({ displayName: true }).partial({
+  ...TeamSchema.pick({ displayName: true, description: true }).partial({
     displayName: true,
+    description: true,
   }).shape,
   logo: z.instanceof(Blob).nullish(),
   banner: z.instanceof(Blob).nullish(),
 });
 
 export const editTeamSchema = z.object({
-  ...TeamSchema.pick({ displayName: true }).partial({
+  ...TeamSchema.pick({ displayName: true, description: true }).partial({
     displayName: true,
+    description: true,
   }).shape,
   logo: z.instanceof(Blob).nullish(),
   banner: z.instanceof(Blob).nullish(),

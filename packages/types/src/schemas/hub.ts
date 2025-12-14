@@ -4,16 +4,18 @@ import { createZodDto } from "nestjs-zod";
 
 // TODO: Make displayName required
 export const createHubSchema = z.object({
-  ...HubSchema.pick({ displayName: true }).partial({
+  ...HubSchema.pick({ displayName: true, description: true }).partial({
     displayName: true,
+    description: true,
   }).shape,
   logo: z.instanceof(Blob).nullish(),
   banner: z.instanceof(Blob).nullish(),
 });
 
 export const editHubSchema = z.object({
-  ...HubSchema.pick({ displayName: true }).partial({
+  ...HubSchema.pick({ displayName: true, description: true }).partial({
     displayName: true,
+    description: true,
   }).shape,
   logo: z.instanceof(Blob).nullish(),
   banner: z.instanceof(Blob).nullish(),
