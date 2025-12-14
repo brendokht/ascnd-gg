@@ -301,7 +301,7 @@ export default function CreateEventForm({
           >
             {stepper.all.map((step, index, array) => (
               <Fragment key={step.id}>
-                <li className="flex flex-shrink-0 items-center gap-4">
+                <li className="flex shrink-0 items-center gap-4">
                   <Button
                     type="button"
                     role="tab"
@@ -598,17 +598,18 @@ function StagesForm({
 }) {
   const formContext = useFormContext<StagesData>();
 
+  const stageValues = formContext.watch("stages");
+
   useEffect(() => {
     /**
      * Errors are hidden when user goes back a step and then goes forward again
      * This simply triggers re-validation when the user has a stage inputted,
      * ensuring they see any errors
      */
-    const values = formContext.getValues("stages");
-    if (values) {
+    if (stageValues) {
       formContext.trigger("stages");
     }
-  }, [formContext.getValues("stages")]);
+  }, [stageValues, formContext]);
 
   const stagesArray = useFieldArray({
     control: formContext.control,
@@ -1002,7 +1003,7 @@ function StageSettingsDialog({
           Stage Settings for Stage {idx + 1}
         </DialogDescription>
         <ScrollArea type="always" className="h-102">
-          <div className="ml-1 mr-4 space-y-4">
+          <div className="mr-4 ml-1 space-y-4">
             <FormField
               control={formContext.control}
               name={`stages.${idx}.stageSettings.allowDraws`}
@@ -1651,23 +1652,20 @@ function PhasesDialog({
     [lastClickedIndex, selectedRounds],
   );
 
-  const handleSetFormat = useCallback(
-    (formatId: string) => {
-      selectedRounds.forEach((index) => {
-        formContext.setValue(
-          `stages.${stageIdx}.phases.${index}.formatId`,
-          formatId,
-          { shouldDirty: true, shouldValidate: true },
-        );
-      });
-    },
-    [selectedRounds, formContext],
-  );
+  const handleSetFormat = (formatId: string) => {
+    selectedRounds.forEach((index) => {
+      formContext.setValue(
+        `stages.${stageIdx}.phases.${index}.formatId`,
+        formatId,
+        { shouldDirty: true, shouldValidate: true },
+      );
+    });
+  };
 
-  const handleClearSelection = useCallback(() => {
+  const handleClearSelection = () => {
     setSelectedRounds(new Set());
     setLastClickedIndex(null);
-  }, []);
+  };
 
   const getFormatName = (index: number) => {
     return matchFormats?.find(
@@ -1742,7 +1740,7 @@ function PhasesDialog({
           )}
         </div>
         <div className="relative" ref={railRef}>
-          <div className="bg-border absolute left-4 right-4 top-1/2 h-0.5 -translate-y-1/2" />
+          <div className="bg-border absolute top-1/2 right-4 left-4 h-0.5 -translate-y-1/2" />
           <div className="relative flex flex-wrap items-center justify-center gap-x-2 gap-y-4">
             {rounds.map((round, index) => {
               const isSelected = selectedRounds.has(index);
@@ -1755,7 +1753,7 @@ function PhasesDialog({
                     onClick={(e) => handleChipClick(index, e)}
                     className={cn(
                       "bg-card relative flex size-20 flex-col items-center justify-evenly gap-1 rounded-xl border-2 px-4 py-3 transition-all duration-150",
-                      "focus:ring-ring hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2",
+                      "focus:ring-ring hover:shadow-md focus:ring-2 focus:ring-offset-2 focus:outline-none",
                       isSelected
                         ? "border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-500/20 dark:bg-blue-950/50"
                         : "border-border hover:border-muted-foreground/30",
@@ -1763,7 +1761,7 @@ function PhasesDialog({
                   >
                     <span
                       className={cn(
-                        "whitespace-nowrap text-sm font-semibold",
+                        "text-sm font-semibold whitespace-nowrap",
                         isSelected
                           ? "text-blue-700 dark:text-blue-300"
                           : "text-foreground",
@@ -1783,7 +1781,7 @@ function PhasesDialog({
                     </span>
                   </button>
                   {!isLast && (
-                    <ChevronRight className="text-muted-foreground mx-1 h-4 w-4 flex-shrink-0" />
+                    <ChevronRight className="text-muted-foreground mx-1 h-4 w-4 shrink-0" />
                   )}
                 </div>
               );
