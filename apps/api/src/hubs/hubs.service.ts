@@ -45,6 +45,7 @@ export class HubsService {
         const { id: newHubId, name: newHubName } = await tx.hub.create({
           data: {
             displayName: createHubDto.displayName,
+            description: createHubDto.description,
             name: createHubDto.displayName.toLowerCase(),
             hubOwner: { connect: { id: user.id } },
             members: {
@@ -136,6 +137,7 @@ export class HubsService {
         } = await tx.hub.update({
           data: {
             displayName: editHubDto.displayName ?? undefined,
+            description: editHubDto.description ?? undefined,
             name: editHubDto.displayName
               ? editHubDto.displayName.toLowerCase()
               : undefined,
@@ -243,6 +245,7 @@ export class HubsService {
         id: true,
         name: true,
         displayName: true,
+        description: true,
         logo: true,
         banner: true,
         createdAt: true,
@@ -263,6 +266,7 @@ export class HubsService {
       id: hubSelect.id,
       name: hubSelect.name,
       displayName: hubSelect.displayName,
+      description: hubSelect.description,
       logo: hubSelect.logo,
       banner: hubSelect.banner,
       members: hubSelect.members.map(({ user }) => {
@@ -290,6 +294,7 @@ export class HubsService {
         id: true,
         name: true,
         displayName: true,
+        description: true,
         logo: true,
         banner: true,
         createdAt: true,
@@ -310,6 +315,7 @@ export class HubsService {
       id: hubSelect.id,
       name: hubSelect.name,
       displayName: hubSelect.displayName,
+      description: hubSelect.description,
       logo: hubSelect.logo,
       banner: hubSelect.banner,
       members: hubSelect.members.map(({ user }) => {
